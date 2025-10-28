@@ -1,0 +1,9 @@
+# Treat form FRX files as binary
+*.frx binary
+
+# Standard text files
+*.bas text
+*.cls text
+*.frm text
+*.txt text
+*.md text

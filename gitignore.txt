@@ -1,0 +1,24 @@
+# Disallow Excel binary workbooks and other generated/binary artifacts
+*.xlsm
+*.xlsb
+*.xlsx
+*.xlk
+*.xlam
+
+# Keys, logs, and local environment
+apikey.dat
+*.log
+*.cache
+*.tmp
+
+# Export/backups
+code\ bak/
+code bak/
+ExportedModules/
+*.bak
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
