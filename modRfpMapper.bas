@@ -58,7 +58,7 @@ Public Function MapRfpJsonToReviewModel(ByVal rfpJson As String) As Object
     Set fin("subconsultants") = GetArrayOrDefault(ai, "fee.subconsultants")
     
     On Error Resume Next
-    ComputeFee fin
+    modFeeEngine.ComputeFee fin
     On Error GoTo MapError
 
     ' ---- experience ----
@@ -88,33 +88,34 @@ Public Function MapRfpJsonToReviewModel(ByVal rfpJson As String) As Object
     Debug.Print "Methodology Type: "; TypeName(ai("methodology"))
     
     ' Generate section content with error protection for each
+    ' Generate section content with error protection for each
     On Error Resume Next
     
-    secs("cover_letter")("contentSuggested") = Draft_CoverLetter(md)
+    secs("cover_letter")("contentSuggested") = modSectionSynthesis.Draft_CoverLetter(md)
     If Err.Number <> 0 Then Debug.Print "Error in Draft_CoverLetter: " & Err.Description: Err.Clear
     
-    secs("project_understanding")("contentSuggested") = Draft_ProjectUnderstanding(md, SafeGetDict(ai, "understanding"))
+    secs("project_understanding")("contentSuggested") = modSectionSynthesis.Draft_ProjectUnderstanding(md, SafeGetDict(ai, "understanding"))
     If Err.Number <> 0 Then Debug.Print "Error in Draft_ProjectUnderstanding: " & Err.Description: Err.Clear
     
-    secs("methodology")("contentSuggested") = Draft_Methodology(GetS(ai, "methodology.text"))
+    secs("methodology")("contentSuggested") = modSectionSynthesis.Draft_Methodology(GetS(ai, "methodology.text"))
     If Err.Number <> 0 Then Debug.Print "Error in Draft_Methodology: " & Err.Description: Err.Clear
     
-    secs("scope_deliverables")("contentSuggested") = Draft_ScopeAndDeliverables(SafeGetDict(ai, "scope"))
+    secs("scope_deliverables")("contentSuggested") = modSectionSynthesis.Draft_ScopeAndDeliverables(SafeGetDict(ai, "scope"))
     If Err.Number <> 0 Then Debug.Print "Error in Draft_ScopeAndDeliverables: " & Err.Description: Err.Clear
     
-    secs("schedule")("contentSuggested") = Draft_Schedule(sch)
+    secs("schedule")("contentSuggested") = modSectionSynthesis.Draft_Schedule(sch)
     If Err.Number <> 0 Then Debug.Print "Error in Draft_Schedule: " & Err.Description: Err.Clear
     
-    secs("team")("contentSuggested") = Draft_Team(team)
+    secs("team")("contentSuggested") = modSectionSynthesis.Draft_Team(team)
     If Err.Number <> 0 Then Debug.Print "Error in Draft_Team: " & Err.Description: Err.Clear
     
-    secs("financial")("contentSuggested") = Draft_Financial(fin)
+    secs("financial")("contentSuggested") = modSectionSynthesis.Draft_Financial(fin)
     If Err.Number <> 0 Then Debug.Print "Error in Draft_Financial: " & Err.Description: Err.Clear
     
-    secs("relevant_experience")("contentSuggested") = Draft_Experience(exp)
+    secs("relevant_experience")("contentSuggested") = modSectionSynthesis.Draft_Experience(exp)
     If Err.Number <> 0 Then Debug.Print "Error in Draft_Experience: " & Err.Description: Err.Clear
     
-    secs("assumptions_exclusions")("contentSuggested") = Draft_AssumptionsExclusions(GetS(ai, "assumptions.defaultText"))
+    secs("assumptions_exclusions")("contentSuggested") = modSectionSynthesis.Draft_AssumptionsExclusions(GetS(ai, "assumptions.defaultText"))
     If Err.Number <> 0 Then Debug.Print "Error in Draft_AssumptionsExclusions: " & Err.Description: Err.Clear
     
     On Error GoTo 0

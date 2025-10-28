@@ -20,7 +20,7 @@ Public Sub Rescue_ExportAll(Optional ByVal exportFolder As String = "")
     
     If Right$(exportFolder, 1) <> "\" Then exportFolder = exportFolder & "\"
     
-    Set vbProj = Application.VBE.ActiveVBProject
+    Set vbProj = Application.vbe.ActiveVBProject
     
     For Each comp In vbProj.VBComponents
         Select Case comp.Type
@@ -89,7 +89,7 @@ Public Sub Rescue_DumpLiveForms()
 End Sub
 
 Public Sub Rescue_RemoveReviewForms()
-    Dim vbProj As VBIDE.VBProject: Set vbProj = Application.VBE.ActiveVBProject
+    Dim vbProj As VBIDE.VBProject: Set vbProj = Application.vbe.ActiveVBProject
     On Error Resume Next
     vbProj.VBComponents.Remove vbProj.VBComponents("frmReviewFinalize")
     vbProj.VBComponents.Remove vbProj.VBComponents("frmDiffViewer")

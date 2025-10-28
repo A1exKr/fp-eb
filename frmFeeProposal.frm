@@ -13,9 +13,10 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
-
 Option Explicit
+
+' Store the AI response JSON at module level
+Private mRfpAnalysisJson As String
 
 ' Event handler for cmdExit: Exits the program
 Private Sub cmdExit_Click()
@@ -31,20 +32,11 @@ Private Sub cmdExit_Click()
     End If
 End Sub
 
-
-
-
-
-
-
 Private Sub cmdRelExp_Click()
-
     Call frmSearchForm.InitializeSearchForm
     Debug.Print "3 InitializeSearchForm"
     frmSearchForm.Show
-
 End Sub
-
 
 Function GetSortedPDFFiles(folderPath As String) As Collection
     Dim fso As Object
@@ -91,8 +83,6 @@ Function GetSortedPDFFiles(folderPath As String) As Collection
     Set GetSortedPDFFiles = pdfFiles
 End Function
 
-
-
 Public Sub UserForm_Initialize()
     ' Initialize the UserForm
     ' Hide the status label initially
@@ -104,8 +94,9 @@ Public Sub UserForm_Initialize()
     cmdReviewFinalize.Visible = False
     optPPT.Visible = False
     optINDD.Visible = False
-
     
+    ' Clear any previous data
+    mRfpAnalysisJson = ""
 End Sub
 
 ' Helper function to force scroll bars to appear
@@ -153,6 +144,10 @@ Private Sub cmdUploadRFP_Click()
         Me.txtRFPPath.text = filePath
         ' Make the Analyse button visible/enabled
         Me.cmdAnalyseRFP.Visible = True
+        
+        ' Clear any previous analysis when new file is selected
+        mRfpAnalysisJson = ""
+        Me.cmdReviewFinalize.Visible = False
     Else
         MsgBox "No file selected.", vbInformation, "Upload RFP"
     End If
@@ -161,7 +156,7 @@ Private Sub cmdUploadRFP_Click()
     Set fd = Nothing
 End Sub
 
-' Event handler for cmdAnalyseRFP: Initiates RFP analysis
+' Event handler for cmdAnalyseRFP: Initiates RFP analysis (ONE AI CALL - GETS ALL DATA)
 Private Sub cmdAnalyseRFP_Click()
     ' Disable buttons to prevent multiple clicks
     Me.cmdAnalyseRFP.Enabled = False
@@ -172,7 +167,7 @@ Private Sub cmdAnalyseRFP_Click()
     Me.txtRFPsyn.text = ""
     
     ' Display the status message
-    Me.lblStatus.Caption = "Awaiting response..."
+    Me.lblStatus.Caption = "Analyzing RFP and preparing all data..."
     Me.lblStatus.Visible = True
     
     ' Refresh the UI to show the status message
@@ -189,62 +184,21 @@ Private Sub cmdAnalyseRFP_Click()
     Me.cmdReviewFinalize.Enabled = True
     Me.cmdUploadRFP.Enabled = True
     Me.cmdExit.Enabled = True
-    
     Me.optPPT.Enabled = True
     Me.optINDD.Enabled = True
-    
 End Sub
 
-' Event handler for cmdReviewFinalize: Initiates PPT generation
-Private Sub cmdGeneratePPT_Click()
-    ' Disable buttons to prevent multiple clicks
-    Me.cmdReviewFinalize.Enabled = False
-    Me.cmdAnalyseRFP.Enabled = False
-    Me.cmdUploadRFP.Enabled = False
-    Me.cmdExit.Enabled = False
-    Me.optPPT.Enabled = False
-    Me.optINDD.Enabled = False
-    
-    
-    
-    
-    ' Display the status message
-    Me.lblStatus.Caption = "Generating a Fee Proposal..."
-    Me.lblStatus.Visible = True
-    
-    ' Refresh the UI to show the status message
-    DoEvents
-    
-    If frmFeeProposal.optINDD.value Then
-       ' Call RunGenerateINDD
-    Else
-        ' Call the PPT generation subroutine
-        Call RunGeneratePPT
-    End If
-    
-
-    
-    ' Hide the status message after processing
-    Me.lblStatus.Visible = False
-    
-    ' Re-enable buttons
-    Me.cmdReviewFinalize.Enabled = True
-    Me.cmdAnalyseRFP.Enabled = True
-    Me.cmdUploadRFP.Enabled = True
-    
-    Me.optINDD.Enabled = True
-    Me.cmdUploadRFP.Enabled = True
-    
-End Sub
-
+' Event handler for cmdReviewFinalize: Opens review window (NO AI CALL - USES STORED DATA)
 Private Sub cmdReviewFinalize_Click()
     On Error GoTo ErrHandler
     
     Debug.Print "=== cmdReviewFinalize_Click START ==="
     
-    Dim filePath As String
-    Dim fileText As String
-    Dim fileExt As String
+    ' Check if we have parsed data
+    If Len(mRfpAnalysisJson) = 0 Then
+        MsgBox "Please analyze the RFP first by clicking 'Analyse RFP'.", vbExclamation
+        Exit Sub
+    End If
 
     ' Disable buttons during processing
     Me.cmdReviewFinalize.Enabled = False
@@ -256,48 +210,9 @@ Private Sub cmdReviewFinalize_Click()
     Me.lblStatus.Visible = True
     DoEvents
 
-    ' Get file path
-    filePath = Me.txtRFPPath.text
-    Debug.Print "File path: " & filePath
-    
-    If Len(filePath) = 0 Then
-        MsgBox "Please upload an RFP file first.", vbExclamation
-        GoTo CleanExit
-    End If
-
-    ' Extract text based on file type
-    fileExt = LCase$(Mid$(filePath, InStrRev(filePath, ".") + 1))
-    Debug.Print "File extension: " & fileExt
-    
-    Select Case fileExt
-        Case "docx"
-            Debug.Print "Reading Word document..."
-            fileText = ReadWordDocument(filePath)
-        Case "pdf"
-            Debug.Print "Reading PDF document..."
-            fileText = ReadPDFDocument(filePath)
-        Case "ppt", "pptx"
-            Debug.Print "Reading PowerPoint document..."
-            fileText = ReadPowerPointDocument(filePath)
-        Case Else
-            MsgBox "Unsupported file format: " & fileExt, vbExclamation
-            GoTo CleanExit
-    End Select
-    
-    Debug.Print "Extracted text length: " & Len(fileText)
-    
-    If Len(fileText) = 0 Then
-        MsgBox "Could not extract text from file.", vbExclamation
-        GoTo CleanExit
-    End If
-
-    ' Update status
-    Me.lblStatus.Caption = "Calling AI to parse RFP..."
-    DoEvents
-
-    ' Pass the extracted text to Parser
-    Debug.Print "Calling Parser.ParseAndOpenReview..."
-    Parser.ParseAndOpenReview fileText
+    ' Use the stored JSON data - NO AI CALL HERE!
+    Debug.Print "Opening review with stored JSON data (length: " & Len(mRfpAnalysisJson) & ")"
+    modReviewBridge.OpenReviewWithJson mRfpAnalysisJson
     
     Debug.Print "=== cmdReviewFinalize_Click END ==="
     
@@ -315,18 +230,50 @@ ErrHandler:
     GoTo CleanExit
 End Sub
 
+' Event handler for cmdGeneratePPT: Initiates PPT generation
+Private Sub cmdGeneratePPT_Click()
+    ' Disable buttons to prevent multiple clicks
+    Me.cmdReviewFinalize.Enabled = False
+    Me.cmdAnalyseRFP.Enabled = False
+    Me.cmdUploadRFP.Enabled = False
+    Me.cmdExit.Enabled = False
+    Me.optPPT.Enabled = False
+    Me.optINDD.Enabled = False
+    
+    ' Display the status message
+    Me.lblStatus.Caption = "Generating a Fee Proposal..."
+    Me.lblStatus.Visible = True
+    
+    ' Refresh the UI to show the status message
+    DoEvents
+    
+    If frmFeeProposal.optINDD.value Then
+       ' Call RunGenerateINDD
+    Else
+        ' Call the PPT generation subroutine
+        Call RunGeneratePPT
+    End If
+    
+    ' Hide the status message after processing
+    Me.lblStatus.Visible = False
+    
+    ' Re-enable buttons
+    Me.cmdReviewFinalize.Enabled = True
+    Me.cmdAnalyseRFP.Enabled = True
+    Me.cmdUploadRFP.Enabled = True
+    Me.optINDD.Enabled = True
+    Me.cmdUploadRFP.Enabled = True
+End Sub
 
-' Processing Subroutine for RFP Analysis
+' Processing Subroutine for RFP Analysis - MAKES THE SINGLE AI CALL
 Public Sub RunRFPAnalysis()
     On Error GoTo ErrorHandler
     
     Debug.Print "=== RunRFPAnalysis START ==="
     
-    ' Existing RFP processing code
     Dim filePath As String
     Dim readFile As String
     Dim fileExtension As String
-    Dim parsedData As Object
     
     filePath = Me.txtRFPPath.text
     fileExtension = LCase(Right(filePath, Len(filePath) - InStrRev(filePath, ".")))
@@ -348,24 +295,68 @@ Public Sub RunRFPAnalysis()
     
     Debug.Print "Extracted text length: " & Len(readFile)
     
-    ' Step 2: Parse Extracted Text using ChatGPT API
-    ' NOTE: This creates the OLD dictionary format for quick preview only
-    Set parsedData = ParseRFPText(readFile)
+    If Len(readFile) = 0 Then
+        MsgBox "Could not extract text from the document.", vbExclamation
+        GoTo ErrorHandler
+    End If
     
-    ' Update the public variable to use in other functions
-    Set parsedDataSet = parsedData
+    ' Step 2: Call AI ONCE to get complete JSON with ALL data needed for review
+    Debug.Print "Calling AI to parse RFP comprehensively..."
+    Me.lblStatus.Caption = "Calling AI to parse entire RFP..."
+    DoEvents
     
-    ' Show quick preview in the form
+    ' Call the comprehensive parser that returns the full JSON structure
+    ' This should be the SAME call that Parser.ParseAndOpenReview uses
+    mRfpAnalysisJson = Parser.ParseRFPToJson(readFile)
+    
+    Debug.Print "AI parsing complete. JSON length: " & Len(mRfpAnalysisJson)
+    
+    ' Step 3: For backward compatibility, also create the old dictionary format
+    ' (if your old code still needs parsedDataSet)
+    Set parsedDataSet = ParseRFPText(readFile)
+    
+    ' Step 4: Show quick preview in the form
     Me.txtRFPsyn.Visible = True
     
-    ' Try to show executive summary if available
+    ' Try to extract a summary from the JSON for preview
     On Error Resume Next
-    If parsedData.Exists("understanding.understanding") Then
-        Me.txtRFPsyn.text = parsedData("understanding.understanding")
-    ElseIf parsedData.Exists("Executive Summary") Then
-        Me.txtRFPsyn.text = parsedData("Executive Summary")
+    Dim tempDict As Object
+    Set tempDict = JsonConverter.ParseJSON(mRfpAnalysisJson)
+    
+    If Not tempDict Is Nothing Then
+        ' Try to get understanding or executive summary
+        Dim summary As String
+        summary = ""
+        
+        ' Try various paths to get a preview
+        If tempDict.Exists("understanding") Then
+            If TypeName(tempDict("understanding")) = "Dictionary" Then
+                If tempDict("understanding").Exists("text") Then
+                    summary = tempDict("understanding")("text")
+                End If
+            ElseIf TypeName(tempDict("understanding")) = "String" Then
+                summary = tempDict("understanding")
+            End If
+        End If
+        
+        If Len(summary) = 0 And tempDict.Exists("project") Then
+            If TypeName(tempDict("project")) = "Dictionary" Then
+                If tempDict("project").Exists("name") Then
+                    summary = "Project: " & tempDict("project")("name") & vbCrLf
+                End If
+                If tempDict("project").Exists("location") Then
+                    summary = summary & "Location: " & tempDict("project")("location")
+                End If
+            End If
+        End If
+        
+        If Len(summary) > 0 Then
+            Me.txtRFPsyn.text = summary
+        Else
+            Me.txtRFPsyn.text = "RFP analyzed successfully. All data ready for review."
+        End If
     Else
-        Me.txtRFPsyn.text = "Analysis complete. Click 'Review & Finalize' to continue."
+        Me.txtRFPsyn.text = "RFP analyzed successfully. Click 'Review & Finalize' to continue."
     End If
     On Error GoTo ErrorHandler
     
@@ -380,6 +371,8 @@ Public Sub RunRFPAnalysis()
 ErrorHandler:
     Debug.Print "ERROR in RunRFPAnalysis: " & Err.Description
     MsgBox "An error occurred during RFP analysis: " & Err.Description, vbCritical, "Error"
+    ' Clear the stored JSON on error
+    mRfpAnalysisJson = ""
     ' Re-enable buttons in case of error
     Me.cmdAnalyseRFP.Enabled = True
     Me.cmdReviewFinalize.Enabled = True
@@ -410,21 +403,12 @@ ErrorHandler:
     Me.lblStatus.Visible = False
 End Sub
 
-' Example Placeholder for GenerateFeeProposal
-' Rename this subroutine to avoid naming conflicts with the "Generator" module
-Private Sub GenerateFeeProposal_Simulated()
-    ' Simulate processing time
-    Dim i As Long
-    For i = 1 To 1000000
-        DoEvents ' Keep the UI responsive
-    Next i
-    ' Processing complete
-End Sub
-
 ' Ensure proper cleanup when the UserForm is closed
 Private Sub UserForm_Terminate()
     ' Hide the status label
     Me.lblStatus.Visible = False
+    ' Clear stored data
+    mRfpAnalysisJson = ""
 End Sub
 
 ' Functions to Read Documents
@@ -445,13 +429,9 @@ Private Function ReadWordDocument(filePath As String) As String
 End Function
 
 Private Function ReadPDFDocument(filePath As String) As String
-
     Dim txtPath As String
-
     txtPath = GetRelativePath("\test output\document_2.txt")
-    
     ReadPDFDocument = PDFtoTxt.ProcessPDF(filePath, txtPath)
-    
 End Function
 
 Private Function ReadPowerPointDocument(filePath As String) As String
@@ -481,8 +461,3 @@ Private Function ReadPowerPointDocument(filePath As String) As String
     
     ReadPowerPointDocument = content
 End Function
-
-
-
-
-

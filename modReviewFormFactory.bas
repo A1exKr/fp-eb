@@ -1,4 +1,5 @@
 Attribute VB_Name = "modReviewFormFactory"
+'modReviewFormFactory.bas
 Option Explicit
 
 ' ===========
@@ -236,7 +237,7 @@ Public Sub InstallDiffViewerForm()
     Dim frm As VBIDE.vbComponent
     Dim code As VBIDE.CodeModule
 
-    Set vbProj = Application.VBE.ActiveVBProject
+    Set vbProj = Application.vbe.ActiveVBProject
 
     On Error Resume Next
     vbProj.VBComponents.Remove vbProj.VBComponents("frmDiffViewer")
@@ -280,7 +281,9 @@ Public Sub InstallDiffViewerForm()
 End Sub
 
 Public Sub ShowReviewFinalize()
-    frmReviewFinalize.Show
+    Dim frmReview As Object
+    Set frmReview = VBA.UserForms.Add("frmReviewFinalize")
+    frmReview.Show vbModeless
 End Sub
 
 ' Apply Artifact Element, 10pt to any control/container that exposes Font

@@ -1,5 +1,4 @@
 Attribute VB_Name = "Parser"
-
 Option Explicit
 
 ' -------------------------
@@ -140,69 +139,148 @@ Private Function CleanJsonValue(ByVal dict As Object, ByVal key As String) As St
 End Function
 
 
-
 '===========================================================
 ' Direct bridge: parse text and open Review & Finalize screen
 '===========================================================
-Public Sub ParseAndOpenReview(ByVal rfpText As String)
-    Dim chatGPTResponse As String
+
+' Main function: Returns complete JSON for all review data
+Public Function ParseRFPToJson(ByVal rfpText As String) As String
+    On Error GoTo ErrorHandler
+    
     Dim promptFilePath As String
-    Dim rfpJson As String
+    Dim responseText As String
+    Dim jsonResult As String
     
-    On Error GoTo ErrHandler
-    
-    Debug.Print "=== ParseAndOpenReview START ==="
-    
-    ' Path to the file containing prompt text
+    ' Use the same prompt file path as your existing ParseRFPText function
     promptFilePath = GetRelativePath("\prompts\Prompt_all-parse.txt")
-
-    ' Making an API call to ChatGPT
-    Debug.Print "Calling ChatGPT API..."
-    chatGPTResponse = APIModule.CallAPIsyn(rfpText, promptFilePath)
-    Debug.Print "Got API response"
-
-    ' Extract the inner JSON from ChatGPT's response
-    rfpJson = ExtractInnerJson(chatGPTResponse)
-    Debug.Print "Extracted inner JSON, length: " & Len(rfpJson)
     
-    If Len(rfpJson) = 0 Then
-        MsgBox "Failed to extract JSON from API response.", vbExclamation
-        Exit Sub
+    Debug.Print "ParseRFPToJson: Calling API with prompt file: " & promptFilePath
+    
+    ' Call the API using the SAME function as the Analyse button
+    responseText = APIModule.CallAPIsyn(rfpText, promptFilePath)
+    
+    Debug.Print "ParseRFPToJson: Received response length: " & Len(responseText)
+    
+    If Len(responseText) = 0 Then
+        MsgBox "No response received from API.", vbCritical
+        ParseRFPToJson = ""
+        Exit Function
     End If
     
-    ' Hand off to Review & Finalize
-    Debug.Print "Opening Review & Finalize..."
-    modReviewBridge.OpenReviewWithJson rfpJson
+    ' Extract JSON from the API response
+    jsonResult = ExtractJSONFromResponse(responseText)
     
-    Debug.Print "=== ParseAndOpenReview END ==="
-    Exit Sub
+    Debug.Print "ParseRFPToJson: Extracted JSON length: " & Len(jsonResult)
+    
+    ' Validate the JSON before returning
+    If Len(jsonResult) > 0 Then
+        On Error Resume Next
+        Dim testParse As Object
+        Set testParse = JsonConverter.ParseJSON(jsonResult)
+        If Err.Number <> 0 Then
+            Debug.Print "ParseRFPToJson: JSON validation failed: " & Err.Description
+            MsgBox "Failed to parse JSON response. Check the prompt output format.", vbCritical
+            jsonResult = ""
+        End If
+        On Error GoTo ErrorHandler
+    End If
+    
+    ParseRFPToJson = jsonResult
+    Exit Function
 
-ErrHandler:
-    MsgBox "Error in ParseAndOpenReview: " & Err.Description, vbCritical
+ErrorHandler:
+    Debug.Print "ERROR in ParseRFPToJson: " & Err.Description
+    MsgBox "Error parsing RFP: " & Err.Description, vbCritical
+    ParseRFPToJson = ""
+End Function
+
+' Your existing ParseAndOpenReview - keep as is
+Public Sub ParseAndOpenReview(ByVal rfpText As String)
+    Dim jsonResult As String
+    jsonResult = ParseRFPToJson(rfpText)
+    
+    If Len(jsonResult) > 0 Then
+        modReviewBridge.OpenReviewWithJson jsonResult
+    Else
+        MsgBox "Failed to parse RFP text. No data to review.", vbExclamation
+    End If
 End Sub
 
-' New helper function to extract the inner JSON from ChatGPT response
-Private Function ExtractInnerJson(ByVal gptResponse As String) As String
-    On Error GoTo ErrHandler
+' Extract the actual JSON content from ChatGPT API response
+Private Function ExtractJSONFromResponse(ByVal responseText As String) As String
+    On Error GoTo ErrorHandler
     
-    Dim jsonResponse As Object
-    Dim contentText As String
+    Dim jsonObj As Object
+    Dim choices As Object
+    Dim messageContent As String
     
-    ' Remove markdown formatting
-    gptResponse = RemoveMarkdownFormatting(gptResponse)
+    Debug.Print "ExtractJSONFromResponse: Starting extraction..."
     
-    ' Parse the outer JSON response
-    Set jsonResponse = JsonConverter.ParseJSON(gptResponse)
+    ' Parse the API response wrapper
+    Set jsonObj = JsonConverter.ParseJSON(responseText)
     
-    ' Extract the 'content' field (the actual project JSON)
-    contentText = jsonResponse("choices")(1)("message")("content")
+    ' Navigate to choices[0].message.content
+    If jsonObj.Exists("choices") Then
+        Set choices = jsonObj("choices")
+        If choices.Count > 0 Then
+            messageContent = choices(1)("message")("content")
+            
+            Debug.Print "ExtractJSONFromResponse: Raw content length: " & Len(messageContent)
+            
+            ' The content should be the RFP analysis JSON
+            ' Remove markdown code blocks if present
+            messageContent = Trim(messageContent)
+            
+            ' Remove ```json and ``` markers
+            If Left(messageContent, 7) = "```json" Then
+                messageContent = Mid(messageContent, 8)
+                Dim endPos As Long
+                endPos = InStrRev(messageContent, "```")
+                If endPos > 0 Then
+                    messageContent = Left(messageContent, endPos - 1)
+                End If
+                Debug.Print "ExtractJSONFromResponse: Removed ```json markers"
+            ElseIf Left(messageContent, 3) = "```" Then
+                messageContent = Mid(messageContent, 4)
+                endPos = InStrRev(messageContent, "```")
+                If endPos > 0 Then
+                    messageContent = Left(messageContent, endPos - 1)
+                End If
+                Debug.Print "ExtractJSONFromResponse: Removed ``` markers"
+            End If
+            
+            ' Trim whitespace
+            messageContent = Trim(messageContent)
+            
+            ' Additional cleanup: remove any leading/trailing newlines
+            Do While Left(messageContent, 1) = vbLf Or Left(messageContent, 1) = vbCr
+                messageContent = Mid(messageContent, 2)
+            Loop
+            Do While Right(messageContent, 1) = vbLf Or Right(messageContent, 1) = vbCr
+                messageContent = Left(messageContent, Len(messageContent) - 1)
+            Loop
+            
+            Debug.Print "ExtractJSONFromResponse: Cleaned content length: " & Len(messageContent)
+            Debug.Print "ExtractJSONFromResponse: First 200 chars: " & Left(messageContent, 200)
+            
+            ExtractJSONFromResponse = messageContent
+            Exit Function
+        Else
+            Debug.Print "ExtractJSONFromResponse: No choices in response"
+        End If
+    Else
+        Debug.Print "ExtractJSONFromResponse: 'choices' key not found in response"
+    End If
     
-    ExtractInnerJson = contentText
+    ' If we couldn't parse it, return the raw response
+    Debug.Print "ExtractJSONFromResponse: Returning raw response as fallback"
+    ExtractJSONFromResponse = responseText
     Exit Function
-    
-ErrHandler:
-    Debug.Print "Error extracting inner JSON: " & Err.Description
-    ExtractInnerJson = ""
+
+ErrorHandler:
+    Debug.Print "ERROR in ExtractJSONFromResponse: " & Err.Description
+    ' Return raw response on error
+    ExtractJSONFromResponse = responseText
 End Function
 
 
@@ -224,7 +302,7 @@ Public Function ParseRFPText(rfpText As String) As Object
     
     ' Dynamically extract items from the GPT response
     Call DynamicExtractItems(chatGPTResponse, parsedData)
-Debug.Print "Cleaned GPT Response: " & chatGPTResponse
+    Debug.Print "Cleaned GPT Response: " & chatGPTResponse
     
     ' Return the parsed data
     Set ParseRFPText = parsedData
@@ -239,35 +317,36 @@ Sub DynamicExtractItems(gptResponse As String, ByRef parsedData As Object)
 
     ' Remove surrounding markdown formatting (```json\n...\n```)
     gptResponse = RemoveMarkdownFormatting(gptResponse)
-Debug.Print "gptResponse = RemoveMarkdownFormatting(gptResponse)"
+    Debug.Print "gptResponse = RemoveMarkdownFormatting(gptResponse)"
 
     ' Parse the JSON response using JsonConverter
     Set jsonResponse = JsonConverter.ParseJSON(gptResponse)
-Debug.Print "Set jsonResponse"
+    Debug.Print "Set jsonResponse"
 
     ' Extract the 'content' field
     contentText = jsonResponse("choices")(1)("message")("content")
-Debug.Print "contentText " & contentText
+    Debug.Print "contentText " & contentText
+    
     ' Parse the inner JSON content
     Set innerJson = JsonConverter.ParseJSON(contentText)
-Debug.Print "5 innerJson "
+    Debug.Print "5 innerJson "
 
     ' Initialize parsedData if not already initialized
     If parsedData Is Nothing Then
         Set parsedData = CreateObject("Scripting.Dictionary")
     End If
-Debug.Print "6  "
+    Debug.Print "6  "
 
     ' Process the innerJson dictionary
     ProcessDictionary innerJson, parsedData
     
     Debug.Print "=== Parsed Data Keys ==="
-Dim debugKey As Variant
-For Each debugKey In parsedData.keys
-    Debug.Print debugKey & " = " & Left(parsedData(debugKey), 50)
-Next
+    Dim debugKey As Variant
+    For Each debugKey In parsedData.keys
+        Debug.Print debugKey & " = " & Left(parsedData(debugKey), 50)
+    Next
 
-Debug.Print "7  "
+    Debug.Print "7  "
 
     Exit Sub
 
@@ -289,8 +368,6 @@ Private Function BuildNestedString__(ByVal dict As Variant, Optional indent As S
 
     BuildNestedString__ = result
 End Function
-
-
 
 Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object)
     On Error GoTo ErrorHandler
@@ -376,62 +453,62 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object)
     Set parsedData = CreateObject("Scripting.Dictionary")
     ' Step 7: Process each project in the collection
     projectIndex = 1
-For Each projectItem In innerJson
-    ' Handle different types of projectItem
-    Select Case TypeName(projectItem)
-    
-        ' If it's a String, try to parse it as JSON
-        Case "String"
-            On Error Resume Next
-            Set projectItem = JsonConverter.ParseJSON(projectItem)
-            On Error GoTo 0
+    For Each projectItem In innerJson
+        ' Handle different types of projectItem
+        Select Case TypeName(projectItem)
+        
+            ' If it's a String, try to parse it as JSON
+            Case "String"
+                On Error Resume Next
+                Set projectItem = JsonConverter.ParseJSON(projectItem)
+                On Error GoTo 0
+                
+                ' If parsing fails, use the string directly
+                If TypeName(projectItem) = "String" Then
+                    ProjectName = projectItem  ' Assign the string directly if it's valid
+                ElseIf TypeName(projectItem) = "Dictionary" Then
+                    ' Proceed to extract project name if it successfully parsed as a Dictionary
+                    If projectItem.Exists("Project Name") Then
+                        ProjectName = projectItem("Project Name")
+                    Else
+                        ProjectName = "N/A"
+                    End If
+                Else
+                    ProjectName = "N/A"
+                End If
             
-            ' If parsing fails, use the string directly
-            If TypeName(projectItem) = "String" Then
-                ProjectName = projectItem  ' Assign the string directly if it's valid
-            ElseIf TypeName(projectItem) = "Dictionary" Then
-                ' Proceed to extract project name if it successfully parsed as a Dictionary
+            ' If it's already a Dictionary, extract the project name directly
+            Case "Dictionary"
                 If projectItem.Exists("Project Name") Then
                     ProjectName = projectItem("Project Name")
                 Else
                     ProjectName = "N/A"
                 End If
-            Else
-                ProjectName = "N/A"
-            End If
-        
-        ' If it's already a Dictionary, extract the project name directly
-        Case "Dictionary"
-            If projectItem.Exists("Project Name") Then
-                ProjectName = projectItem("Project Name")
-            Else
-                ProjectName = "N/A"
-            End If
-        
-        ' If it's a Collection or Array, try to extract the first item
-        Case "Collection", "Variant()"
-            If projectItem.Count > 0 Then
-                If TypeName(projectItem(1)) = "Dictionary" Then
-                    ' Extract project name from the first item
-                    If projectItem(1).Exists("Project Name") Then
-                        ProjectName = projectItem(1)("Project Name")
-                    Else
-                        ProjectName = "N/A"
+            
+            ' If it's a Collection or Array, try to extract the first item
+            Case "Collection", "Variant()"
+                If projectItem.Count > 0 Then
+                    If TypeName(projectItem(1)) = "Dictionary" Then
+                        ' Extract project name from the first item
+                        If projectItem(1).Exists("Project Name") Then
+                            ProjectName = projectItem(1)("Project Name")
+                        Else
+                            ProjectName = "N/A"
+                        End If
                     End If
+                Else
+                    ProjectName = "N/A"
                 End If
-            Else
+            
+            ' Default case if it's an unknown type
+            Case Else
                 ProjectName = "N/A"
-            End If
         
-        ' Default case if it's an unknown type
-        Case Else
-            ProjectName = "N/A"
-    
-    End Select
+        End Select
 
-    Debug.Print "projectName: " & ProjectName
-Next projectItem
-Debug.Print "Next projectItem"
+        Debug.Print "projectName: " & ProjectName
+    Next projectItem
+    Debug.Print "Next projectItem"
 
     Exit Sub
 
@@ -459,13 +536,13 @@ End Function
 Private Sub WriteTextFile(filePath As String, content As String)
     Dim fso As Object, fileStream As Object
     Set fso = CreateObject("Scripting.FileSystemObject")
-Debug.Print "CreateObject"
+    Debug.Print "CreateObject"
     Set fileStream = fso.CreateTextFile(filePath, True)
-Debug.Print "Set fileStream"
+    Debug.Print "Set fileStream"
     fileStream.Write content
-Debug.Print "Write content"
-Debug.Print " filePath: " & filePath
-Debug.Print " content: " & content
+    Debug.Print "Write content"
+    Debug.Print " filePath: " & filePath
+    Debug.Print " content: " & content
     fileStream.Close
 End Sub
 
@@ -480,9 +557,6 @@ Private Function BuildNestedString(ByVal dict As Variant, Optional indent As Str
     Next key
     BuildNestedString = result
 End Function
-
-
-
 
 Private Function OpenTextFileForAppend(fileName As String) As textStream
     Dim fso As Object
@@ -510,9 +584,6 @@ Private Function BuildNestedString_(ByVal dict As Variant, Optional indent As St
     Next key
     BuildNestedString_ = result
 End Function
-
-
-
 
 Private Function RemoveMarkdownFormatting(ByVal response As String) As String
     ' Remove the ```json or ``` from the response
@@ -552,7 +623,7 @@ Private Function RemoveBSEscape(ByVal response As String) As String
     'response = Replace(response, "]", "")
     'response = Replace(response, "\\", "\")
     response = Replace(response, "{" & vbCrLf & "  " & """projects"": ", "")
-Debug.Print ("{" & vbCrLf & "  " & """projects"": ")
+    Debug.Print ("{" & vbCrLf & "  " & """projects"": ")
     response = Replace(response, "]" & vbCrLf & "}", "]")
     response = Replace(response, "```", "")
     ' Remove extra newlines
@@ -654,73 +725,6 @@ ContinueLoop:
         parsedData.Add "Date", today
     End If
 End Sub
-
-
-
-Private Sub ProcessDictionary_(ByVal dict As Variant, ByRef parsedData As Object, Optional parentKey As String = "")
-    Dim key As Variant
-    Dim value As Variant
-    Dim today As Date
-    Dim formattedDate As String
-    
-    ' Get today's date in "yyyy-mm-dd" format
-    today = Date
-    formattedDate = Format(today, "mmmm dd, yyyy")
-Debug.Print "formattedDate" & formattedDate
- Debug.Print "VarType(dict): " & VarType(dict)
- 
- 
-    For Each key In dict.keys
-        value = dict(key)
- Debug.Print "value: " & value
-       Dim fullKey As String
-        If parentKey = "" Then
-            fullKey = key
-        Else
-            fullKey = parentKey
-        End If
-Debug.Print "VarType(value): " & VarType(value)
-
-        Select Case VarType(value)
-            Case vbString
-                ' Unescape the string
-                value = UnescapeJsonString(value)
-                If parsedData.Exists(fullKey) Then
-                    ' Append to existing value
-                    parsedData(fullKey) = parsedData(fullKey) & vbCrLf & value
-                Else
-                    parsedData.Add key:=fullKey, item:=value
-                End If
-            Case vbObject
- Debug.Print "TypeName(value): " & TypeName(value)
-                If TypeName(value) = "Dictionary" Then
-                    ' Build structured string from nested dictionary
-                    Dim nestedText As String
-                    nestedText = BuildNestedString_(value)
-                    parsedData.Add key:=fullKey, item:=nestedText
-                ElseIf TypeName(value) = "Collection" Then
-                    ' Handle arrays
-                    Dim item As Variant
-                    Dim concatenatedText As String
-                    concatenatedText = ""
-                    For Each item In value
-                        item = UnescapeJsonString(item)
-                        concatenatedText = concatenatedText & item & vbCrLf
-                    Next item
-                    parsedData.Add key:=fullKey, item:=concatenatedText
-                End If
-            Case Else
-                ' Handle other types if necessary
-                parsedData.Add key:=fullKey, item:=CStr(value)
-        End Select
-    Next key
-    
-    ' Add today's date to the parsed data
-    parsedData.Add key:="Date", item:=formattedDate
-    
-    
-End Sub
-
 
 Private Function UnescapeJsonString(ByVal s As String) As String
     s = Replace(s, "\""", """")  ' Replace escaped double quotes
@@ -841,13 +845,13 @@ Public Function ExtractAndParsePDFs(pdfFiles As Collection, cacheFilePath As Str
 
     ' Get the total number of files in pdfFiles
     totalFiles = pdfFiles.Count
-Debug.Print ("WE totalFiles " & totalFiles)
+    Debug.Print ("WE totalFiles " & totalFiles)
     fileCounter = 1 ' Initialize the file counter
     
     For Each pdfFile In pdfFiles
         frmSearchForm.lblStatus.Caption = ""
         fileName = GetFileNameFromPath(pdfFile)
-Debug.Print ("UF fileName " & fileName)
+        Debug.Print ("UF fileName " & fileName)
 
         ' Check if the file is already in the cache (only if cache exists and is valid)
         isFileInCache = False
@@ -860,11 +864,11 @@ Debug.Print ("UF fileName " & fileName)
                 If TypeName(projectItem) = "Dictionary" Then
                     Dim cachedFileName As String
                     cachedFileName = GetFileNameFromPath(projectItem("File Path"))
-Debug.Print "DE cachedFileName: " & cachedFileName
-Debug.Print "QA fileName: " & fileName
+                    Debug.Print "DE cachedFileName: " & cachedFileName
+                    Debug.Print "QA fileName: " & fileName
                     ' Match the file name by checking if fileName is the same as cachedFileName
                     If InStr(1, cachedFileName, fileName, vbTextCompare) > 0 Then
-Debug.Print "WA > 0"
+                        Debug.Print "WA > 0"
                         isFileInCache = True
                         Exit For
                     End If
@@ -883,7 +887,7 @@ Debug.Print "WA > 0"
             GoTo NextFile ' Skip to the end of the loop
         End If
         
-        ' If we find a file thatÅfs not in the cache, set allFilesInCache to False
+        ' If we find a file that's not in the cache, set allFilesInCache to False
         allFilesInCache = False
         
         ' Update the label caption with the current file number and file name
@@ -935,8 +939,6 @@ NextFile:
 
 End Function
 
-
-
 ' Helper function to read the contents of a text file
 Private Function ReadTextFile_(filePath As String) As String
     Dim fileNumber As Integer
@@ -954,7 +956,6 @@ ErrorHandler:
     ReadTextFile_ = ""
     Close fileNumber
 End Function
-
 
 ' --- Extract Text from a Single PDF File using mutool.exe or tesseract.exe ---
 Private Function ExtractTextFromPDFSheet_(pdfFilePath As Variant, tempFile As String) As String
@@ -1042,20 +1043,19 @@ Private Function ExtractTextFromPDFSheet_(pdfFilePath As Variant, tempFile As St
     On Error Resume Next
     Open tempFile For Input As #1
     pdfText = pdfFilePath & vbCrLf
-Debug.Print "pdfFilePath: " & pdfFilePath
+    Debug.Print "pdfFilePath: " & pdfFilePath
     Do While Not EOF(1)
         Line Input #1, lineText
         pdfText = pdfText & lineText & vbCrLf
     Loop
     Close #1
     On Error GoTo 0
-Debug.Print "pdfText: " & pdfText
+    Debug.Print "pdfText: " & pdfText
 
     ' Return the extracted text
     ExtractTextFromPDFSheet_ = pdfText
     
 End Function
-
 
 Public Function ExtractTextFromPDFSheet(pdfPath As String, txtPath As String) As String
     Dim command As String
@@ -1074,7 +1074,7 @@ Public Function ExtractTextFromPDFSheet(pdfPath As String, txtPath As String) As
     
     ' Convert to UTF-8
     utf8Text = ConvertShiftJISToUTF8(txtPath)
-Debug.Print "AFTER convert to UTF8" & utf8Text
+    Debug.Print "AFTER convert to UTF8" & utf8Text
     
     ExtractTextFromPDFSheet = utf8Text
 End Function
@@ -1102,7 +1102,6 @@ Public Function ConvertShiftJISToUTF8(filePath As String) As String
     
     ConvertShiftJISToUTF8 = content
 End Function
-
 
 ' Helper Function to Wait for the File to be Created
 Public Sub WaitForFile(filePath As String)
@@ -1150,7 +1149,6 @@ Public Function ConvertToUTF8(filePath As String) As String
     ConvertToUTF8 = content
 End Function
 
-
 ' --- Get a Sorted Collection of PDF Files ---
 Private Function GetSortedPDFFiles(folderPath As String) As Collection
     Dim fileName As String
@@ -1179,8 +1177,6 @@ Private Function GetSortedPDFFiles(folderPath As String) As Collection
 
     Set GetSortedPDFFiles = pdfFiles
 End Function
-
-
 
 Sub PrintDictionaryKeys(dict As Object)
     Dim key As Variant
@@ -1219,7 +1215,6 @@ Sub PrintDictionaryKeys(dict As Object)
     Debug.Print "Dictionary keys have been appended to the file: " & filePath
 End Sub
 
-
 Function GetFileNameFromPath(filePath As Variant) As String
     Dim fileName As String
     Dim lastBackslash As Integer
@@ -1238,8 +1233,4 @@ Function GetFileNameFromPath(filePath As Variant) As String
     ' Return the file name
     GetFileNameFromPath = EscapeJsonString(fileName)
 End Function
-
-
-
-
 
