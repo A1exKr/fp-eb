@@ -1,4 +1,6 @@
 Attribute VB_Name = "APIModule"
+Option Explicit
+
 'Attribute VB_Name = "APIModule"
 Public Function CallAPIsyn(fileContent As String, promptFilePath As String) As String
     Dim http As Object
