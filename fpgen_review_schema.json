@@ -1,0 +1,83 @@
+{
+  "proposalId": "PRJ-XXXX-0001",
+  "metadata": {
+    "clientName": "",
+    "projectName": "",
+    "location": "",
+    "currency": "USD"
+  },
+  "sections": {
+    "cover_letter": {
+      "title": "Cover Letter",
+      "status": 0,
+      "contentSuggested": "",
+      "contentEdited": ""
+    },
+    "project_understanding": {
+      "title": "Project Understanding",
+      "status": 0,
+      "contentSuggested": "",
+      "contentEdited": ""
+    },
+    "methodology": {
+      "title": "Methodology",
+      "status": 0,
+      "contentSuggested": "",
+      "contentEdited": ""
+    },
+    "scope_deliverables": {
+      "title": "Scope & Deliverables",
+      "status": 0,
+      "contentSuggested": "",
+      "contentEdited": ""
+    },
+    "schedule": {
+      "title": "Schedule",
+      "status": 0,
+      "contentSuggested": "",
+      "contentEdited": ""
+    },
+    "team": {
+      "title": "Team Structure",
+      "status": 0,
+      "contentSuggested": "",
+      "contentEdited": ""
+    },
+    "financial": {
+      "title": "Financial Proposal",
+      "status": 0,
+      "contentSuggested": "",
+      "contentEdited": ""
+    },
+    "relevant_experience": {
+      "title": "Relevant Experience",
+      "status": 0,
+      "contentSuggested": "",
+      "contentEdited": ""
+    },
+    "assumptions_exclusions": {
+      "title": "Assumptions & Exclusions",
+      "status": 0,
+      "contentSuggested": "",
+      "contentEdited": ""
+    }
+  },
+  "schedule": {
+    "phases": {
+      "Pre-Concept": { "duration": 8, "notes": "Baseline" },
+      "Concept Design": { "duration": 12, "notes": "" },
+      "Schematic Design": { "duration": 24, "notes": "" }
+    }
+  },
+  "financial": {
+    "laborSubtotal": "",
+    "overheads": "",
+    "subconsultants": "",
+    "reimbursables": "",
+    "total": ""
+  },
+  "team": {
+    "Project Principal": { "name": "" },
+    "Project Manager": { "name": "" }
+  }
+}

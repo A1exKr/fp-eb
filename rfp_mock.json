@@ -1,0 +1,47 @@
+{
+  "project": {
+    "name": "Master plan, Vietnam",
+    "location": "Vietnam (50 ha)",
+    "type": "Master Plan",
+    "siteArea": "50 ha"
+  },
+  "client": { "name": "Confidential Client" },
+  "understanding": {
+    "understanding": "Develop a vibrant, sustainable, TOD-oriented mixed-use master plan integrating residential, office and commercial uses with smart-city principles.",
+    "timelineWeeks": 11
+  },
+  "methodology": { "workshops": 4, "notes": "Fast-track, parallel workstreams" },
+  "scope": {
+    "scopeList": [
+      "Functional cluster zoning and land-use options",
+      "Infrastructure and constraints analysis",
+      "Phasing strategy and technical/economic comparison"
+    ],
+    "deliverablesList": [
+      "Master plan report (PDF)",
+      "Plans/sections/elevations (A3/A1 as needed)",
+      "Rendered perspectives and area schedules"
+    ]
+  },
+  "schedule": { "totalWeeks": 11, "milestones": ["Kick-off", "WS2", "WS3", "WS4", "Final"] },
+  "team": {
+    "principal": { "name": "Masakazu Kimura", "title": "Senior Executive Officer" },
+    "pm": { "name": "Jan Henckens", "title": "Senior Project Manager" }
+  },
+  "fee": {
+    "currency": "USD",
+    "rates": { "Principal": 250, "PM": 160, "Urban Planner": 120, "Architect": 140 },
+    "effortByPhase": {
+      "Stage 1": { "Principal": 8, "PM": 36, "Urban Planner": 80, "Architect": 40 },
+      "Stage 2": { "Principal": 8, "PM": 40, "Urban Planner": 100, "Architect": 60 }
+    },
+    "overheadPct": 0.1,
+    "travel": { "trips": 2, "peoplePerTrip": 2, "unitCost": 6000, "currency": "USD" },
+    "subconsultants": [{ "name": "Local Planner", "fee": 18000, "currency": "USD" }]
+  },
+  "experience": [
+    { "name": "HCMC Central District Urban Design", "location": "Vietnam", "scale": "930 ha", "client": "HCMC", "period": "2007", "summary": "International competition winner; delivered detailed master plan." },
+    { "name": "Grand Front Osaka", "location": "Japan", "scale": "567,927 m²", "client": "Multiple", "period": "2013", "summary": "Mixed-use TOD landmark; offices, retail, hotel and residences." }
+  ],
+  "assumptions": { "defaultText": "Fees are net of taxes; specialty consultants, approvals and physical models excluded; travel reimbursed at fixed unit rate; see terms." }
+}
