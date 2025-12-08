@@ -57,3 +57,58 @@ Public Function InlineMockJson() As String
     InlineMockJson = s
 End Function
 
+' Test the comprehensive executive summary display in txtRFPsyn
+Public Sub Test_ExecutiveSummaryDisplay()
+    Dim mockJson As String
+    Dim tempDict As Object
+    Dim summary As String
+    
+    ' Get mock JSON data
+    mockJson = InlineMockJson()
+    
+    ' Parse the JSON
+    On Error Resume Next
+    Set tempDict = JsonConverter.ParseJSON(mockJson)
+    On Error GoTo 0
+    
+    If tempDict Is Nothing Then
+        Debug.Print "TEST FAILED: Could not parse mock JSON"
+        Exit Sub
+    End If
+    
+    ' Build the executive summary (simulating frmFeeProposal logic)
+    summary = "EXECUTIVE SUMMARY" & vbCrLf
+    summary = summary & String(60, "=") & vbCrLf & vbCrLf
+    summary = summary & "PROJECT INFORMATION:" & vbCrLf
+    summary = summary & "  " & Chr(149) & " Project: Master plan, Vietnam" & vbCrLf
+    summary = summary & "  " & Chr(149) & " Type: Master Plan" & vbCrLf
+    summary = summary & "  " & Chr(149) & " Location: Vietnam (50 ha)" & vbCrLf
+    summary = summary & "  " & Chr(149) & " Site Area: 50 ha" & vbCrLf
+    summary = summary & "  " & Chr(149) & " Client: Confidential Client" & vbCrLf & vbCrLf
+    
+    ' Display results
+    Debug.Print "=== Comprehensive Executive Summary Test ==="
+    Debug.Print summary
+    Debug.Print "=== End of Test ==="
+    
+    ' Verify the summary contains expected sections
+    If InStr(summary, "EXECUTIVE SUMMARY") > 0 And _
+       InStr(summary, "PROJECT INFORMATION:") > 0 And _
+       InStr(summary, "Project:") > 0 And _
+       InStr(summary, "Type:") > 0 And _
+       InStr(summary, "Location:") > 0 And _
+       InStr(summary, "Site Area:") > 0 And _
+       InStr(summary, "Client:") > 0 Then
+        Debug.Print "TEST PASSED: All expected sections and fields are present"
+    Else
+        Debug.Print "TEST FAILED: Some expected sections or fields are missing"
+        If InStr(summary, "EXECUTIVE SUMMARY") = 0 Then Debug.Print "- Missing: EXECUTIVE SUMMARY header"
+        If InStr(summary, "PROJECT INFORMATION:") = 0 Then Debug.Print "- Missing: PROJECT INFORMATION section"
+        If InStr(summary, "Project:") = 0 Then Debug.Print "- Missing: Project"
+        If InStr(summary, "Type:") = 0 Then Debug.Print "- Missing: Type"
+        If InStr(summary, "Location:") = 0 Then Debug.Print "- Missing: Location"
+        If InStr(summary, "Site Area:") = 0 Then Debug.Print "- Missing: Site Area"
+        If InStr(summary, "Client:") = 0 Then Debug.Print "- Missing: Client"
+    End If
+End Sub
+

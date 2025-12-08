@@ -377,7 +377,7 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object)
     Dim projectItem As Variant
     Dim attributeKey As Variant
     Dim childDict As Object
-    Dim ProjectName As Variant
+    Dim projectName As Variant
     Dim projectIndex As Integer
     Dim jsonString As String
     Dim fileContent As String
@@ -465,24 +465,24 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object)
                 
                 ' If parsing fails, use the string directly
                 If TypeName(projectItem) = "String" Then
-                    ProjectName = projectItem  ' Assign the string directly if it's valid
+                    projectName = projectItem  ' Assign the string directly if it's valid
                 ElseIf TypeName(projectItem) = "Dictionary" Then
                     ' Proceed to extract project name if it successfully parsed as a Dictionary
                     If projectItem.Exists("Project Name") Then
-                        ProjectName = projectItem("Project Name")
+                        projectName = projectItem("Project Name")
                     Else
-                        ProjectName = "N/A"
+                        projectName = "N/A"
                     End If
                 Else
-                    ProjectName = "N/A"
+                    projectName = "N/A"
                 End If
             
             ' If it's already a Dictionary, extract the project name directly
             Case "Dictionary"
                 If projectItem.Exists("Project Name") Then
-                    ProjectName = projectItem("Project Name")
+                    projectName = projectItem("Project Name")
                 Else
-                    ProjectName = "N/A"
+                    projectName = "N/A"
                 End If
             
             ' If it's a Collection or Array, try to extract the first item
@@ -491,22 +491,22 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object)
                     If TypeName(projectItem(1)) = "Dictionary" Then
                         ' Extract project name from the first item
                         If projectItem(1).Exists("Project Name") Then
-                            ProjectName = projectItem(1)("Project Name")
+                            projectName = projectItem(1)("Project Name")
                         Else
-                            ProjectName = "N/A"
+                            projectName = "N/A"
                         End If
                     End If
                 Else
-                    ProjectName = "N/A"
+                    projectName = "N/A"
                 End If
             
             ' Default case if it's an unknown type
             Case Else
-                ProjectName = "N/A"
+                projectName = "N/A"
         
         End Select
 
-        Debug.Print "projectName: " & ProjectName
+        Debug.Print "projectName: " & projectName
     Next projectItem
     Debug.Print "Next projectItem"
 

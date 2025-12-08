@@ -13,6 +13,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'Version 5#
+
 Option Explicit
 
 ' Store the AI response JSON at module level
@@ -324,28 +326,161 @@ Public Sub RunRFPAnalysis()
     Set tempDict = JsonConverter.ParseJSON(mRfpAnalysisJson)
     
     If Not tempDict Is Nothing Then
-        ' Try to get understanding or executive summary
+        ' Build comprehensive executive summary
         Dim summary As String
-        summary = ""
+        summary = "EXECUTIVE SUMMARY" & vbCrLf
+        summary = summary & String(60, "=") & vbCrLf & vbCrLf
         
-        ' Try various paths to get a preview
+        ' PROJECT INFORMATION
+        If tempDict.Exists("project") Or tempDict.Exists("client") Then
+            summary = summary & "PROJECT INFORMATION:" & vbCrLf
+            
+            If tempDict.Exists("project") And TypeName(tempDict("project")) = "Dictionary" Then
+                If tempDict("project").Exists("name") Then
+                    summary = summary & "  " & Chr(149) & " Project: " & tempDict("project")("name") & vbCrLf
+                End If
+                If tempDict("project").Exists("type") Then
+                    summary = summary & "  " & Chr(149) & " Type: " & tempDict("project")("type") & vbCrLf
+                End If
+                If tempDict("project").Exists("location") Then
+                    summary = summary & "  " & Chr(149) & " Location: " & tempDict("project")("location") & vbCrLf
+                End If
+                If tempDict("project").Exists("siteArea") Then
+                    summary = summary & "  " & Chr(149) & " Site Area: " & tempDict("project")("siteArea") & vbCrLf
+                End If
+            End If
+            
+            If tempDict.Exists("client") And TypeName(tempDict("client")) = "Dictionary" Then
+                If tempDict("client").Exists("name") Then
+                    summary = summary & "  " & Chr(149) & " Client: " & tempDict("client")("name") & vbCrLf
+                End If
+            End If
+            
+            summary = summary & vbCrLf
+        End If
+        
+        ' PROJECT UNDERSTANDING
         If tempDict.Exists("understanding") Then
+            Dim understanding As String
+            understanding = ""
+            
             If TypeName(tempDict("understanding")) = "Dictionary" Then
-                If tempDict("understanding").Exists("text") Then
-                    summary = tempDict("understanding")("text")
+                If tempDict("understanding").Exists("understanding") Then
+                    understanding = tempDict("understanding")("understanding")
+                ElseIf tempDict("understanding").Exists("text") Then
+                    understanding = tempDict("understanding")("text")
                 End If
             ElseIf TypeName(tempDict("understanding")) = "String" Then
-                summary = tempDict("understanding")
+                understanding = tempDict("understanding")
+            End If
+            
+            If Len(understanding) > 0 Then
+                summary = summary & "PROJECT UNDERSTANDING:" & vbCrLf
+                summary = summary & "  " & understanding & vbCrLf & vbCrLf
             End If
         End If
         
-        If Len(summary) = 0 And tempDict.Exists("project") Then
-            If TypeName(tempDict("project")) = "Dictionary" Then
-                If tempDict("project").Exists("name") Then
-                    summary = "Project: " & tempDict("project")("name") & vbCrLf
+        ' SCHEDULE
+        If tempDict.Exists("schedule") And TypeName(tempDict("schedule")) = "Dictionary" Then
+            Dim hasScheduleInfo As Boolean
+            hasScheduleInfo = False
+            
+            If tempDict("schedule").Exists("totalWeeks") Or tempDict("schedule").Exists("milestones") Then
+                summary = summary & "SCHEDULE:" & vbCrLf
+                hasScheduleInfo = True
+                
+                If tempDict("schedule").Exists("totalWeeks") Then
+                    summary = summary & "  " & Chr(149) & " Duration: " & tempDict("schedule")("totalWeeks") & " weeks" & vbCrLf
                 End If
-                If tempDict("project").Exists("location") Then
-                    summary = summary & "Location: " & tempDict("project")("location")
+                
+                If tempDict("schedule").Exists("milestones") Then
+                    Dim milestones As Object
+                    Set milestones = tempDict("schedule")("milestones")
+                    If TypeName(milestones) = "Collection" And milestones.Count > 0 Then
+                        Dim milestoneStr As String, i As Long
+                        milestoneStr = ""
+                        For i = 1 To milestones.Count
+                            If i > 1 Then milestoneStr = milestoneStr & ", "
+                            milestoneStr = milestoneStr & milestones(i)
+                        Next i
+                        summary = summary & "  " & Chr(149) & " Milestones: " & milestoneStr & vbCrLf
+                    End If
+                End If
+                
+                If hasScheduleInfo Then summary = summary & vbCrLf
+            End If
+        End If
+        
+        ' KEY TEAM MEMBERS
+        If tempDict.Exists("team") And TypeName(tempDict("team")) = "Dictionary" Then
+            Dim hasTeamInfo As Boolean
+            hasTeamInfo = False
+            
+            If tempDict("team").Exists("principal") Or tempDict("team").Exists("pm") Then
+                summary = summary & "KEY TEAM MEMBERS:" & vbCrLf
+                hasTeamInfo = True
+                
+                If tempDict("team").Exists("principal") And TypeName(tempDict("team")("principal")) = "Dictionary" Then
+                    Dim principal As Object
+                    Set principal = tempDict("team")("principal")
+                    If principal.Exists("name") Then
+                        Dim principalText As String
+                        principalText = principal("name")
+                        If principal.Exists("title") Then
+                            principalText = principalText & " (" & principal("title") & ")"
+                        End If
+                        summary = summary & "  " & Chr(149) & " Principal: " & principalText & vbCrLf
+                    End If
+                End If
+                
+                If tempDict("team").Exists("pm") And TypeName(tempDict("team")("pm")) = "Dictionary" Then
+                    Dim pm As Object
+                    Set pm = tempDict("team")("pm")
+                    If pm.Exists("name") Then
+                        Dim pmText As String
+                        pmText = pm("name")
+                        If pm.Exists("title") Then
+                            pmText = pmText & " (" & pm("title") & ")"
+                        End If
+                        summary = summary & "  " & Chr(149) & " Project Manager: " & pmText & vbCrLf
+                    End If
+                End If
+                
+                If hasTeamInfo Then summary = summary & vbCrLf
+            End If
+        End If
+        
+        ' KEY SCOPE ITEMS
+        If tempDict.Exists("scope") And TypeName(tempDict("scope")) = "Dictionary" Then
+            If tempDict("scope").Exists("scopeList") Then
+                Dim scopeList As Object
+                Set scopeList = tempDict("scope")("scopeList")
+                If TypeName(scopeList) = "Collection" And scopeList.Count > 0 Then
+                    summary = summary & "KEY SCOPE ITEMS:" & vbCrLf
+                    Dim scopeCount As Long
+                    scopeCount = 0
+                    For i = 1 To scopeList.Count
+                        If scopeCount >= 3 Then Exit For ' Show max 3 items
+                        summary = summary & "  " & Chr(149) & " " & scopeList(i) & vbCrLf
+                        scopeCount = scopeCount + 1
+                    Next i
+                    summary = summary & vbCrLf
+                End If
+            End If
+            
+            ' MAJOR DELIVERABLES
+            If tempDict("scope").Exists("deliverablesList") Then
+                Dim deliverablesList As Object
+                Set deliverablesList = tempDict("scope")("deliverablesList")
+                If TypeName(deliverablesList) = "Collection" And deliverablesList.Count > 0 Then
+                    summary = summary & "MAJOR DELIVERABLES:" & vbCrLf
+                    Dim delivCount As Long
+                    delivCount = 0
+                    For i = 1 To deliverablesList.Count
+                        If delivCount >= 3 Then Exit For ' Show max 3 items
+                        summary = summary & "  " & Chr(149) & " " & deliverablesList(i) & vbCrLf
+                        delivCount = delivCount + 1
+                    Next i
                 End If
             End If
         End If

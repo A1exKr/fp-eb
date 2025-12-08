@@ -188,7 +188,7 @@ Sub cmdSavePdf_Click_()
     Dim pdftkPath As String
     Dim outputPath As String
     Dim fileDialog As fileDialog
-    Dim ProjectName As String
+    Dim projectName As String
     Dim jsonText As String
     Dim fso As New FileSystemObject
     Dim jsonFile As textStream
@@ -227,14 +227,14 @@ Sub cmdSavePdf_Click_()
     ' Loop through each item in the ListBox and add all file paths to the collection
     For i = 0 To Me.lstResults.ListCount - 1
         ' Extract the project name from the ListBox item (remove the numbering)
-        ProjectName = Trim(Mid(Me.lstResults.List(i), InStr(Me.lstResults.List(i), ". ") + 2))
+        projectName = Trim(Mid(Me.lstResults.List(i), InStr(Me.lstResults.List(i), ". ") + 2))
         
         ' Find matching project in cache data
         Dim found As Boolean
         found = False
         
         For Each item In cacheData
-            If item("Project Name") = ProjectName Then
+            If item("Project Name") = projectName Then
                 pdfFilePath = item("File Path")
                 found = True
                 ' Check if file exists before adding to the collection
@@ -249,7 +249,7 @@ Sub cmdSavePdf_Click_()
         Next item
         
         If Not found Then
-            MsgBox "Project not found in cache: " & ProjectName, vbExclamation, "Missing Data"
+            MsgBox "Project not found in cache: " & projectName, vbExclamation, "Missing Data"
             Exit Sub
         End If
     Next i
@@ -318,7 +318,7 @@ Sub cmdSavePdf_Click()
     Dim pdftkPath As String
     Dim outputPath As String
     Dim fileDialog As fileDialog
-    Dim ProjectName As String
+    Dim projectName As String
     Dim jsonText As String
     Dim fso As New FileSystemObject
     Dim jsonFile As textStream
@@ -351,17 +351,20 @@ Sub cmdSavePdf_Click()
     similarityThreshold = 0.8
 
     For i = 0 To Me.lstResults.ListCount - 1
-        ProjectName = Trim(Mid(Me.lstResults.List(i), InStr(Me.lstResults.List(i), ". ") + 2))
+        projectName = Trim(Mid(Me.lstResults.List(i), InStr(Me.lstResults.List(i), ". ") + 2))
         Dim found As Boolean
         found = False
 
         For Each item In cacheData
 'Debug.Print "item: " & CStr(item)
-            If item("Project Name") = ProjectName Then
+            If item("Project Name") = projectName Then
                 pdfFilePath = item("File Path")
                 found = True
 
 matchedFile = ""
+
+Debug.Print "pdfFilePath: " & pdfFilePath
+
 For Each file In fso.GetFolder(fso.GetParentFolderName(pdfFilePath)).Files
     If SimilarityRatio(pdfFilePath, file.path) > similarityThreshold Then
         matchedFile = file.path
@@ -385,7 +388,7 @@ Next
         Next item
 
         If Not found Then
-            MsgBox "Project not found in cache: " & ProjectName, vbExclamation, "Missing Data"
+            MsgBox "Project not found in cache: " & projectName, vbExclamation, "Missing Data"
             Exit Sub
         End If
     Next i
@@ -488,7 +491,7 @@ Private Sub SearchProjects()
     Dim fso As Object, jsonFile As Object
     Dim matchFound As Boolean
     Dim resultCount As Integer
-    Dim ProjectName As String
+    Dim projectName As String
 
     ' Define M-dash used as a default value in all inputs
     Dim mDash As String
@@ -545,7 +548,7 @@ Private Sub SearchProjects()
 
         ' Get the project name
         If projectItem.Exists("Project Name") Then
-            ProjectName = projectItem("Project Name")
+            projectName = projectItem("Project Name")
         Else
             GoTo ContinueLoop
         End If
@@ -611,7 +614,7 @@ Private Sub SearchProjects()
         ' If all criteria match, add the project to the results list
         If matchFound Then
             resultCount = resultCount + 1
-            Me.lstResults.AddItem CStr(resultCount) & ". " & ProjectName
+            Me.lstResults.AddItem CStr(resultCount) & ". " & projectName
         End If
 
 ContinueLoop:
@@ -1096,7 +1099,7 @@ Sub PopulateListFromJsonCache()
     Dim jsonText As String
     Dim fso As Object, jsonFile As Object
     Dim projectItem As Object
-    Dim ProjectName As String
+    Dim projectName As String
     Dim resultCount As Long
 
     ' Define the path to the JSON cache file
@@ -1135,13 +1138,13 @@ Sub PopulateListFromJsonCache()
     For Each projectItem In jsonData
         ' Get the project name
         If projectItem.Exists("Project Name") Then
-            ProjectName = projectItem("Project Name")
+            projectName = projectItem("Project Name")
 
             ' Increment the result counter
             resultCount = resultCount + 1
 
             ' Add the project name to the lstResults ListBox
-            Me.lstResults.AddItem CStr(resultCount) & ". " & ProjectName
+            Me.lstResults.AddItem CStr(resultCount) & ". " & projectName
         End If
     Next projectItem
 

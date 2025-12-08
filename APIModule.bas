@@ -61,8 +61,9 @@ Public Function CallAPIsyn(fileContent As String, promptFilePath As String) As S
     Debug.Print "Payload Length: " & Len(payload)
 
     ' Create valid JSON payload
-    payload = "{""model"": ""gpt-4o-mini-2024-07-18"", ""messages"": [{""role"": ""user"", ""content"": """ & EscapeJsonString(requestText) & """}], ""max_tokens"": 16000}"
+    'payload = "{""model"": ""gpt-4o-mini-2024-07-18"", ""messages"": [{""role"": ""user"", ""content"": """ & EscapeJsonString(requestText) & """}], ""max_tokens"": 16000}"
     'payload = "{""model"": ""gpt-5-nano"", ""messages"": [{""role"": ""user"", ""content"": """ & EscapeJsonString(requestText) & """}], ""max_tokens"": 16000}"
+    payload = "{""model"": ""gpt-4.1-nano"", ""messages"": [{""role"": ""user"", ""content"": """ & EscapeJsonString(requestText) & """}], ""max_tokens"": 16000}"
 
     Debug.Print "Payload: " & payload
 

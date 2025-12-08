@@ -22,8 +22,8 @@ Public Sub RunGenerateINDD()
     outFolder = ResolveOutputFolder()
     If Len(outFolder) = 0 Then Exit Sub
 
-    outINDD = outFolder & "\FeeProposal_" & SafeSlug(ProjectName()) & ".indd"
-    outPdf = outFolder & "\FeeProposal_" & SafeSlug(ProjectName()) & ".pdf"
+    outINDD = outFolder & "\FeeProposal_" & SafeSlug(projectName()) & ".indd"
+    outPdf = outFolder & "\FeeProposal_" & SafeSlug(projectName()) & ".pdf"
 
     On Error GoTo CleanFail
 
@@ -165,7 +165,7 @@ Public Function ResolveOutputFolder() As String
     If Not fso.FolderExists(outputRoot) Then fso.CreateFolder outputRoot
 
     todayStr = Format(Date, "yyyy-mm-dd")
-    safeProjName = SafeSlug(ProjectName())
+    safeProjName = SafeSlug(projectName())
     If Len(safeProjName) = 0 Then safeProjName = "Untitled"
 
     outputFolder = outputRoot & "\" & todayStr & "_" & safeProjName
@@ -202,16 +202,16 @@ End Function
 ' PROJECT METADATA (STUBS)
 ' Replace with your real getters, or map to named ranges.
 '==========================
-Public Function ProjectName() As String
+Public Function projectName() As String
     On Error Resume Next
     ' Example: try a Named Range first
-    ProjectName = CStr(ThisWorkbook.Names("ProjectName").RefersToRange.value)
-    If Len(ProjectName) = 0 Then
+    projectName = CStr(ThisWorkbook.Names("ProjectName").RefersToRange.value)
+    If Len(projectName) = 0 Then
         ' Fallback to workbook name (no extension)
         Dim nm As String
         nm = ThisWorkbook.name
         If InStr(1, nm, ".", vbTextCompare) > 0 Then nm = Left$(nm, InStrRev(nm, ".") - 1)
-        ProjectName = nm
+        projectName = nm
     End If
 End Function
 
@@ -226,7 +226,7 @@ End Function
 '==========================
 Public Sub INDD_FillText(ByVal doc As Object)
     ' Variables
-    INDD_SetVariable doc, "varProjectName", ProjectName()
+    INDD_SetVariable doc, "varProjectName", projectName()
     INDD_SetVariable doc, "varClientName", ClientName()
     INDD_SetVariable doc, "varProposalDate", Format$(Date, "yyyy-mm-dd")
 
