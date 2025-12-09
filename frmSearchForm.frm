@@ -445,6 +445,24 @@ Sub cmdSavePdf_Click()
 'Debug.Print "item: " & CStr(item)
             If item("Project Name") = projectName Then
                 pdfFilePath = item("File Path")
+                
+                ' Normalize Unicode characters that might cause file path issues
+                ' Replace various middle dot characters with the standard one
+                pdfFilePath = Replace(pdfFilePath, ChrW(&H2022), ChrW(&HB7))  ' bullet • to middle dot ·
+                pdfFilePath = Replace(pdfFilePath, ChrW(&H30FB), ChrW(&HB7))  ' katakana middle dot ・ to middle dot ·
+                
+                ' Debug: Print character codes for troubleshooting
+                Dim debugMsg As String
+                debugMsg = "File path from JSON: " & pdfFilePath & vbCrLf
+                If InStr(pdfFilePath, "TOKYO") > 0 Then
+                    Dim charPos As Integer
+                    charPos = InStr(pdfFilePath, "MEGURO") + 6  ' Position after "MEGURO"
+                    If charPos > 6 And charPos <= Len(pdfFilePath) Then
+                        debugMsg = debugMsg & "Character code at position " & charPos & ": &H" & Hex(AscW(Mid(pdfFilePath, charPos, 1)))
+                        Debug.Print debugMsg
+                    End If
+                End If
+                
                 found = True
 
                 matchedFile = ""
@@ -527,9 +545,40 @@ Sub cmdSavePdf_Click()
                             Debug.Print "No file code found, trying exact match for: " & targetFileName
                             Dim exactMatchPath As String
                             exactMatchPath = searchFolder & "\" & targetFileName
+                            
+                            ' Try direct file existence check first
                             If fso.FileExists(exactMatchPath) Then
                                 matchedFile = exactMatchPath
                                 Debug.Print "Exact match found: " & matchedFile
+                            Else
+                                ' If exact match fails, try normalizing special characters and searching
+                                Debug.Print "Exact match failed, trying normalized filename search..."
+                                Dim normalizedTarget As String
+                                normalizedTarget = targetFileName
+                                ' Normalize various middle dot characters
+                                normalizedTarget = Replace(normalizedTarget, ChrW(&H2022), ChrW(&HB7))  ' bullet • to ·
+                                normalizedTarget = Replace(normalizedTarget, ChrW(&H30FB), ChrW(&HB7))  ' katakana ・ to ·
+                                normalizedTarget = Replace(normalizedTarget, ChrW(&H2219), ChrW(&HB7))  ' bullet operator ∙ to ·
+                                normalizedTarget = Replace(normalizedTarget, ChrW(&H22C5), ChrW(&HB7))  ' dot operator ⋅ to ·
+                                
+                                ' Search folder for files with normalized names
+                                For Each file In fso.GetFolder(searchFolder).Files
+                                    Dim diskFileName As String
+                                    Dim normalizedDisk As String
+                                    diskFileName = fso.GetFileName(file.path)
+                                    normalizedDisk = diskFileName
+                                    ' Apply same normalization to disk filename
+                                    normalizedDisk = Replace(normalizedDisk, ChrW(&H2022), ChrW(&HB7))
+                                    normalizedDisk = Replace(normalizedDisk, ChrW(&H30FB), ChrW(&HB7))
+                                    normalizedDisk = Replace(normalizedDisk, ChrW(&H2219), ChrW(&HB7))
+                                    normalizedDisk = Replace(normalizedDisk, ChrW(&H22C5), ChrW(&HB7))
+                                    
+                                    If StrComp(normalizedTarget, normalizedDisk, vbTextCompare) = 0 Then
+                                        matchedFile = file.path
+                                        Debug.Print "Normalized match found: " & matchedFile
+                                        Exit For
+                                    End If
+                                Next
                             End If
                         End If
                         
