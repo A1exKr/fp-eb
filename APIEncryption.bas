@@ -60,20 +60,9 @@ Sub CreateEncryptedAPIKeyFile()
     ' Step 4: Encrypt the API key
     encryptedData = Encrypt(encryptionKey, apiKey)
     
-    ' Step 5: Ask user to select a folder to save the encrypted file
-    Set folderDialog = Application.fileDialog(msoFileDialogFolderPicker)
-    folderDialog.title = "Select a folder to save the encrypted API key file"
-    
-    If folderDialog.Show = -1 Then
-        folderPath = folderDialog.selectedItems(1)
-    Else
-        MsgBox "No folder selected. Operation canceled.", vbExclamation
-        Exit Sub
-    End If
-    
-    ' Step 6: Save the encrypted data to a new file in the selected folder
+    ' Step 5: Save the encrypted data to a new file in the same folder as the workbook
     Dim encryptedFilePath As String
-    encryptedFilePath = folderPath & "\apikey.dat"
+    encryptedFilePath = ThisWorkbook.Path & "\apikey.dat"
     
     Set file = fso.CreateTextFile(encryptedFilePath, True)
     file.Write encryptedData

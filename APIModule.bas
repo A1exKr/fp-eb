@@ -26,10 +26,22 @@ Public Function CallAPIsyn(fileContent As String, promptFilePath As String) As S
     Debug.Print "CallAPIsyn.encryptionKeyFilePath: " & encryptionKeyFilePath
 
     ' Decrypt and read the API key
-    encryptionKey = ReadFileWithEncoding(encryptionKeyFilePath, "UTF-8")
-    apiKey = GetAPIKey(encryptionKey, apiKeyFilePath)
+    encryptionKey = Trim(ReadFileWithEncoding(encryptionKeyFilePath, "UTF-8"))
+    Debug.Print "Encryption key length: " & Len(encryptionKey)
+    
+    If Len(encryptionKey) = 0 Then
+        MsgBox "Error: Encryption key file is empty." & vbCrLf & _
+               "File: " & encryptionKeyFilePath, vbCritical, "Encryption Key Error"
+        Exit Function
+    End If
+    
+    apiKey = Trim(GetAPIKey(encryptionKey, apiKeyFilePath))
+    Debug.Print "Decrypted API key length: " & Len(apiKey)
+    
     If Len(apiKey) = 0 Then
-        MsgBox "Error: API key file is empty or could not be read.", vbCritical
+        MsgBox "Error: API key file is empty or could not be read." & vbCrLf & _
+               "Encryption key file: " & encryptionKeyFilePath & vbCrLf & _
+               "API key file: " & apiKeyFilePath, vbCritical, "API Key Error"
         Exit Function
     End If
 
@@ -43,7 +55,8 @@ Public Function CallAPIsyn(fileContent As String, promptFilePath As String) As S
     promptTxt = ReadFileWithEncoding(promptFilePath, "UTF-8")
     Debug.Print "CallAPIsyn.promptTxt Length: " & Len(promptTxt)
     If Len(promptTxt) = 0 Then
-        MsgBox "Error: Prompt text file is empty or could not be read.", vbCritical
+        MsgBox "Error: Prompt text file is empty or could not be read." & vbCrLf & _
+               "Prompt file: " & promptFilePath, vbCritical, "Prompt File Error"
         Exit Function
     End If
     
@@ -70,7 +83,19 @@ Public Function CallAPIsyn(fileContent As String, promptFilePath As String) As S
     http.Open "POST", url, False
     http.setRequestHeader "Content-Type", "application/json"
     http.setRequestHeader "Authorization", "Bearer " & apiKey
+    
+    Debug.Print "Sending HTTP request to: " & url
     http.send payload
+
+    Debug.Print "HTTP Status: " & http.Status
+    Debug.Print "HTTP Response length: " & Len(http.responseText)
+    
+    If http.Status <> 200 Then
+        MsgBox "API Error: HTTP " & http.Status & vbCrLf & _
+               "Response: " & Left(http.responseText, 500), vbCritical, "API Call Failed"
+        CallAPIsyn = ""
+        Exit Function
+    End If
 
     responseText = http.responseText
 
@@ -78,7 +103,14 @@ Public Function CallAPIsyn(fileContent As String, promptFilePath As String) As S
     Exit Function
 
 ErrorHandler:
-    MsgBox "Error: " & Err.Description, vbCritical
+    Debug.Print "ERROR in CallAPIsyn: " & Err.Number & " - " & Err.Description
+    MsgBox "Error calling API: " & Err.Description & vbCrLf & _
+           "Error Number: " & Err.Number & vbCrLf & vbCrLf & _
+           "Check:" & vbCrLf & _
+           "- API key files exist and are readable" & vbCrLf & _
+           "- Encryption key is correct" & vbCrLf & _
+           "- Network connection is available" & vbCrLf & _
+           "- Model name is valid", vbCritical, "API Error"
     CallAPIsyn = ""
 End Function
 
@@ -174,15 +206,20 @@ Function GetAPIKey(key As String, filePath As String) As String
 
     Set fso = CreateObject("Scripting.FileSystemObject")
     If Not fso.fileExists(filePath) Then
-        MsgBox "API key file not found.", vbCritical
+        MsgBox "API key file not found: " & filePath, vbCritical
+        GetAPIKey = ""
         Exit Function
     End If
 
     Set file = fso.OpenTextFile(filePath, ForReading)
     encryptedKey = file.ReadAll
     file.Close
+    
+    Debug.Print "Encrypted key length: " & Len(encryptedKey)
 
     decryptedKey = Decrypt(key, encryptedKey)
+    Debug.Print "After decryption length: " & Len(decryptedKey)
+    
     GetAPIKey = decryptedKey
 End Function
 

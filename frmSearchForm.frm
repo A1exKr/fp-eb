@@ -6,7 +6,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSearchForm
    ClientTop       =   465
    ClientWidth     =   11325
    OleObjectBlob   =   "frmSearchForm.frx":0000
-   StartUpPosition =   1  'ÉIÅ[ÉiÅ[ ÉtÉHÅ[ÉÄÇÃíÜâõ
+   StartUpPosition =   1  'ÔøΩIÔøΩ[ÔøΩiÔøΩ[ ÔøΩtÔøΩHÔøΩ[ÔøΩÔøΩÔøΩÃíÔøΩÔøΩÔøΩ
 End
 Attribute VB_Name = "frmSearchForm"
 Attribute VB_GlobalNameSpace = False
@@ -22,10 +22,18 @@ Private clickedIndex As Long
 
 
 Public Sub InitializeSearchForm()
+    Dim mDash As String
+    mDash = Chr(8212)  ' Em-dash character
+    
     Debug.Print "Initializing Search Form"
     
-    ' Show the form first
-    'frmSearchForm.Show
+    ' Initialize all form controls with mDash
+    Me.txtAreaMin.Value = mDash
+    Me.txtAreaMax.Value = mDash
+    Me.txtHeightMin.Value = mDash
+    Me.txtHeightMax.Value = mDash
+    Me.txtYearMin.Value = mDash
+    Me.txtYearMax.Value = mDash
     
     ' Ensure the cache file exists and handle it
     If Not EnsureCacheFileExists Then
@@ -108,7 +116,7 @@ Private Function CleanAndConvertValue(inputValue As String) As Double
     Dim cleanedValue As String
     cleanedValue = Replace(inputValue, ",", "")
     cleanedValue = Replace(cleanedValue, "m", "")
-    cleanedValue = Replace(cleanedValue, "Å\", "")
+    cleanedValue = Replace(cleanedValue, Chr(8212), "")
     If IsNumeric(cleanedValue) Then
         CleanAndConvertValue = CDbl(cleanedValue)
     Else
@@ -117,7 +125,7 @@ Private Function CleanAndConvertValue(inputValue As String) As Double
 End Function
 
 Private Function GetNumericValue(inputValue As String, defaultValue As Double) As Double
-    If inputValue = "Å\" Or Not IsNumeric(inputValue) Then
+    If inputValue = Chr(8212) Or Not IsNumeric(inputValue) Then
         GetNumericValue = defaultValue
     Else
         GetNumericValue = CDbl(inputValue)
@@ -159,7 +167,7 @@ End Sub
 Private Sub ResetSearch()
     ' Define the M-dash character
     Dim mDash As String
-    mDash = "Å\"
+    mDash = Chr(8212)  ' Em-dash character
     
     ' Reset ComboBoxes to M-dash
     Me.cmbType.value = mDash
@@ -177,7 +185,7 @@ Private Sub ResetSearch()
     Me.lstResults.Clear
     
     ' Print a message to the Immediate Window to confirm the reset
-    Debug.Print "All controls have been reset to M-dash (Å\)."
+    Debug.Print "All controls have been reset to M-dash (ÔøΩ\)."
 End Sub
 
 Sub cmdSavePdf_Click_()
@@ -298,7 +306,7 @@ Debug.Print ".FilterIndex* " & .FilterIndex
     
     On Error Resume Next
     ' Execute the command
-    Shell command, vbNormalFocus
+    Shell command, vbHide
     
     If Err.Number <> 0 Then
         MsgBox "Error merging PDFs: " & Err.Description, vbCritical, "Error"
@@ -351,6 +359,11 @@ Sub cmdSavePdf_Click()
     similarityThreshold = 0.8
 
     For i = 0 To Me.lstResults.ListCount - 1
+        ' Only process selected (checked) items
+        If Not Me.lstResults.Selected(i) Then
+            GoTo NextItem
+        End If
+        
         projectName = Trim(Mid(Me.lstResults.List(i), InStr(Me.lstResults.List(i), ". ") + 2))
         Dim found As Boolean
         found = False
@@ -361,26 +374,37 @@ Sub cmdSavePdf_Click()
                 pdfFilePath = item("File Path")
                 found = True
 
-matchedFile = ""
-
-Debug.Print "pdfFilePath: " & pdfFilePath
-
-For Each file In fso.GetFolder(fso.GetParentFolderName(pdfFilePath)).Files
-    If SimilarityRatio(pdfFilePath, file.path) > similarityThreshold Then
-        matchedFile = file.path
-        Debug.Print "matchedFile: " & matchedFile
-        confirmation = MsgBox("A similar file '" & matchedFile & "' was found. Is this the correct file?", vbYesNo + vbQuestion)
-        If confirmation = vbYes Then
-            pdfFilePath = matchedFile ' Save the file with the matched name from the directory
-            filePaths.Add matchedFile
-        End If
-    End If
-Next
-
-                If Dir(matchedFile) <> "" Then
-                    filePaths.Add matchedFile
+                matchedFile = ""
+                
+                Debug.Print "pdfFilePath: " & pdfFilePath
+                
+                ' Check if the original file exists
+                If Dir(pdfFilePath) <> "" Then
+                    matchedFile = pdfFilePath
+                    Debug.Print "Original file found: " & matchedFile
                 Else
-                    MsgBox "File not found: " & pdfFilePath, vbExclamation, "File Missing"
+                    ' Try to find similar file in the same folder
+                    On Error Resume Next
+                    For Each file In fso.GetFolder(fso.GetParentFolderName(pdfFilePath)).Files
+                        If SimilarityRatio(pdfFilePath, file.path) > similarityThreshold Then
+                            matchedFile = file.path
+                            Debug.Print "Similar file found: " & matchedFile
+                            confirmation = MsgBox("Original file not found. A similar file '" & fso.GetFileName(matchedFile) & "' was found. Use this file?", vbYesNo + vbQuestion, "File Not Found")
+                            If confirmation = vbYes Then
+                                Exit For ' Exit the loop once confirmed
+                            Else
+                                matchedFile = ""
+                            End If
+                        End If
+                    Next
+                    On Error GoTo 0
+                End If
+
+                If matchedFile <> "" And Dir(matchedFile) <> "" Then
+                    filePaths.Add matchedFile
+                    Debug.Print "Added to merge list: " & matchedFile
+                Else
+                    MsgBox "File not found and no valid replacement: " & pdfFilePath, vbExclamation, "File Missing"
                     Exit Sub
                 End If
                 Exit For
@@ -391,6 +415,8 @@ Next
             MsgBox "Project not found in cache: " & projectName, vbExclamation, "Missing Data"
             Exit Sub
         End If
+        
+NextItem:
     Next i
 
     If filePaths.Count = 0 Then
@@ -430,7 +456,7 @@ Debug.Print "command #" & i & "; "; command
     command = command & "cat output " & """" & outputPath & """"
 Debug.Print "Command: " & command
     On Error Resume Next
-    Shell command, vbNormalFocus
+    Shell command, vbHide
 
     If Err.Number <> 0 Then
         MsgBox "Error merging PDFs: " & Err.Description, vbCritical, "Error"
@@ -495,7 +521,7 @@ Private Sub SearchProjects()
 
     ' Define M-dash used as a default value in all inputs
     Dim mDash As String
-    mDash = "Å\"
+    mDash = Chr(8212)  ' Em-dash character
 
     ' Define the path to the JSON cache file
     jsonFilePath = GetRelativePath("\test output\cache.json")
@@ -561,10 +587,24 @@ Private Sub SearchProjects()
         ' Check City filter, allowing partial matches or matching any Location
         If matchFound And cityFilter <> mDash Then
             If projectItem.Exists("Location") Then
-'Debug.Print "cityFilter: " & cityFilter
-'Debug.Print "projectItem(Location): " & projectItem("Location")
-                matchFound = InStr(1, projectItem("Location"), cityFilter, vbTextCompare) > 0
-'Debug.Print "matchFound: " & matchFound
+                ' Location is an array, so we need to check each element
+                Dim locationMatch As Boolean
+                locationMatch = False
+                
+                If TypeName(projectItem("Location")) = "Collection" Then
+                    Dim locItem As Variant
+                    For Each locItem In projectItem("Location")
+                        If InStr(1, CStr(locItem), cityFilter, vbTextCompare) > 0 Then
+                            locationMatch = True
+                            Exit For
+                        End If
+                    Next locItem
+                Else
+                    ' Fallback if Location is a string
+                    locationMatch = InStr(1, CStr(projectItem("Location")), cityFilter, vbTextCompare) > 0
+                End If
+                
+                matchFound = locationMatch
             Else
                 matchFound = MultiParamMatch(projectItem("City"), cityFilter)
             End If
@@ -588,17 +628,17 @@ Private Sub SearchProjects()
         End If
 
         ' Area filter
-        If matchFound And projectItem.Exists("Total Floor Area (sqm)") Then
-            If CleanAndConvertValue(projectItem("Total Floor Area (sqm)")) < areaMinFilter Or _
-               CleanAndConvertValue(projectItem("Total Floor Area (sqm)")) > areaMaxFilter Then
+        If matchFound And projectItem.Exists("Total Floor Area") Then
+            If CleanAndConvertValue(projectItem("Total Floor Area")) < areaMinFilter Or _
+               CleanAndConvertValue(projectItem("Total Floor Area")) > areaMaxFilter Then
                 matchFound = False
             End If
         End If
 
         ' Height filter
-        If matchFound And projectItem.Exists("Building Height (m)") Then
-            If CleanAndConvertValue(projectItem("Building Height (m)")) < heightMinFilter Or _
-               CleanAndConvertValue(projectItem("Building Height (m)")) > heightMaxFilter Then
+        If matchFound And projectItem.Exists("Building Height") Then
+            If CleanAndConvertValue(projectItem("Building Height")) < heightMinFilter Or _
+               CleanAndConvertValue(projectItem("Building Height")) > heightMaxFilter Then
                 matchFound = False
             End If
         End If
@@ -687,7 +727,7 @@ Private Function CleanAndConvertValue_(inputValue As String) As Double
     ' Remove any non-numeric characters except for "." (period) and "-"
     cleanedValue = Replace(cleanedValue, ",", "")  ' Remove commas
     cleanedValue = Replace(cleanedValue, "m", "")  ' Remove "m" (if it appears as in "500m")
-    cleanedValue = Replace(cleanedValue, "Å\", "")  ' Remove M-dash if present
+    cleanedValue = Replace(cleanedValue, Chr(8212), "")  ' Remove M-dash if present
     ' Return the cleaned value as a double
     If IsNumeric(cleanedValue) Then
         CleanAndConvertValue_ = CDbl(cleanedValue)
@@ -698,7 +738,7 @@ End Function
 
 ' Function to retrieve numeric value or return default value if not applicable
 Private Function GetNumericValue_(inputValue As String, defaultValue As Double) As Double
-    If inputValue = "Å\" Or Not IsNumeric(inputValue) Then
+    If inputValue = Chr(8212) Or Not IsNumeric(inputValue) Then
         GetNumericValue_ = defaultValue
     Else
         GetNumericValue_ = CDbl(inputValue)
@@ -974,7 +1014,7 @@ Private Sub PopulateDropdown(cmb As MSForms.ComboBox, key As String)
     Dim jsonText As String
     Dim fso As Object, jsonFile As Object
 
-    mDash = "Å\"  ' Define the M-dash character
+    mDash = Chr(8212)  ' Em-dash character
 
     ' Initialize collections
     Set uniqueValues = New Collection

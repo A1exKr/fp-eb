@@ -385,11 +385,28 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object)
 
     cacheFilePath = GetRelativePath("\test output\cache.json")
 
+    ' Check if gptResponse is empty or invalid
+    If Len(Trim(gptResponse)) = 0 Then
+        MsgBox "No response received from API. Please check your API key and connection.", vbCritical, "API Error"
+        Exit Sub
+    End If
+
     ' Step 1: Remove surrounding markdown formatting (```json\n...\n```)
     gptResponse = RemoveMarkdownFormatting(gptResponse)
 
-    ' Step 2: Parse the JSON response using JsonConverter
+    ' Step 2: Parse the JSON response using JsonConverter with error handling
+    On Error Resume Next
     Set jsonResponse = JsonConverter.ParseJSON(gptResponse)
+    If Err.Number <> 0 Or jsonResponse Is Nothing Then
+        Debug.Print "ERROR: Failed to parse API response as JSON"
+        Debug.Print "Response (first 1000 chars): " & Left(gptResponse, 1000)
+        MsgBox "Failed to parse API response." & vbCrLf & _
+               "The API may have returned an error or invalid JSON." & vbCrLf & vbCrLf & _
+               "Response: " & Left(gptResponse, 300), vbCritical, "API Response Error"
+        On Error GoTo 0
+        Exit Sub
+    End If
+    On Error GoTo ErrorHandler
     'Debug.Print "00 gptResponse = " & gptResponse
 
     ' Step 3: Extract the 'content' field containing the inner JSON
@@ -415,33 +432,34 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object)
     ' Initialize or modify the JSON array in the cache file
     If Trim(fileContent) = "" Then
         ' If the cache file is empty, start a new array
-        'fileContent = "[" & vbCrLf & contentText & vbCrLf & "]"
         fileContent = contentText & vbCrLf
     Else
-        ' If the cache file has content, remove the final bracket and append the new content with a comma
-        'fileContent = Left(Trim(fileContent), Len(Trim(fileContent)) - 1) & "," & vbCrLf & contentText & vbCrLf & "]"
-        ' Step 1: Locate and extract JSON objects within square brackets in contentText
-        Dim startPos As Integer, endPos As Integer
+        ' Parse existing cache to ensure it's a valid array
+        Dim existingArray As Object
+        On Error Resume Next
+        Set existingArray = JsonConverter.ParseJSON(fileContent)
+        On Error GoTo ErrorHandler
         
-        startPos = InStr(contentText, "[")   ' Find the first `[`
-        endPos = InStrRev(contentText, "]")  ' Find the last `]`
-        
-        ' Only keep the content between the first `[` and the last `]`, if both are found
-        If startPos > 0 And endPos > 0 And endPos > startPos Then
-            contentText = Mid(contentText, startPos + 1, endPos - startPos - 1)
+        ' If cache is valid JSON array, extract items from contentText and append
+        If Not existingArray Is Nothing And TypeName(existingArray) = "Collection" Then
+            ' Extract items from contentText (which should be an array from API)
+            Dim newArray As Object
+            Set newArray = JsonConverter.ParseJSON(contentText)
+            
+            If Not newArray Is Nothing And TypeName(newArray) = "Collection" Then
+                ' Append each new item to existing array
+                Dim newItem As Variant
+                For Each newItem In newArray
+                    existingArray.Add newItem
+                Next newItem
+                
+                ' Convert back to JSON
+                fileContent = JsonConverter.ConvertToJson(existingArray, Whitespace:=2)
+            End If
+        Else
+            ' If existing cache is invalid, replace with new content
+            fileContent = contentText & vbCrLf
         End If
-        
-        ' Step 2: Locate and remove only the last closing `]` in fileContent
-        Dim lastBracketPos As Integer
-        lastBracketPos = InStrRev(fileContent, "]") ' Find the last `]`
-        
-        If lastBracketPos > 0 Then
-            fileContent = Left(fileContent, lastBracketPos - 3) ' Remove the last `]` and line breakss
-        End If
-        
-        ' Step 3: Append contentText to fileContent and close the JSON array with `]`
-        fileContent = fileContent & "," & contentText & "]"
-        
     End If
 
     ' Rewrite the entire cache file with updated content
@@ -617,20 +635,17 @@ Private Function RemoveRemnants(ByVal response As String) As String
 End Function
 
 Private Function RemoveBSEscape(ByVal response As String) As String
-    ' Remove the ```json or ``` from the response
-    'response = Replace(response, "```json", "")
-    'response = Replace(response, "[", "")
-    'response = Replace(response, "]", "")
-    'response = Replace(response, "\\", "\")
+    ' Remove wrapper structure if present
     response = Replace(response, "{" & vbCrLf & "  " & """projects"": ", "")
-    Debug.Print ("{" & vbCrLf & "  " & """projects"": ")
     response = Replace(response, "]" & vbCrLf & "}", "]")
     response = Replace(response, "```", "")
-    ' Remove extra newlines
-    'response = Replace(response, vbCrLf, "")
-    'response = Replace(response, vbLf, "")
     
-    ' Return the cleaned response
+    ' Remove any leading commas that might have been introduced
+    response = Trim(response)
+    If Left(response, 2) = "[," Then
+        response = "[" & Mid(response, 3)
+    End If
+    
     RemoveBSEscape = response
 End Function
 
@@ -815,10 +830,16 @@ Public Function ExtractAndParsePDFs(pdfFiles As Collection, cacheFilePath As Str
             ' Parse JSON cache data with error handling
             On Error Resume Next
             Set cacheData = ParseJSON(cacheJsonText)
-            Debug.Print ("ParseJson cacheJsonText " & cacheJsonText)
             If Err.Number <> 0 Then
-                MsgBox "Cache file contains invalid JSON format.", vbExclamation, "Error"
+                Debug.Print "ERROR: Cache file contains invalid JSON format."
+                Debug.Print "Cache file path: " & cacheFilePath
+                Debug.Print "First 500 chars: " & Left(cacheJsonText, 500)
+                MsgBox "Cache file contains invalid JSON format." & vbCrLf & _
+                       "File: " & cacheFilePath & vbCrLf & _
+                       "Error: " & Err.Description, vbExclamation, "JSON Parse Error"
                 Set cacheData = Nothing ' Clear invalid cache data
+            Else
+                Debug.Print "Successfully parsed cache JSON from: " & cacheFilePath
             End If
             On Error GoTo 0
         End If
@@ -1067,7 +1088,7 @@ Public Function ExtractTextFromPDFSheet(pdfPath As String, txtPath As String) As
     
     ' Extract Text using MuPDF
     command = engine & " draw -F txt -o " & Chr(34) & txtPath & Chr(34) & " " & Chr(34) & pdfPath & Chr(34)
-    Shell command, vbNormalFocus
+    Shell command, vbHide
     
     ' Wait for Extraction to Complete
     WaitForFile txtPath
