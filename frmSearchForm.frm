@@ -48,6 +48,69 @@ Private Function ReadUTF8File(filePath As String) As String
     End If
 End Function
 
+' Normalize Unicode characters in filenames to handle cross-platform and encoding issues
+Private Function NormalizeFilenameUnicode(fileName As String) As String
+    Dim result As String
+    Dim i As Long
+    Dim charCode As Long
+    Dim currentChar As String
+    
+    result = fileName
+    
+    ' Normalize various forms of punctuation and special characters
+    ' Middle dots and bullets
+    result = Replace(result, ChrW(&H2022), ChrW(&HB7))      ' bullet • to middle dot ·
+    result = Replace(result, ChrW(&H30FB), ChrW(&HB7))      ' katakana middle dot ・ to ·
+    result = Replace(result, ChrW(&H2219), ChrW(&HB7))      ' bullet operator ∙ to ·
+    result = Replace(result, ChrW(&H22C5), ChrW(&HB7))      ' dot operator ⋅ to ·
+    result = Replace(result, ChrW(&H2027), ChrW(&HB7))      ' hyphenation point ‧ to ·
+    
+    ' En dash and em dash variations
+    result = Replace(result, ChrW(&H2013), "-")             ' en dash – to hyphen
+    result = Replace(result, ChrW(&H2014), "-")             ' em dash — to hyphen
+    result = Replace(result, ChrW(&H2212), "-")             ' minus sign − to hyphen
+    result = Replace(result, ChrW(&HFF0D), "-")             ' fullwidth hyphen － to hyphen
+    
+    ' Quotation marks
+    result = Replace(result, ChrW(&H201C), Chr(34))         ' left double quote " to "
+    result = Replace(result, ChrW(&H201D), Chr(34))         ' right double quote " to "
+    result = Replace(result, ChrW(&H2018), "'")             ' left single quote ' to '
+    result = Replace(result, ChrW(&H2019), "'")             ' right single quote ' to '
+    result = Replace(result, ChrW(&H201A), "'")             ' single low quote ‚ to '
+    result = Replace(result, ChrW(&H201E), Chr(34))         ' double low quote „ to "
+    
+    ' Parentheses and brackets (fullwidth to halfwidth)
+    result = Replace(result, ChrW(&HFF08), "(")             ' fullwidth ( to (
+    result = Replace(result, ChrW(&HFF09), ")")             ' fullwidth ) to )
+    result = Replace(result, ChrW(&HFF3B), "[")             ' fullwidth [ to [
+    result = Replace(result, ChrW(&HFF3D), "]")             ' fullwidth ] to ]
+    
+    ' Spaces
+    result = Replace(result, ChrW(&H3000), " ")             ' ideographic space to regular space
+    result = Replace(result, ChrW(&HA0), " ")               ' non-breaking space to regular space
+    result = Replace(result, ChrW(&H202F), " ")             ' narrow no-break space to regular space
+    
+    ' Ampersands
+    result = Replace(result, ChrW(&HFF06), "&")             ' fullwidth & to &
+    
+    ' Colons
+    result = Replace(result, ChrW(&HFF1A), ":")             ' fullwidth : to :
+    result = Replace(result, ChrW(&H2236), ":")             ' ratio : to :
+    
+    ' Slashes
+    result = Replace(result, ChrW(&HFF0F), "/")             ' fullwidth / to /
+    result = Replace(result, ChrW(&H2044), "/")             ' fraction slash ⁄ to /
+    
+    ' Other common replacements
+    result = Replace(result, ChrW(&H2026), "...")           ' ellipsis … to ...
+    result = Replace(result, ChrW(&HFF0C), ",")             ' fullwidth , to ,
+    result = Replace(result, ChrW(&HFF0E), ".")             ' fullwidth . to .
+    result = Replace(result, ChrW(&HFF1F), "?")             ' fullwidth ? to ?
+    result = Replace(result, ChrW(&HFF01), "!")             ' fullwidth ! to !
+    
+    NormalizeFilenameUnicode = result
+End Function
+
 
 
 Public Sub InitializeSearchForm()
@@ -446,10 +509,8 @@ Sub cmdSavePdf_Click()
             If item("Project Name") = projectName Then
                 pdfFilePath = item("File Path")
                 
-                ' Normalize Unicode characters that might cause file path issues
-                ' Replace various middle dot characters with the standard one
-                pdfFilePath = Replace(pdfFilePath, ChrW(&H2022), ChrW(&HB7))  ' bullet • to middle dot ·
-                pdfFilePath = Replace(pdfFilePath, ChrW(&H30FB), ChrW(&HB7))  ' katakana middle dot ・ to middle dot ·
+                ' Normalize Unicode characters in the file path for consistent matching
+                pdfFilePath = NormalizeFilenameUnicode(pdfFilePath)
                 
                 ' Debug: Print character codes for troubleshooting
                 Dim debugMsg As String
@@ -551,27 +612,17 @@ Sub cmdSavePdf_Click()
                                 matchedFile = exactMatchPath
                                 Debug.Print "Exact match found: " & matchedFile
                             Else
-                                ' If exact match fails, try normalizing special characters and searching
+                                ' If exact match fails, try normalizing Unicode characters and searching
                                 Debug.Print "Exact match failed, trying normalized filename search..."
                                 Dim normalizedTarget As String
-                                normalizedTarget = targetFileName
-                                ' Normalize various middle dot characters
-                                normalizedTarget = Replace(normalizedTarget, ChrW(&H2022), ChrW(&HB7))  ' bullet • to ·
-                                normalizedTarget = Replace(normalizedTarget, ChrW(&H30FB), ChrW(&HB7))  ' katakana ・ to ·
-                                normalizedTarget = Replace(normalizedTarget, ChrW(&H2219), ChrW(&HB7))  ' bullet operator ∙ to ·
-                                normalizedTarget = Replace(normalizedTarget, ChrW(&H22C5), ChrW(&HB7))  ' dot operator ⋅ to ·
+                                normalizedTarget = NormalizeFilenameUnicode(targetFileName)
                                 
                                 ' Search folder for files with normalized names
                                 For Each file In fso.GetFolder(searchFolder).Files
                                     Dim diskFileName As String
                                     Dim normalizedDisk As String
                                     diskFileName = fso.GetFileName(file.path)
-                                    normalizedDisk = diskFileName
-                                    ' Apply same normalization to disk filename
-                                    normalizedDisk = Replace(normalizedDisk, ChrW(&H2022), ChrW(&HB7))
-                                    normalizedDisk = Replace(normalizedDisk, ChrW(&H30FB), ChrW(&HB7))
-                                    normalizedDisk = Replace(normalizedDisk, ChrW(&H2219), ChrW(&HB7))
-                                    normalizedDisk = Replace(normalizedDisk, ChrW(&H22C5), ChrW(&HB7))
+                                    normalizedDisk = NormalizeFilenameUnicode(diskFileName)
                                     
                                     If StrComp(normalizedTarget, normalizedDisk, vbTextCompare) = 0 Then
                                         matchedFile = file.path
