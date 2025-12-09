@@ -19,6 +19,35 @@ Option Explicit
 ' Declare a module-level variable to track the clicked index
 Private clickedIndex As Long
 
+' Helper function to read UTF-8 text files (required for Japanese characters)
+Private Function ReadUTF8File(filePath As String) As String
+    Dim stream As Object
+    Dim fso As Object
+    
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    
+    If fso.fileExists(filePath) Then
+        Set stream = CreateObject("ADODB.Stream")
+        stream.Type = 2 ' Text
+        stream.Charset = "UTF-8"
+        stream.Open
+        
+        On Error Resume Next
+        stream.LoadFromFile filePath
+        If Err.Number = 0 Then
+            ReadUTF8File = stream.ReadText
+        Else
+            Debug.Print "ReadUTF8File ERROR: " & Err.Description
+            ReadUTF8File = ""
+        End If
+        On Error GoTo 0
+        
+        stream.Close
+    Else
+        ReadUTF8File = ""
+    End If
+End Function
+
 
 
 Public Sub InitializeSearchForm()
@@ -28,12 +57,12 @@ Public Sub InitializeSearchForm()
     Debug.Print "Initializing Search Form"
     
     ' Initialize all form controls with mDash
-    Me.txtAreaMin.Value = mDash
-    Me.txtAreaMax.Value = mDash
-    Me.txtHeightMin.Value = mDash
-    Me.txtHeightMax.Value = mDash
-    Me.txtYearMin.Value = mDash
-    Me.txtYearMax.Value = mDash
+    Me.txtAreaMin.value = mDash
+    Me.txtAreaMax.value = mDash
+    Me.txtHeightMin.value = mDash
+    Me.txtHeightMax.value = mDash
+    Me.txtYearMin.value = mDash
+    Me.txtYearMax.value = mDash
     
     ' Ensure the cache file exists and handle it
     If Not EnsureCacheFileExists Then
@@ -71,10 +100,8 @@ Private Function EnsureCacheFileExists() As Boolean
         isFileCreated = True
     End If
 
-    ' Read the JSON file content
-    Set jsonFile = fso.OpenTextFile(jsonFilePath, ForReading)
-    jsonText = jsonFile.ReadAll
-    jsonFile.Close
+    ' Read the JSON file content using UTF-8 encoding
+    jsonText = ReadUTF8File(jsonFilePath)
 
     ' Check if the file is empty or contains only an empty JSON object "{}"
     If Len(Trim(jsonText)) = 0 Or jsonText = "[]" Then
@@ -185,7 +212,7 @@ Private Sub ResetSearch()
     Me.lstResults.Clear
     
     ' Print a message to the Immediate Window to confirm the reset
-    Debug.Print "All controls have been reset to M-dash (�\)."
+    Debug.Print "All controls have been reset to M-dash (?\)."
 End Sub
 
 Sub cmdSavePdf_Click_()
@@ -222,9 +249,8 @@ Sub cmdSavePdf_Click_()
         Exit Sub
     End If
     
-    Set jsonFile = fso.OpenTextFile(cacheFilePath, ForReading)
-    jsonText = jsonFile.ReadAll
-    jsonFile.Close
+    ' Read with UTF-8 encoding for Japanese character support
+    jsonText = ReadUTF8File(cacheFilePath)
     
     ' Parse JSON data from cache
     Set cacheData = ParseJSON(jsonText)
@@ -245,12 +271,60 @@ Sub cmdSavePdf_Click_()
             If item("Project Name") = projectName Then
                 pdfFilePath = item("File Path")
                 found = True
+                
                 ' Check if file exists before adding to the collection
                 If Dir(pdfFilePath) <> "" Then
                     filePaths.Add pdfFilePath
                 Else
-                    MsgBox "File not found: " & pdfFilePath, vbExclamation, "File Missing"
-                    Exit Sub
+                    ' File not found - try code-based matching
+                    Dim searchFolder As String
+                    Dim actualFile As String
+                    actualFile = ""
+                    
+                    ' Get folder path
+                    On Error Resume Next
+                    If InStr(pdfFilePath, "\") > 0 Then
+                        searchFolder = fso.GetParentFolderName(pdfFilePath)
+                    ElseIf selectedFolderPath <> "" Then
+                        searchFolder = selectedFolderPath
+                    End If
+                    
+                    ' Try to find file by code
+                    If searchFolder <> "" And fso.FolderExists(searchFolder) Then
+                        Dim targetFileName As String
+                        Dim fileCode As String
+                        targetFileName = fso.GetFileName(pdfFilePath)
+                        
+                        If InStr(targetFileName, "_") > 0 Then
+                            fileCode = Left(targetFileName, InStr(targetFileName, "_") - 1)
+                            
+                            ' Look for matching file
+                            Dim file As Object
+                            For Each file In fso.GetFolder(searchFolder).Files
+                                If Left(fso.GetFileName(file.path), Len(fileCode)) = fileCode And LCase(Right(file.Name, 4)) = ".pdf" Then
+                                    actualFile = file.path
+                                    Exit For
+                                End If
+                            Next
+                        Else
+                            ' No underscore - try exact match first (for Japanese filenames)
+                            Dim exactMatchPath As String
+                            exactMatchPath = searchFolder & "\" & targetFileName
+                            If fso.FileExists(exactMatchPath) Then
+                                actualFile = exactMatchPath
+                            End If
+                        End If
+                    End If
+                    On Error GoTo 0
+                    
+                    ' If found by code, use it; otherwise show error
+                    If actualFile <> "" And Dir(actualFile) <> "" Then
+                        filePaths.Add actualFile
+                        Debug.Print "Code-based match used: " & actualFile
+                    Else
+                        MsgBox "File not found: " & pdfFilePath, vbExclamation, "File Missing"
+                        Exit Sub
+                    End If
                 End If
                 Exit For
             End If
@@ -350,9 +424,8 @@ Sub cmdSavePdf_Click()
         Exit Sub
     End If
 
-    Set jsonFile = fso.OpenTextFile(cacheFilePath, ForReading)
-    jsonText = jsonFile.ReadAll
-    jsonFile.Close
+    ' Read with UTF-8 encoding for Japanese character support
+    jsonText = ReadUTF8File(cacheFilePath)
     Set cacheData = ParseJSON(jsonText)
 
     command = pdftkPath & " "
@@ -383,20 +456,109 @@ Sub cmdSavePdf_Click()
                     matchedFile = pdfFilePath
                     Debug.Print "Original file found: " & matchedFile
                 Else
-                    ' Try to find similar file in the same folder
+                    ' Original file not found - try code-based matching first
+                    Debug.Print "Original file not found, trying code-based match..."
+                    
                     On Error Resume Next
-                    For Each file In fso.GetFolder(fso.GetParentFolderName(pdfFilePath)).Files
-                        If SimilarityRatio(pdfFilePath, file.path) > similarityThreshold Then
-                            matchedFile = file.path
-                            Debug.Print "Similar file found: " & matchedFile
-                            confirmation = MsgBox("Original file not found. A similar file '" & fso.GetFileName(matchedFile) & "' was found. Use this file?", vbYesNo + vbQuestion, "File Not Found")
-                            If confirmation = vbYes Then
-                                Exit For ' Exit the loop once confirmed
-                            Else
-                                matchedFile = ""
+                    
+                    ' Check if pdfFilePath has a parent folder, otherwise try selectedFolderPath
+                    Dim searchFolder As String
+                    searchFolder = ""
+                    
+                    If InStr(pdfFilePath, "\") > 0 Then
+                        ' pdfFilePath contains a path
+                        If fso.FolderExists(fso.GetParentFolderName(pdfFilePath)) Then
+                            searchFolder = fso.GetParentFolderName(pdfFilePath)
+                        End If
+                    Else
+                        ' pdfFilePath is just a filename - try to extract folder from other cache entries
+                        Dim otherItem As Object
+                        For Each otherItem In cacheData
+                            If otherItem.Exists("File Path") Then
+                                Dim otherPath As String
+                                otherPath = otherItem("File Path")
+                                If InStr(otherPath, "\") > 0 And fso.FolderExists(fso.GetParentFolderName(otherPath)) Then
+                                    searchFolder = fso.GetParentFolderName(otherPath)
+                                    Debug.Print "Using folder from other cache entry: " & searchFolder
+                                    ' Try constructing the full path
+                                    Dim possiblePath As String
+                                    possiblePath = searchFolder & "\" & pdfFilePath
+                                    If fso.FileExists(possiblePath) Then
+                                        matchedFile = possiblePath
+                                        Debug.Print "Reconstructed full path: " & matchedFile
+                                        Exit For
+                                    End If
+                                End If
+                            End If
+                        Next otherItem
+                    End If
+                    
+                    ' If no valid folder yet, try selectedFolderPath from MainModule
+                    If searchFolder = "" And selectedFolderPath <> "" Then
+                        If fso.FolderExists(selectedFolderPath) Then
+                            searchFolder = selectedFolderPath
+                        End If
+                    End If
+                    
+                    ' Search for similar files if we have a valid folder
+                    If searchFolder <> "" Then
+                        ' First try code-based matching (more reliable for special characters)
+                        Dim targetFileName As String
+                        Dim fileCode As String
+                        targetFileName = fso.GetFileName(pdfFilePath)
+                        
+                        ' Extract file code (e.g., "N070076" from "N070076_SOMETHING.pdf")
+                        If InStr(targetFileName, "_") > 0 Then
+                            fileCode = Left(targetFileName, InStr(targetFileName, "_") - 1)
+                            Debug.Print "Searching by file code: " & fileCode
+                            
+                            ' Look for files with matching code
+                            For Each file In fso.GetFolder(searchFolder).Files
+                                Dim currentFileName As String
+                                currentFileName = fso.GetFileName(file.path)
+                                If Left(currentFileName, Len(fileCode)) = fileCode And LCase(Right(currentFileName, 4)) = ".pdf" Then
+                                    matchedFile = file.path
+                                    Debug.Print "Code-based match found: " & matchedFile
+                                    Exit For
+                                End If
+                            Next
+                        Else
+                            ' No underscore - try exact match first (for Japanese filenames)
+                            Debug.Print "No file code found, trying exact match for: " & targetFileName
+                            Dim exactMatchPath As String
+                            exactMatchPath = searchFolder & "\" & targetFileName
+                            If fso.FileExists(exactMatchPath) Then
+                                matchedFile = exactMatchPath
+                                Debug.Print "Exact match found: " & matchedFile
                             End If
                         End If
-                    Next
+                        
+                        ' If code-based matching failed, try similarity matching
+                        If matchedFile = "" Then
+                            Debug.Print "Code-based match failed, trying similarity..."
+                            
+                            ' Remove extension for better comparison
+                            Dim targetBaseName As String
+                            Dim actualBaseName As String
+                            targetBaseName = Replace(targetFileName, ".pdf", "", 1, -1, vbTextCompare)
+                            
+                            For Each file In fso.GetFolder(searchFolder).Files
+                                actualBaseName = Replace(fso.GetFileName(file.path), ".pdf", "", 1, -1, vbTextCompare)
+                                
+                                If SimilarityRatio(targetBaseName, actualBaseName) > similarityThreshold Then
+                                    matchedFile = file.path
+                                    Debug.Print "Similar file found: " & matchedFile
+                                    confirmation = MsgBox("Original file not found. A similar file '" & fso.GetFileName(matchedFile) & "' was found. Use this file?", vbYesNo + vbQuestion, "File Not Found")
+                                    If confirmation = vbYes Then
+                                        Exit For ' Exit the loop once confirmed
+                                    Else
+                                        matchedFile = ""
+                                    End If
+                                End If
+                            Next
+                        End If
+                    End If
+                    
                     On Error GoTo 0
                 End If
 
@@ -404,7 +566,7 @@ Sub cmdSavePdf_Click()
                     filePaths.Add matchedFile
                     Debug.Print "Added to merge list: " & matchedFile
                 Else
-                    MsgBox "File not found and no valid replacement: " & pdfFilePath, vbExclamation, "File Missing"
+                    MsgBox "File not found and no valid replacement: " & pdfFilePath & vbCrLf & "Search folder: " & searchFolder, vbExclamation, "File Missing"
                     Exit Sub
                 End If
                 Exit For
@@ -535,10 +697,8 @@ Private Sub SearchProjects()
         Exit Sub
     End If
 
-    ' Read the JSON file content
-    Set jsonFile = fso.OpenTextFile(jsonFilePath, ForReading)
-    jsonText = jsonFile.ReadAll
-    jsonFile.Close
+    ' Read the JSON file content with UTF-8 encoding for Japanese character support
+    jsonText = ReadUTF8File(jsonFilePath)
 
     ' Parse the JSON data using JsonConverter
     Set jsonData = JsonConverter.ParseJSON(jsonText)
@@ -1031,14 +1191,9 @@ Debug.Print "jsonFilePath: " & jsonFilePath
         Exit Sub
     End If
 
-    ' Read the JSON file content
-    Set jsonFile = fso.OpenTextFile(jsonFilePath, ForReading)
-'Debug.Print "Set jsonFile = fs "
-
-    jsonText = jsonFile.ReadAll
+    ' Read the JSON file content with UTF-8 encoding for Japanese character support
+    jsonText = ReadUTF8File(jsonFilePath)
 'Debug.Print "jsonText: " & jsonText
-
-    jsonFile.Close
 
     ' Parse the JSON data
     Set jsonData = JsonConverter.ParseJSON(jsonText)
@@ -1154,10 +1309,8 @@ Sub PopulateListFromJsonCache()
         Exit Sub
     End If
 
-    ' Read the JSON file content
-    Set jsonFile = fso.OpenTextFile(jsonFilePath, ForReading)
-    jsonText = jsonFile.ReadAll
-    jsonFile.Close
+    ' Read the JSON file content with UTF-8 encoding for Japanese character support
+    jsonText = ReadUTF8File(jsonFilePath)
 
     ' Parse the JSON data
     Set jsonData = JsonConverter.ParseJSON(jsonText)
@@ -1199,6 +1352,8 @@ Sub PopulateListFromJsonCache()
 ErrorHandler:
     MsgBox "Error in PopulateListFromJsonCache: " & Err.Description, vbCritical, "Error"
 End Sub
+
+
 
 
 

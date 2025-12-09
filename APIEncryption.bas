@@ -1,4 +1,5 @@
 Attribute VB_Name = "APIEncryption"
+'Attribute VB_Name = "APIEncryption"
 ' Module for API Key Encryption/Decryption
 Option Explicit
 
@@ -62,7 +63,7 @@ Sub CreateEncryptedAPIKeyFile()
     
     ' Step 5: Save the encrypted data to a new file in the same folder as the workbook
     Dim encryptedFilePath As String
-    encryptedFilePath = ThisWorkbook.Path & "\apikey.dat"
+    encryptedFilePath = ThisWorkbook.path & "\apikey.dat"
     
     Set file = fso.CreateTextFile(encryptedFilePath, True)
     file.Write encryptedData
@@ -71,4 +72,5 @@ Sub CreateEncryptedAPIKeyFile()
     ' Step 7: Notify user of success
     MsgBox "Encrypted API key file saved to: " & encryptedFilePath, vbInformation
 End Sub
+
 

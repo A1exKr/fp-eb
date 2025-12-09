@@ -1,4 +1,5 @@
 Attribute VB_Name = "APIModule"
+
 Option Explicit
 
 'Attribute VB_Name = "APIModule"
@@ -87,11 +88,11 @@ Public Function CallAPIsyn(fileContent As String, promptFilePath As String) As S
     Debug.Print "Sending HTTP request to: " & url
     http.send payload
 
-    Debug.Print "HTTP Status: " & http.Status
+    Debug.Print "HTTP Status: " & http.status
     Debug.Print "HTTP Response length: " & Len(http.responseText)
     
-    If http.Status <> 200 Then
-        MsgBox "API Error: HTTP " & http.Status & vbCrLf & _
+    If http.status <> 200 Then
+        MsgBox "API Error: HTTP " & http.status & vbCrLf & _
                "Response: " & Left(http.responseText, 500), vbCritical, "API Call Failed"
         CallAPIsyn = ""
         Exit Function
@@ -222,4 +223,6 @@ Function GetAPIKey(key As String, filePath As String) As String
     
     GetAPIKey = decryptedKey
 End Function
+
+
 

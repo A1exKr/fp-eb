@@ -1,4 +1,5 @@
 Attribute VB_Name = "Parser"
+
 Option Explicit
 
 ' -------------------------
@@ -369,7 +370,7 @@ Private Function BuildNestedString__(ByVal dict As Variant, Optional indent As S
     BuildNestedString__ = result
 End Function
 
-Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object)
+Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object, Optional ByVal originalFilePaths As Collection = Nothing)
     On Error GoTo ErrorHandler
     Dim jsonResponse As Object
     Dim contentText As String
@@ -447,14 +448,136 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object)
             Set newArray = JsonConverter.ParseJSON(contentText)
             
             If Not newArray Is Nothing And TypeName(newArray) = "Collection" Then
-                ' Append each new item to existing array
+                ' Append each new item to existing array, checking for duplicates
                 Dim newItem As Variant
+                Dim existingItem As Variant
+                Dim isDuplicate As Boolean
+                Dim newFileName As String
+                Dim existingFileName As String
+                Dim newItemsCount As Long
+                Dim duplicatesCount As Long
+                Dim correctedFilePath As String
+                
+                newItemsCount = 0
+                duplicatesCount = 0
+                
+                Debug.Print ">>> API returned " & newArray.Count & " items in this batch"
+                
+                Dim duplicateProjectMsg As String
+                duplicateProjectMsg = ""
+                
+                Dim batchIndex As Long
+                batchIndex = 1
+                
                 For Each newItem In newArray
-                    existingArray.Add newItem
+                    isDuplicate = False
+                    newFileName = ""  ' Reset for each item to prevent false duplicates
+                    
+                    ' Get the file name from the new item
+                    If TypeName(newItem) = "Dictionary" Then
+                        ' STRICT MAPPING: Always use the original file path from the batch if available
+                        ' This bypasses API hallucinations and character corruption completely
+                        If Not originalFilePaths Is Nothing And newArray.Count = originalFilePaths.Count Then
+                            correctedFilePath = originalFilePaths(batchIndex)
+                            newItem("File Path") = correctedFilePath
+                            newFileName = GetFileNameFromPath(correctedFilePath)
+                            Debug.Print ">>> Mapped by INDEX: " & batchIndex & " -> " & newFileName
+                        Else
+                            ' Fallback to existing logic if counts don't match
+                            If newItem.Exists("File Path") Then
+                                newFileName = GetFileNameFromPath(newItem("File Path"))
+                                correctedFilePath = FindOriginalFilePath(newItem("File Path"), originalFilePaths)
+                                If correctedFilePath <> "" Then
+                                    newItem("File Path") = correctedFilePath
+                                    newFileName = GetFileNameFromPath(correctedFilePath)
+                                End If
+                            Else
+                                Debug.Print ">>> WARNING: Item has no 'File Path' field, cannot check for duplicates"
+                            End If
+                        End If
+                    End If
+                    
+                    ' Skip duplicate check if we couldn't determine the filename
+                    If Len(newFileName) = 0 Then
+                        Debug.Print ">>> WARNING: No filename determined for item, adding without duplicate check"
+                        existingArray.Add newItem
+                        newItemsCount = newItemsCount + 1
+                        batchIndex = batchIndex + 1
+                        GoTo NextNewItem
+                    End If
+                        
+                    Debug.Print ">>> Checking item: " & newFileName
+                    
+                    ' Check if this file already exists in cache
+                    For Each existingItem In existingArray
+                        If TypeName(existingItem) = "Dictionary" And existingItem.Exists("File Path") Then
+                            existingFileName = GetFileNameFromPath(existingItem("File Path"))
+                            Debug.Print ">>>   Comparing with: " & existingFileName & " (len=" & Len(existingFileName) & ")"
+                            If StrComp(newFileName, existingFileName, vbTextCompare) = 0 Then
+                                isDuplicate = True
+                                duplicatesCount = duplicatesCount + 1
+                                Debug.Print ">>> DUPLICATE: Skipping " & newFileName
+                                Exit For
+                            End If
+                        End If
+                    Next existingItem
+                    
+                    ' Only add if not a duplicate
+                    If Not isDuplicate Then
+                        ' Check for duplicate Project Name (same project, different file)
+                        If TypeName(newItem) = "Dictionary" And newItem.Exists("Project Name") Then
+                            Dim pName As String
+                            pName = newItem("Project Name")
+                            Dim exItem As Variant
+                            Dim exFile As String
+                            
+                            For Each exItem In existingArray
+                                If TypeName(exItem) = "Dictionary" And exItem.Exists("Project Name") Then
+                                    If StrComp(exItem("Project Name"), pName, vbTextCompare) = 0 Then
+                                        ' Same project name found
+                                        If exItem.Exists("File Path") Then
+                                            exFile = GetFileNameFromPath(exItem("File Path"))
+                                            ' If filenames are different, report it
+                                            If StrComp(exFile, newFileName, vbTextCompare) <> 0 Then
+                                                duplicateProjectMsg = duplicateProjectMsg & _
+                                                    "Project: " & pName & vbCrLf & _
+                                                    " - Existing: " & exFile & vbCrLf & _
+                                                    " - New: " & newFileName & vbCrLf & vbCrLf
+                                            End If
+                                        End If
+                                    End If
+                                End If
+                            Next exItem
+                        End If
+                        
+                        existingArray.Add newItem
+                        newItemsCount = newItemsCount + 1
+                        Debug.Print ">>> ADDED to cache: " & newFileName
+                    Else
+                        Debug.Print ">>> SKIPPED (duplicate): " & newFileName
+                    End If
+                    
+                    batchIndex = batchIndex + 1
+NextNewItem:
                 Next newItem
                 
-                ' Convert back to JSON
-                fileContent = JsonConverter.ConvertToJson(existingArray, Whitespace:=2)
+                If duplicateProjectMsg <> "" Then
+                    MsgBox "Note: Multiple files found for the same project." & vbCrLf & _
+                           "Both files have been saved to the cache." & vbCrLf & vbCrLf & _
+                           duplicateProjectMsg, vbInformation, "Multiple Files for Same Project"
+                End If
+                
+                Debug.Print ">>> Batch summary: " & newItemsCount & " added, " & duplicatesCount & " duplicates skipped"
+                
+                ' Convert back to JSON manually (JsonConverter.ConvertToJson loses data with large Collections)
+                ' Build JSON array manually to preserve all items
+                fileContent = "["
+                Dim itemIndex As Long
+                For itemIndex = 1 To existingArray.Count
+                    If itemIndex > 1 Then fileContent = fileContent & ","
+                    fileContent = fileContent & JsonConverter.ConvertToJson(existingArray(itemIndex), Whitespace:=2)
+                Next itemIndex
+                fileContent = fileContent & "]"
             End If
         Else
             ' If existing cache is invalid, replace with new content
@@ -465,6 +588,17 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object)
     ' Rewrite the entire cache file with updated content
     WriteTextFile cacheFilePath, fileContent
     Debug.Print "Parsed innerJson and updated cache file"
+    
+    ' DEBUG: Verify what was actually written to cache
+    Dim verifyContent As String
+    verifyContent = ReadTextFile(cacheFilePath)
+    Dim verifyArray As Object
+    On Error Resume Next
+    Set verifyArray = JsonConverter.ParseJSON(verifyContent)
+    On Error GoTo 0
+    If Not verifyArray Is Nothing And TypeName(verifyArray) = "Collection" Then
+        Debug.Print ">>> CACHE VERIFICATION: " & verifyArray.Count & " items now in cache file"
+    End If
 
     ' Step 6: Reset parsedData to ensure no previous entries are retained
     Set parsedData = Nothing
@@ -536,32 +670,76 @@ ErrorHandler:
     MsgBox errMsg, vbCritical, "Runtime Error"
 End Sub
 
-' Helper function to read the content of a text file
+' Helper function to read the content of a text file with UTF-8 encoding
 Private Function ReadTextFile(filePath As String) As String
-    Dim fso As Object, fileStream As Object
+    Dim fso As Object
+    Dim stream As Object
+    
     Set fso = CreateObject("Scripting.FileSystemObject")
 
     If fso.fileExists(filePath) Then
-        Set fileStream = fso.OpenTextFile(filePath, 1) ' ForReading
-        ReadTextFile = fileStream.ReadAll
-        fileStream.Close
+        ' Use ADODB.Stream to read UTF-8 files correctly (handles both with/without BOM)
+        Set stream = CreateObject("ADODB.Stream")
+        stream.Type = 2 ' Text
+        stream.Charset = "UTF-8"
+        stream.Open
+        
+        On Error Resume Next
+        stream.LoadFromFile filePath
+        If Err.Number = 0 Then
+            ReadTextFile = stream.ReadText
+        Else
+            Debug.Print "ReadTextFile ERROR: " & Err.Description
+            ReadTextFile = ""
+        End If
+        On Error GoTo 0
+        
+        stream.Close
     Else
         ReadTextFile = ""
     End If
 End Function
 
-' Helper function to write content to a text file
+' Helper function to write content to a text file with UTF-8 encoding
 Private Sub WriteTextFile(filePath As String, content As String)
-    Dim fso As Object, fileStream As Object
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    Debug.Print "CreateObject"
-    Set fileStream = fso.CreateTextFile(filePath, True)
-    Debug.Print "Set fileStream"
-    fileStream.Write content
-    Debug.Print "Write content"
-    Debug.Print " filePath: " & filePath
-    Debug.Print " content: " & content
-    fileStream.Close
+    Dim stream As Object
+    Dim tempStream As Object
+    Dim tempFile As String
+    
+    ' Use ADODB.Stream to write UTF-8 WITHOUT BOM (critical for JSON parsing)
+    Set stream = CreateObject("ADODB.Stream")
+    stream.Type = 2 ' Text
+    stream.Charset = "UTF-8"
+    stream.Open
+    stream.WriteText content
+    
+    ' Save to temp location first
+    tempFile = filePath & ".tmp"
+    stream.SaveToFile tempFile, 2 ' Overwrite
+    stream.Close
+    
+    ' Now read as binary and write without BOM
+    Set stream = CreateObject("ADODB.Stream")
+    stream.Type = 1 ' Binary
+    stream.Open
+    stream.LoadFromFile tempFile
+    stream.Position = 3 ' Skip BOM (3 bytes for UTF-8 BOM: EF BB BF)
+    
+    Set tempStream = CreateObject("ADODB.Stream")
+    tempStream.Type = 1 ' Binary
+    tempStream.Open
+    stream.CopyTo tempStream
+    tempStream.SaveToFile filePath, 2 ' Overwrite
+    
+    stream.Close
+    tempStream.Close
+    
+    ' Clean up temp file
+    On Error Resume Next
+    Kill tempFile
+    On Error GoTo 0
+    
+    Debug.Print "WriteTextFile: Saved UTF-8 without BOM to " & filePath
 End Sub
 
 ' Helper function to convert nested dictionaries to a formatted string
@@ -814,12 +992,17 @@ Public Function ExtractAndParsePDFs(pdfFiles As Collection, cacheFilePath As Str
     Dim isFileInCache As Boolean
     Dim projectItem As Variant
     Dim allFilesInCache As Boolean
+    Dim batchSize As Integer
+    Dim batchCounter As Integer
+    Dim filesToProcess As Collection
 
     Debug.Print ("ExtractAndParsePDFs Start")
     
     ' Initialize the return value and the flag
     ExtractAndParsePDFs = False
     allFilesInCache = True  ' Assume all files are in cache initially
+    batchSize = 20  ' Process 5 files at a time to avoid token limits and hallucinations
+    Set filesToProcess = New Collection
 
     ' Check if cache file exists
     If Dir(cacheFilePath) <> "" Then
@@ -868,9 +1051,10 @@ Public Function ExtractAndParsePDFs(pdfFiles As Collection, cacheFilePath As Str
     totalFiles = pdfFiles.Count
     Debug.Print ("WE totalFiles " & totalFiles)
     fileCounter = 1 ' Initialize the file counter
+    batchCounter = 0 ' Initialize batch counter
     
+    ' First pass: identify files not in cache and add to filesToProcess
     For Each pdfFile In pdfFiles
-        frmSearchForm.lblStatus.Caption = ""
         fileName = GetFileNameFromPath(pdfFile)
         Debug.Print ("UF fileName " & fileName)
 
@@ -884,45 +1068,26 @@ Public Function ExtractAndParsePDFs(pdfFiles As Collection, cacheFilePath As Str
                 ' Ensure projectItem is a Dictionary to access fields
                 If TypeName(projectItem) = "Dictionary" Then
                     Dim cachedFileName As String
-                    cachedFileName = GetFileNameFromPath(projectItem("File Path"))
-                    Debug.Print "DE cachedFileName: " & cachedFileName
-                    Debug.Print "QA fileName: " & fileName
-                    ' Match the file name by checking if fileName is the same as cachedFileName
-                    If InStr(1, cachedFileName, fileName, vbTextCompare) > 0 Then
-                        Debug.Print "WA > 0"
-                        isFileInCache = True
-                        Exit For
+                    If projectItem.Exists("File Path") Then
+                        cachedFileName = GetFileNameFromPath(projectItem("File Path"))
+                        ' Match the file name using EXACT case-insensitive comparison
+                        If StrComp(fileName, cachedFileName, vbTextCompare) = 0 Then
+                            isFileInCache = True
+                            Debug.Print "Cache hit (exact match): " & fileName
+                            Exit For
+                        End If
                     End If
-                Else
-                    Debug.Print "Error: projectItem is not a Dictionary."
                 End If
             Next projectItem
+        End If
+
+        ' Add to processing queue if not in cache
+        If Not isFileInCache Then
+            filesToProcess.Add pdfFile
+            allFilesInCache = False
         Else
-            Debug.Print "Error: cacheData is not a Collection or is empty."
-        End If
-
-        ' Skip processing if the file is already in the cache
-        If isFileInCache Then
             Debug.Print "!!! Skipping " & fileName & " as it exists in cache."
-            fileCounter = fileCounter + 1
-            GoTo NextFile ' Skip to the end of the loop
         End If
-        
-        ' If we find a file that's not in the cache, set allFilesInCache to False
-        allFilesInCache = False
-        
-        ' Update the label caption with the current file number and file name
-        frmSearchForm.lblStatus.Visible = True
-        frmSearchForm.lblStatus.TextAlign = 1
-        frmSearchForm.lblStatus.Caption = "Reading " & fileCounter & "/" & totalFiles & ": " & fileName
-        DoEvents
-
-        ' Process the PDF file
-        extractedText = CStr(pdfFile) & extractedText & ExtractTextFromPDFSheet(CStr(pdfFile), tempFile) & vbCrLf & vbCrLf
-
-        ' Increment the file counter for the next file
-        fileCounter = fileCounter + 1
-
 NextFile:
     Next pdfFile
 
@@ -932,28 +1097,176 @@ NextFile:
         Exit Function
     End If
 
-    frmSearchForm.lblStatus.TextAlign = 2
-    Debug.Print "frmSearchForm.lblStatus.TextAlign = 2"
-
-    ' Step 3: Indicate that the process is waiting for a response
-    frmSearchForm.lblStatus.Caption = "Awaiting response..."
-    DoEvents
+    ' Second pass: process files in batches
+    Debug.Print "Processing " & filesToProcess.Count & " files in batches of " & batchSize
+    
+    ' Create a processing log file
+    Dim logFilePath As String
+    Dim logFile As Integer
+    logFilePath = GetRelativePath("\test output\processing_log.txt")
+    logFile = FreeFile
+    Open logFilePath For Output As logFile
+    Print #logFile, "=== PDF Processing Log ==="
+    Print #logFile, "Started: " & Now
+    Print #logFile, "Total files to process: " & filesToProcess.Count
+    Print #logFile, ""
+    
+    Dim filesInCurrentBatch As Long
+    Dim batchFilePaths As Collection  ' Track original file paths for this batch
+    Dim allProcessedFilePaths As Collection  ' Accumulate file paths across ALL batches
+    filesInCurrentBatch = 0
+    Set batchFilePaths = New Collection
+    Set allProcessedFilePaths = New Collection
+    
+    For fileCounter = 1 To filesToProcess.Count
+        pdfFile = filesToProcess(fileCounter)
+        fileName = GetFileNameFromPath(pdfFile)
         
-    chatGPTResponse = CallAPIsyn(extractedText, promptFile)
-    'Debug.Print "ChatGPT Response: " & chatGPTResponse
+        ' Update the label caption with the current file number and file name
+        frmSearchForm.lblStatus.Visible = True
+        frmSearchForm.lblStatus.TextAlign = 1
+        frmSearchForm.lblStatus.Caption = "Reading " & fileCounter & "/" & filesToProcess.Count & ": " & fileName
+        DoEvents
+
+        ' Process the PDF file - add file path, then the extracted text content
+        Print #logFile, "[" & fileCounter & "/" & filesToProcess.Count & "] Processing: " & fileName
+        Debug.Print ">>> Processing file " & fileCounter & ": " & fileName
+        Dim extractedContent As String
+        extractedContent = ExtractTextFromPDFSheet(CStr(pdfFile), tempFile)
+        
+        ' Check if extraction was successful
+        If Len(extractedContent) > 0 Then
+            ' Use the ACTUAL file path from disk (corrected by FindSimilarFile if needed)
+            ' This ensures the correct filename is sent to the API
+            Dim actualFilePath As String
+            actualFilePath = CStr(pdfFile)
+            
+            ' Normalize the file path to ensure consistent encoding
+            actualFilePath = NormalizeFilePath(actualFilePath)
+            
+            extractedText = extractedText & actualFilePath & vbCrLf & extractedContent & vbCrLf & vbCrLf
+            batchFilePaths.Add actualFilePath  ' Track the original file path for this batch
+            allProcessedFilePaths.Add actualFilePath  ' Accumulate across all batches
+            filesInCurrentBatch = filesInCurrentBatch + 1
+            Print #logFile, "  SUCCESS: Extracted " & Len(extractedContent) & " chars"
+            Debug.Print ">>> Successfully extracted " & Len(extractedContent) & " characters from: " & fileName
+        Else
+            Print #logFile, "  ERROR: No content extracted! SKIPPING FILE."
+            Debug.Print ">>> CRITICAL ERROR: No content extracted from: " & fileName & ". This file will NOT be in the cache."
+        End If
+        
+        batchCounter = batchCounter + 1
+
+        ' When batch is full or we've reached the last file, send to API
+        If batchCounter >= batchSize Or fileCounter = filesToProcess.Count Then
+            ' Only send to API if we have content to process
+            If Len(extractedText) > 0 Then
+                frmSearchForm.lblStatus.TextAlign = 2
+                frmSearchForm.lblStatus.Caption = "Awaiting response for batch " & Int((fileCounter - 1) / batchSize) + 1 & "..."
+                DoEvents
+                
+                Debug.Print ">>> Sending batch with " & filesInCurrentBatch & " files (" & Len(extractedText) & " characters) to API"
+                ' Send batch to API
+                chatGPTResponse = CallAPIsyn(extractedText, promptFile)
+                Debug.Print ">>> Received API response: " & Len(chatGPTResponse) & " characters"
+                
+                frmSearchForm.lblStatus.Caption = "Extracting data... "
+                DoEvents
+                
+                ' Parse the response and update cache - pass BATCH file paths to fix corrupted paths and prevent cross-batch hallucinations
+                Call SheetsDynamicExtractItems(chatGPTResponse, parsedSheetsData, batchFilePaths)
+                Debug.Print ">>> Batch processed: " & filesInCurrentBatch & " files sent, response processed"
+            Else
+                Debug.Print ">>> WARNING: Skipping batch - no content extracted"
+            End If
+            
+            ' Reset for next batch
+            extractedText = ""
+            batchCounter = 0
+            filesInCurrentBatch = 0
+            Set batchFilePaths = New Collection  ' Reset file paths for next batch
+            
+            ' Reload cache data for next iteration
+            If Dir(cacheFilePath) <> "" Then
+                cacheJsonText = ReadTextFile(cacheFilePath)
+                If cacheJsonText <> "" Then
+                    On Error Resume Next
+                    Set cacheData = ParseJSON(cacheJsonText)
+                    If Not cacheData Is Nothing And TypeName(cacheData) = "Collection" Then
+                        Debug.Print ">>> CACHE RELOADED: " & cacheData.Count & " items in cache for next batch"
+                    Else
+                        Debug.Print ">>> ERROR: Cache reload failed or invalid JSON"
+                    End If
+                    On Error GoTo 0
+                End If
+            End If
+        End If
+    Next fileCounter
+
+    ' Close the log file
+    Print #logFile, ""
+    Print #logFile, "Completed: " & Now
+    Close logFile
+    Debug.Print "Processing log saved to: " & logFilePath
     
-    frmSearchForm.lblStatus.Caption = "Extracting data... "
-    DoEvents
-    
-    ' Step 4: Parse the response and populate parsed data
-    Call SheetsDynamicExtractItems(chatGPTResponse, parsedSheetsData)
-    Debug.Print "2 Call SheetsDynamicExtractItems "
     frmSearchForm.lblStatus.Caption = " "
     frmSearchForm.lblStatus.Visible = False
 
     ' If successful, return True
     If Not parsedSheetsData Is Nothing Then
         ExtractAndParsePDFs = True
+    End If
+    
+    ' Final summary: count entries in cache
+    If Dir(cacheFilePath) <> "" Then
+        cacheJsonText = ReadTextFile(cacheFilePath)
+        If cacheJsonText <> "" Then
+            On Error Resume Next
+            Set cacheData = ParseJSON(cacheJsonText)
+            If Not IsEmpty(cacheData) And TypeName(cacheData) = "Collection" Then
+                Debug.Print "========================================="
+                Debug.Print "FINAL SUMMARY:"
+                Debug.Print "  Files selected: " & pdfFiles.Count
+                Debug.Print "  Files in cache before: " & (cacheData.Count - filesToProcess.Count)
+                Debug.Print "  Files to process: " & filesToProcess.Count
+                Debug.Print "  Total in cache now: " & cacheData.Count
+                Debug.Print "  Expected total: " & pdfFiles.Count
+                Debug.Print "  MISSING: " & (pdfFiles.Count - cacheData.Count)
+                
+                ' Identify exactly which files are missing
+                Dim missingFiles As String
+                Dim pFile As Variant
+                Dim cItem As Variant
+                Dim found As Boolean
+                
+                For Each pFile In pdfFiles
+                    found = False
+                    Dim pName As String
+                    pName = GetFileNameFromPath(pFile)
+                    
+                    For Each cItem In cacheData
+                        If TypeName(cItem) = "Dictionary" And cItem.Exists("File Path") Then
+                            If StrComp(GetFileNameFromPath(cItem("File Path")), pName, vbTextCompare) = 0 Then
+                                found = True
+                                Exit For
+                            End If
+                        End If
+                    Next cItem
+                    
+                    If Not found Then
+                        Debug.Print "  >>> MISSING FILE: " & pName
+                        missingFiles = missingFiles & pName & vbCrLf
+                    End If
+                Next pFile
+                
+                If missingFiles <> "" Then
+                    MsgBox "The following files were NOT added to the cache:" & vbCrLf & vbCrLf & missingFiles, vbExclamation, "Missing Files"
+                End If
+                
+                Debug.Print "========================================="
+            End If
+            On Error GoTo 0
+        End If
     End If
     
     Debug.Print ("ExtractAndParsePDFs End")
@@ -1082,22 +1395,195 @@ Public Function ExtractTextFromPDFSheet(pdfPath As String, txtPath As String) As
     Dim command As String
     Dim engine As String
     Dim utf8Text As String
+    Dim fso As Object
+    Dim shortPdfPath As String
+    Dim startTime As Double
+    
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    
+    ' Check if file actually exists before processing
+    If Not fso.fileExists(pdfPath) Then
+        Debug.Print "ERROR: PDF file not found: " & pdfPath
+        ' Try to find the file with similar name
+        Dim folderPath As String
+        Dim fileName As String
+        Dim actualFile As String
+        folderPath = fso.GetParentFolderName(pdfPath)
+        fileName = fso.GetFileName(pdfPath)
+        actualFile = FindSimilarFile(folderPath, fileName)
+        If actualFile <> "" Then
+            Debug.Print "Found similar file: " & actualFile
+            pdfPath = actualFile
+        Else
+            ExtractTextFromPDFSheet = ""
+            Exit Function
+        End If
+    End If
+    
+    ' Get Short Path to avoid Unicode issues in Shell command
+    On Error Resume Next
+    shortPdfPath = fso.GetFile(pdfPath).ShortPath
+    If Err.Number <> 0 Or shortPdfPath = "" Then
+        shortPdfPath = pdfPath ' Fallback
+    End If
+    On Error GoTo 0
+    
+    ' Delete temp file if it exists to ensure we don't read old data
+    If fso.FileExists(txtPath) Then
+        On Error Resume Next
+        fso.DeleteFile txtPath, True
+        On Error GoTo 0
+    End If
     
     ' Path to MuPDF
     engine = GetRelativePath("\PDFreader\mupdf-1.24.0-windows\mutool.exe")
     
     ' Extract Text using MuPDF
-    command = engine & " draw -F txt -o " & Chr(34) & txtPath & Chr(34) & " " & Chr(34) & pdfPath & Chr(34)
+    ' Use shortPdfPath for the input file
+    command = engine & " draw -F txt -o " & Chr(34) & txtPath & Chr(34) & " " & Chr(34) & shortPdfPath & Chr(34)
+    
+    Debug.Print "Executing: " & command
     Shell command, vbHide
     
-    ' Wait for Extraction to Complete
-    WaitForFile txtPath
+    ' Wait for Extraction to Complete with Timeout
+    startTime = Timer
+    Do While Not fso.FileExists(txtPath)
+        DoEvents
+        If Timer - startTime > 10 Then ' 10 second timeout for creation
+            Debug.Print "TIMEOUT: mutool failed to create output file for " & pdfPath
+            ExtractTextFromPDFSheet = ""
+            Exit Function
+        End If
+    Loop
+    
+    ' Wait for file to stabilize
+    Dim fileSize As Long, newSize As Long
+    fileSize = 0
+    Do
+        On Error Resume Next
+        newSize = fso.GetFile(txtPath).Size
+        On Error GoTo 0
+        If newSize > 0 And newSize = fileSize Then Exit Do
+        fileSize = newSize
+        
+        If Timer - startTime > 30 Then ' 30 second total timeout
+             Debug.Print "TIMEOUT: mutool took too long for " & pdfPath
+             Exit Do
+        End If
+        
+        'Wait small amount
+        Dim t As Double
+        t = Timer
+        Do While Timer < t + 0.5
+            DoEvents
+        Loop
+    Loop
     
     ' Convert to UTF-8
     utf8Text = ConvertShiftJISToUTF8(txtPath)
-    Debug.Print "AFTER convert to UTF8" & utf8Text
+    'Debug.Print "AFTER convert to UTF8" & utf8Text
     
     ExtractTextFromPDFSheet = utf8Text
+End Function
+
+' Helper function to find a file with similar name (handles encoding issues)
+Private Function FindSimilarFile(folderPath As String, targetFileName As String) As String
+    Dim fso As Object
+    Dim folder As Object
+    Dim file As Object
+    Dim basePattern As String
+    Dim fileCode As String
+    
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    
+    On Error Resume Next
+    Set folder = fso.GetFolder(folderPath)
+    If Err.Number <> 0 Then
+        FindSimilarFile = ""
+        Exit Function
+    End If
+    On Error GoTo 0
+    
+    ' Strategy 1: Extract the file code (e.g., "N070076" from "N070076_KNOWLEDGE HUB...")
+    If InStr(targetFileName, "_") > 0 Then
+        fileCode = Left(targetFileName, InStr(targetFileName, "_") - 1)
+        
+        ' Search for files starting with the same code
+        For Each file In folder.Files
+            If Left(file.Name, Len(fileCode)) = fileCode And LCase(Right(file.Name, 4)) = ".pdf" Then
+                Debug.Print "Matched file by code: " & file.Path
+                FindSimilarFile = file.Path
+                Exit Function
+            End If
+        Next file
+    End If
+    
+    ' Strategy 2: For Japanese-only filenames (no underscore), try exact match
+    Dim exactPath As String
+    exactPath = folderPath & "\" & targetFileName
+    If fso.FileExists(exactPath) Then
+        FindSimilarFile = exactPath
+        Exit Function
+    End If
+    
+    ' Strategy 3: Try similarity matching for Japanese filenames
+    Dim targetBaseName As String
+    Dim actualBaseName As String
+    Dim bestMatch As String
+    Dim bestScore As Double
+    Dim currentScore As Double
+    
+    targetBaseName = Replace(targetFileName, ".pdf", "", 1, -1, vbTextCompare)
+    bestScore = 0
+    bestMatch = ""
+    
+    For Each file In folder.Files
+        If LCase(Right(file.Name, 4)) = ".pdf" Then
+            actualBaseName = Replace(file.Name, ".pdf", "", 1, -1, vbTextCompare)
+            
+            ' Calculate simple similarity (character match ratio)
+            currentScore = CalculateSimilarity(targetBaseName, actualBaseName)
+            
+            If currentScore > bestScore And currentScore > 0.7 Then
+                bestScore = currentScore
+                bestMatch = file.Path
+            End If
+        End If
+    Next file
+    
+    If bestMatch <> "" Then
+        Debug.Print "Matched file by similarity (" & Format(bestScore, "0.00") & "): " & bestMatch
+        FindSimilarFile = bestMatch
+    Else
+        FindSimilarFile = ""
+    End If
+End Function
+
+' Calculate similarity ratio between two strings
+Private Function CalculateSimilarity(str1 As String, str2 As String) As Double
+    Dim matchCount As Long
+    Dim i As Long
+    Dim minLen As Long
+    Dim maxLen As Long
+    
+    minLen = Len(str1)
+    If Len(str2) < minLen Then minLen = Len(str2)
+    maxLen = Len(str1)
+    If Len(str2) > maxLen Then maxLen = Len(str2)
+    
+    If maxLen = 0 Then
+        CalculateSimilarity = 0
+        Exit Function
+    End If
+    
+    matchCount = 0
+    For i = 1 To minLen
+        If Mid(str1, i, 1) = Mid(str2, i, 1) Then
+            matchCount = matchCount + 1
+        End If
+    Next i
+    
+    CalculateSimilarity = matchCount / maxLen
 End Function
 
 Public Function ConvertShiftJISToUTF8(filePath As String) As String
@@ -1251,7 +1737,90 @@ Function GetFileNameFromPath(filePath As Variant) As String
         fileName = filePath
     End If
 
-    ' Return the file name
-    GetFileNameFromPath = EscapeJsonString(fileName)
+    ' Return the file name WITHOUT escaping for comparison purposes
+    GetFileNameFromPath = fileName
 End Function
+
+' Normalize file path to handle special characters and encoding issues
+Private Function NormalizeFilePath(filePath As String) As String
+    Dim fso As Object
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    
+    ' If file exists, get the canonical path from the file system
+    If fso.FileExists(filePath) Then
+        On Error Resume Next
+        NormalizeFilePath = fso.GetFile(filePath).Path
+        If Err.Number <> 0 Then
+            NormalizeFilePath = filePath
+        End If
+        On Error GoTo 0
+    Else
+        ' File doesn't exist with this path, try to find it
+        Dim folderPath As String
+        Dim fileName As String
+        Dim actualFile As String
+        
+        folderPath = fso.GetParentFolderName(filePath)
+        fileName = fso.GetFileName(filePath)
+        actualFile = FindSimilarFile(folderPath, fileName)
+        
+        If actualFile <> "" Then
+            NormalizeFilePath = actualFile
+            Debug.Print "Normalized path: " & filePath & " -> " & actualFile
+        Else
+            NormalizeFilePath = filePath
+        End If
+    End If
+End Function
+
+' Find the original file path that matches a potentially corrupted API path
+' Matches by file code (e.g., "N070076") since special characters may be corrupted
+Private Function FindOriginalFilePath(ByVal apiFilePath As Variant, ByVal originalPaths As Collection) As String
+    Dim originalPath As Variant
+    Dim apiFileName As String
+    Dim apiFileCode As String
+    Dim originalFileName As String
+    Dim originalFileCode As String
+    
+    FindOriginalFilePath = ""
+    
+    ' If no original paths provided, return empty
+    If originalPaths Is Nothing Then Exit Function
+    If originalPaths.Count = 0 Then Exit Function
+    
+    ' Extract file code from API path (e.g., "N070076" from "N070076_KNOWLEDGE HUB...")
+    apiFileName = GetFileNameFromPath(apiFilePath)
+    If InStr(apiFileName, "_") > 0 Then
+        apiFileCode = Left(apiFileName, InStr(apiFileName, "_") - 1)
+    Else
+        ' No underscore - try to match by full filename or similarity
+        apiFileCode = ""
+    End If
+    
+    ' Search through original paths for matching file code
+    For Each originalPath In originalPaths
+        originalFileName = GetFileNameFromPath(CStr(originalPath))
+        
+        If apiFileCode <> "" Then
+            ' Match by file code
+            If InStr(originalFileName, "_") > 0 Then
+                originalFileCode = Left(originalFileName, InStr(originalFileName, "_") - 1)
+                If StrComp(apiFileCode, originalFileCode, vbTextCompare) = 0 Then
+                    FindOriginalFilePath = CStr(originalPath)
+                    Debug.Print ">>> Matched by code: " & apiFileCode & " -> " & originalFileName
+                    Exit Function
+                End If
+            End If
+        Else
+            ' No file code - try similarity matching for Japanese filenames
+            If CalculateSimilarity(apiFileName, originalFileName) > 0.7 Then
+                FindOriginalFilePath = CStr(originalPath)
+                Debug.Print ">>> Matched by similarity: " & apiFileName & " -> " & originalFileName
+                Exit Function
+            End If
+        End If
+    Next originalPath
+End Function
+
+
 
