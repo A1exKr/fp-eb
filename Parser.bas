@@ -1398,8 +1398,11 @@ Public Function ExtractTextFromPDFSheet(pdfPath As String, txtPath As String) As
     Dim fso As Object
     Dim shortPdfPath As String
     Dim startTime As Double
+    Dim needsTempCopy As Boolean
+    Dim tempPdfPath As String
     
     Set fso = CreateObject("Scripting.FileSystemObject")
+    needsTempCopy = False
     
     ' Check if file actually exists before processing
     If Not fso.fileExists(pdfPath) Then
@@ -1420,11 +1423,37 @@ Public Function ExtractTextFromPDFSheet(pdfPath As String, txtPath As String) As
         End If
     End If
     
+    ' Check if filename contains problematic Unicode characters that ShortPath can't handle
+    Dim pdfFileName As String
+    pdfFileName = fso.GetFileName(pdfPath)
+    Dim hasProblematicChars As Boolean
+    hasProblematicChars = (InStr(pdfFileName, ChrW(&HFF08)) > 0) Or _
+                          (InStr(pdfFileName, ChrW(&HFF09)) > 0) Or _
+                          (InStr(pdfFileName, ChrW(&H3000)) > 0) Or _
+                          (InStr(pdfFileName, ChrW(&HFF0C)) > 0) Or _
+                          (InStr(pdfFileName, ChrW(&H201C)) > 0) Or _
+                          (InStr(pdfFileName, ChrW(&H201D)) > 0)
+    
     ' Get Short Path to avoid Unicode issues in Shell command
     On Error Resume Next
     shortPdfPath = fso.GetFile(pdfPath).ShortPath
-    If Err.Number <> 0 Or shortPdfPath = "" Then
-        shortPdfPath = pdfPath ' Fallback
+    If Err.Number <> 0 Or shortPdfPath = "" Or shortPdfPath = pdfPath Or hasProblematicChars Then
+        ' ShortPath failed or returned the same path, or has problematic chars
+        ' Create a temporary copy with ASCII-safe name
+        Dim tempFolder As String
+        tempFolder = fso.GetParentFolderName(pdfPath)
+        tempPdfPath = tempFolder & "\~temp_extract_" & Format(Now, "hhmmss") & "_" & Int(Rnd() * 1000) & ".pdf"
+        
+        ' Delete temp file if it exists from previous run
+        If fso.FileExists(tempPdfPath) Then
+            fso.DeleteFile tempPdfPath, True
+        End If
+        
+        ' Copy to temp file
+        fso.CopyFile pdfPath, tempPdfPath, True
+        Debug.Print "Created temporary ASCII-safe copy for: " & pdfFileName
+        shortPdfPath = tempPdfPath
+        needsTempCopy = True
     End If
     On Error GoTo 0
     
@@ -1482,6 +1511,14 @@ Public Function ExtractTextFromPDFSheet(pdfPath As String, txtPath As String) As
     ' Convert to UTF-8
     utf8Text = ConvertShiftJISToUTF8(txtPath)
     'Debug.Print "AFTER convert to UTF8" & utf8Text
+    
+    ' Clean up temporary PDF copy if we created one
+    If needsTempCopy And fso.FileExists(tempPdfPath) Then
+        On Error Resume Next
+        fso.DeleteFile tempPdfPath, True
+        Debug.Print "Cleaned up temporary file: " & tempPdfPath
+        On Error GoTo 0
+    End If
     
     ExtractTextFromPDFSheet = utf8Text
 End Function
