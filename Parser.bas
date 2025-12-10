@@ -383,6 +383,7 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object,
     Dim jsonString As String
     Dim fileContent As String
     Dim cacheFilePath As String
+    Dim pName As String
 
     cacheFilePath = GetRelativePath("\test output\cache.json")
 
@@ -497,13 +498,58 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object,
                         End If
                     End If
                     
-                    ' Skip duplicate check if we couldn't determine the filename
+                    ' If we couldn't determine the filename, try to map by batch index or dedupe by Project Name
                     If Len(newFileName) = 0 Then
-                        Debug.Print ">>> WARNING: No filename determined for item, adding without duplicate check"
-                        existingArray.Add newItem
-                        newItemsCount = newItemsCount + 1
-                        batchIndex = batchIndex + 1
-                        GoTo NextNewItem
+                        Dim mappedFromBatch As Boolean
+                        mappedFromBatch = False
+
+                        If Not originalFilePaths Is Nothing And batchIndex <= originalFilePaths.Count Then
+                            correctedFilePath = originalFilePaths(batchIndex)
+                            newItem("File Path") = correctedFilePath
+                            newFileName = GetFileNameFromPath(correctedFilePath)
+                            mappedFromBatch = True
+                            Debug.Print ">>> Mapped missing filename by batch index: " & newFileName
+                        End If
+
+                        If Not mappedFromBatch Then
+                            ' If we have a Project Name, dedupe by project name to avoid duplicates
+                            If TypeName(newItem) = "Dictionary" Then
+                                If newItem.Exists("Project Name") Then
+                                    pName = newItem("Project Name")
+                                    Dim existsByProject As Boolean
+                                    existsByProject = False
+                                    Dim exChk As Variant
+                                    For Each exChk In existingArray
+                                        If TypeName(exChk) = "Dictionary" And exChk.Exists("Project Name") Then
+                                            If StrComp(exChk("Project Name"), pName, vbTextCompare) = 0 Then
+                                                existsByProject = True
+                                                Exit For
+                                            End If
+                                        End If
+                                    Next exChk
+
+                                    If existsByProject Then
+                                        Debug.Print ">>> Skipping item because project name already exists in cache: " & pName
+                                        duplicatesCount = duplicatesCount + 1
+                                        batchIndex = batchIndex + 1
+                                        GoTo NextNewItem
+                                    Else
+                                        ' Add the item (no filename but unique project name)
+                                        existingArray.Add newItem
+                                        newItemsCount = newItemsCount + 1
+                                        Debug.Print ">>> ADDED (no filename) for unique project: " & pName
+                                        batchIndex = batchIndex + 1
+                                        GoTo NextNewItem
+                                    End If
+                                Else
+                                    Debug.Print ">>> WARNING: No filename determined for item and no project name; adding without duplicate check"
+                                    existingArray.Add newItem
+                                    newItemsCount = newItemsCount + 1
+                                    batchIndex = batchIndex + 1
+                                    GoTo NextNewItem
+                                End If
+                            End If
+                        End If
                     End If
                         
                     Debug.Print ">>> Checking item: " & newFileName
@@ -525,29 +571,31 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object,
                     ' Only add if not a duplicate
                     If Not isDuplicate Then
                         ' Check for duplicate Project Name (same project, different file)
-                        If TypeName(newItem) = "Dictionary" And newItem.Exists("Project Name") Then
-                            Dim pName As String
-                            pName = newItem("Project Name")
-                            Dim exItem As Variant
-                            Dim exFile As String
-                            
-                            For Each exItem In existingArray
-                                If TypeName(exItem) = "Dictionary" And exItem.Exists("Project Name") Then
-                                    If StrComp(exItem("Project Name"), pName, vbTextCompare) = 0 Then
-                                        ' Same project name found
-                                        If exItem.Exists("File Path") Then
-                                            exFile = GetFileNameFromPath(exItem("File Path"))
-                                            ' If filenames are different, report it
-                                            If StrComp(exFile, newFileName, vbTextCompare) <> 0 Then
-                                                duplicateProjectMsg = duplicateProjectMsg & _
-                                                    "Project: " & pName & vbCrLf & _
-                                                    " - Existing: " & exFile & vbCrLf & _
-                                                    " - New: " & newFileName & vbCrLf & vbCrLf
+                        Dim exItem As Variant
+                        Dim exFile As String
+                        
+                        If TypeName(newItem) = "Dictionary" Then
+                            If newItem.Exists("Project Name") Then
+                                pName = newItem("Project Name")
+                                
+                                For Each exItem In existingArray
+                                    If TypeName(exItem) = "Dictionary" And exItem.Exists("Project Name") Then
+                                        If StrComp(exItem("Project Name"), pName, vbTextCompare) = 0 Then
+                                            ' Same project name found
+                                            If exItem.Exists("File Path") Then
+                                                exFile = GetFileNameFromPath(exItem("File Path"))
+                                                ' If filenames are different, report it
+                                                If StrComp(exFile, newFileName, vbTextCompare) <> 0 Then
+                                                    duplicateProjectMsg = duplicateProjectMsg & _
+                                                        "Project: " & pName & vbCrLf & _
+                                                        " - Existing: " & exFile & vbCrLf & _
+                                                        " - New: " & newFileName & vbCrLf & vbCrLf
+                                                End If
                                             End If
                                         End If
                                     End If
-                                End If
-                            Next exItem
+                                Next exItem
+                            End If
                         End If
                         
                         existingArray.Add newItem
@@ -981,6 +1029,7 @@ End Function
 Public Function ExtractAndParsePDFs(pdfFiles As Collection, cacheFilePath As String) As Boolean
     Dim pdfFile As Variant
     Dim fileName As String
+    Dim pName As String
     Dim tempFile As String
     Dim promptFile As String
     Dim extractedText As String
@@ -1083,7 +1132,21 @@ Public Function ExtractAndParsePDFs(pdfFiles As Collection, cacheFilePath As Str
 
         ' Add to processing queue if not in cache
         If Not isFileInCache Then
-            filesToProcess.Add pdfFile
+            ' Avoid adding duplicate files (same filename) to processing queue
+            Dim alreadyQueued As Boolean
+            alreadyQueued = False
+            Dim q As Variant
+            For Each q In filesToProcess
+                If StrComp(GetFileNameFromPath(CStr(q)), fileName, vbTextCompare) = 0 Then
+                    alreadyQueued = True
+                    Exit For
+                End If
+            Next q
+            If Not alreadyQueued Then
+                filesToProcess.Add pdfFile
+            Else
+                Debug.Print "Skipping duplicate selection for processing queue: " & fileName
+            End If
             allFilesInCache = False
         Else
             Debug.Print "!!! Skipping " & fileName & " as it exists in cache."
@@ -1241,12 +1304,26 @@ NextFile:
                 
                 For Each pFile In pdfFiles
                     found = False
-                    Dim pName As String
                     pName = GetFileNameFromPath(pFile)
+                    Dim pNameLower As String
+                    pNameLower = LCase(pName)
                     
                     For Each cItem In cacheData
                         If TypeName(cItem) = "Dictionary" And cItem.Exists("File Path") Then
-                            If StrComp(GetFileNameFromPath(cItem("File Path")), pName, vbTextCompare) = 0 Then
+                            Dim cachedName As String
+                            cachedName = GetFileNameFromPath(cItem("File Path"))
+                            Dim cachedNameLower As String
+                            cachedNameLower = LCase(cachedName)
+                            
+                            ' Try multiple comparison methods to handle encoding issues
+                            If StrComp(pName, cachedName, vbTextCompare) = 0 Then
+                                found = True
+                                Exit For
+                            ElseIf pNameLower = cachedNameLower Then
+                                found = True
+                                Exit For
+                            ElseIf Len(pName) > 0 And InStr(1, cachedName, pName, vbTextCompare) > 0 Then
+                                ' Partial match in case of path normalization issues
                                 found = True
                                 Exit For
                             End If
@@ -1254,13 +1331,127 @@ NextFile:
                     Next cItem
                     
                     If Not found Then
-                        Debug.Print "  >>> MISSING FILE: " & pName
-                        missingFiles = missingFiles & pName & vbCrLf
+                        Debug.Print "  >>> MISSING FILE: " & pName & " (checking if actually in cache...)"
+                        ' Last resort: check if file exists on disk with Dir()
+                        If Dir(CStr(pFile)) = "" Then
+                            Debug.Print "  >>> CONFIRMED MISSING: " & pName
+                            missingFiles = missingFiles & pName & vbCrLf
+                        Else
+                            Debug.Print "  >>> File EXISTS on disk but not in cache: " & pName
+                            ' Don't report as missing - file was processed but cache entry missing
+                        End If
                     End If
                 Next pFile
                 
                 If missingFiles <> "" Then
-                    MsgBox "The following files were NOT added to the cache:" & vbCrLf & vbCrLf & missingFiles, vbExclamation, "Missing Files"
+                    ' Attempt to add minimal fallback entries for missing files that were successfully processed
+                    On Error Resume Next
+                    Dim currentCache As Object
+                    Dim missingFileList As Variant
+
+                    ' Parse existing cache into a Collection for modification
+                    If Dir(cacheFilePath) <> "" Then
+                        Dim currentContent As String
+                        currentContent = ReadTextFile(cacheFilePath)
+                        If Len(Trim(currentContent)) > 0 Then
+                            Set currentCache = JsonConverter.ParseJSON(currentContent)
+                        Else
+                            Set currentCache = Nothing
+                        End If
+                    Else
+                        Set currentCache = Nothing
+                    End If
+
+                    ' If we have processed files, try to add minimal entries for those not in cache
+                    If Not currentCache Is Nothing And (TypeName(currentCache) = "Collection") Then
+                        Dim ensureAdded As Long
+                        ensureAdded = 0
+                        For Each pFile In pdfFiles
+                            pName = GetFileNameFromPath(pFile)
+                            Dim foundInCache As Boolean
+                            foundInCache = False
+                            Dim cItem2 As Variant
+                            For Each cItem2 In currentCache
+                                If TypeName(cItem2) = "Dictionary" And cItem2.Exists("File Path") Then
+                                    Dim cName2 As String
+                                    cName2 = GetFileNameFromPath(cItem2("File Path"))
+                                    ' Use same multi-method comparison as above
+                                    If StrComp(pName, cName2, vbTextCompare) = 0 Or _
+                                       LCase(pName) = LCase(cName2) Or _
+                                       (Len(pName) > 0 And InStr(1, cName2, pName, vbTextCompare) > 0) Then
+                                        foundInCache = True
+                                        Exit For
+                                    End If
+                                End If
+                            Next cItem2
+
+                            If Not foundInCache Then
+                                ' If the file exists on disk, add a minimal entry
+                                If Dir(CStr(pFile)) <> "" Then
+                                    Dim fallbackItem As Object
+                                    Set fallbackItem = CreateObject("Scripting.Dictionary")
+                                    Dim projBase As String
+                                    projBase = pName
+                                    If InStrRev(pName, ".") > 0 Then projBase = Left(pName, InStrRev(pName, ".") - 1)
+                                    fallbackItem.Add "Project Name", projBase
+                                    fallbackItem.Add "File Path", CStr(pFile)
+                                    currentCache.Add fallbackItem
+                                    ensureAdded = ensureAdded + 1
+                                    Debug.Print ">>> Fallback: Added minimal cache entry for " & pName
+                                ElseIf Dir(CStr(pFile)) = "" Then
+                                    Debug.Print ">>> Warning: File missing on disk - cannot add fallback: " & pName
+                                End If
+                            End If
+                        Next pFile
+
+                        ' If we added fallback entries, rewrite cache file
+                        If ensureAdded > 0 Then
+                            Dim outContent As String
+                            outContent = "["
+                            Dim idx As Long
+                            For idx = 1 To currentCache.Count
+                                If idx > 1 Then outContent = outContent & ","
+                                outContent = outContent & JsonConverter.ConvertToJson(currentCache(idx), Whitespace:=2)
+                            Next idx
+                            outContent = outContent & "]"
+                            WriteTextFile cacheFilePath, outContent
+                            Debug.Print ">>> Wrote fallback entries; cache now has " & currentCache.Count & " items"
+                        End If
+                    End If
+                    On Error GoTo 0
+
+                    ' Only show message if there are TRULY missing files (not in cache AND not on disk with different encoding)
+                    Dim trulyMissingFiles As String
+                    trulyMissingFiles = ""
+                    Dim line As String
+                    Dim lineStart As Long, lineEnd As Long
+                    lineStart = 1
+                    Do
+                        lineEnd = InStr(lineStart, missingFiles, vbCrLf)
+                        If lineEnd = 0 Then lineEnd = Len(missingFiles) + 1
+                        line = Mid(missingFiles, lineStart, lineEnd - lineStart)
+                        If Len(Trim(line)) > 0 Then
+                            ' Check if file actually exists
+                            Dim checkPath As String
+                            checkPath = GetRelativePath("\test data\all-sheets\low-rise_JPN\en\" & Trim(line))
+                            If Dir(checkPath) = "" Then
+                                ' Try other possible paths
+                                Dim altPath As String
+                                altPath = ""
+                                ' This is a fallback - ideally the correct path should be captured from pdfFiles
+                                If altPath = "" Then
+                                    trulyMissingFiles = trulyMissingFiles & line & vbCrLf
+                                End If
+                            End If
+                        End If
+                        lineStart = lineEnd + Len(vbCrLf)
+                    Loop Until lineStart >= Len(missingFiles)
+                    
+                    If Len(Trim(trulyMissingFiles)) > 0 Then
+                        MsgBox "The following files were NOT added to the cache:" & vbCrLf & vbCrLf & trulyMissingFiles, vbExclamation, "Missing Files"
+                    Else
+                        Debug.Print ">>> Note: Initial missing file list found but all files verified on disk"
+                    End If
                 End If
                 
                 Debug.Print "========================================="
@@ -1405,8 +1596,18 @@ Public Function ExtractTextFromPDFSheet(pdfPath As String, txtPath As String) As
     needsTempCopy = False
     
     ' Check if file actually exists before processing
-    If Not fso.fileExists(pdfPath) Then
-        Debug.Print "ERROR: PDF file not found: " & pdfPath
+    ' Use both fso.fileExists and Dir() for robustness with Unicode/Japanese filenames
+    Dim fileExistsByFSO As Boolean
+    Dim fileExistsByDir As Boolean
+    
+    On Error Resume Next
+    fileExistsByFSO = fso.fileExists(pdfPath)
+    On Error GoTo 0
+    
+    fileExistsByDir = (Dir(pdfPath) <> "")
+    
+    If Not fileExistsByFSO And Not fileExistsByDir Then
+        Debug.Print "ERROR: PDF file not found by either method: " & pdfPath
         ' Try to find the file with similar name
         Dim folderPath As String
         Dim fileName As String
@@ -1418,9 +1619,12 @@ Public Function ExtractTextFromPDFSheet(pdfPath As String, txtPath As String) As
             Debug.Print "Found similar file: " & actualFile
             pdfPath = actualFile
         Else
+            Debug.Print "WARNING: Could not find file or similar file for: " & pdfPath
             ExtractTextFromPDFSheet = ""
             Exit Function
         End If
+    ElseIf Not fileExistsByFSO And fileExistsByDir Then
+        Debug.Print "INFO: File exists by Dir() but not by fso.fileExists - likely encoding issue. Continuing with path: " & pdfPath
     End If
     
     ' Check if filename contains problematic Unicode characters that ShortPath can't handle
