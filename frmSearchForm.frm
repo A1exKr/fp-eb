@@ -15,9 +15,18 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
 Option Explicit
-
 ' Declare a module-level variable to track the clicked index
 Private clickedIndex As Long
+Private isInitialized As Boolean
+
+' Ensure the form initializes itself when opened directly
+Private Sub UserForm_Initialize()
+    If Not isInitialized Then
+        On Error Resume Next
+        InitializeSearchForm
+        On Error GoTo 0
+    End If
+End Sub
 
 ' Helper function to read UTF-8 text files (required for Japanese characters)
 Private Function ReadUTF8File(filePath As String) As String
@@ -137,10 +146,12 @@ Public Sub InitializeSearchForm()
     PopulateDropdown frmSearchForm.cmbType, "Type"
     PopulateDropdown frmSearchForm.cmbCity, "City"
     PopulateDropdown frmSearchForm.cmbCountry, "Country"
-    
+
     ' Populate the list (this doesn't require the cache check again)
     PopulateListFromJsonCache
-    
+
+    ' Mark initialized so UserForm_Initialize or external callers don't re-run
+    isInitialized = True
 End Sub
 
 
@@ -244,6 +255,23 @@ Private Sub cmdDel_Click()
         ' Extract the text without numbering, add new numbering, and update item
         updatedItem = Mid(Me.lstResults.List(i), InStr(Me.lstResults.List(i), ". ") + 2)
         Me.lstResults.List(i) = CStr(i + 1) & ". " & updatedItem
+    Next i
+End Sub
+
+' When chkAll is toggled, select or unselect all items in lstResults
+Private Sub chkAll_Click()
+    Dim i As Long
+    Dim shouldSelect As Boolean
+
+    ' If there are no items, nothing to do
+    If Me.lstResults.ListCount = 0 Then Exit Sub
+
+    ' Determine desired selection state from the checkbox
+    shouldSelect = (Me.chkAll.Value = True)
+
+    ' Loop through all items and set selection state
+    For i = 0 To Me.lstResults.ListCount - 1
+        Me.lstResults.Selected(i) = shouldSelect
     Next i
 End Sub
 
@@ -746,6 +774,41 @@ Function SimilarityRatio(str1 As String, str2 As String) As Double
     SimilarityRatio = matchCount / Application.Max(Len(str1), Len(str2))
 End Function
 
+' QuickSort strings in-place (case-insensitive)
+Private Sub QuickSortStrings(arr() As String, low As Long, high As Long)
+    Dim pivot As String, tmp As String
+    Dim i As Long, j As Long
+    If low >= high Then Exit Sub
+    pivot = arr((low + high) \ 2)
+    i = low: j = high
+    Do While i <= j
+        Do While LCase(arr(i)) < LCase(pivot)
+            i = i + 1
+        Loop
+        Do While LCase(arr(j)) > LCase(pivot)
+            j = j - 1
+        Loop
+        If i <= j Then
+            tmp = arr(i): arr(i) = arr(j): arr(j) = tmp
+            i = i + 1: j = j - 1
+        End If
+    Loop
+    If low < j Then QuickSortStrings arr, low, j
+    If i < high Then QuickSortStrings arr, i, high
+End Sub
+
+' Helper to sort a dynamic string array and return it (sorted)
+Private Function SortStringArray(inputArr() As String) As String()
+    Dim n As Long
+    n = UBound(inputArr) - LBound(inputArr) + 1
+    If n <= 1 Then
+        SortStringArray = inputArr
+        Exit Function
+    End If
+    QuickSortStrings inputArr, LBound(inputArr), UBound(inputArr)
+    SortStringArray = inputArr
+End Function
+
 
 
 Private Sub cmdSearch_Click()
@@ -821,12 +884,15 @@ Private Sub SearchProjects()
     yearMaxFilter = GetNumericValue(Me.txtYearMax.value, 9999)
 
     ' Clear the results list before displaying new results
+    ' Clear the results list before displaying new results
     Me.lstResults.Clear
     Me.lstResults.Visible = True
     Me.cmdSavePdf.Visible = True
 
-    ' Initialize the counter for search results
-    resultCount = 0
+    ' Use a temporary collection to gather matching project names, then sort
+    Dim matches() As String
+    Dim matchCount As Long
+    matchCount = 0
 
     ' Loop through each project in the parsed JSON data
     For Each projectItem In jsonData
@@ -911,22 +977,31 @@ Private Sub SearchProjects()
             End If
         End If
 
-        ' If all criteria match, add the project to the results list
+        ' If all criteria match, add the project name to temporary array
         If matchFound Then
-            resultCount = resultCount + 1
-            Me.lstResults.AddItem CStr(resultCount) & ". " & projectName
+            matchCount = matchCount + 1
+            ReDim Preserve matches(0 To matchCount - 1)
+            matches(matchCount - 1) = CStr(projectName)
         End If
 
 ContinueLoop:
     Next projectItem
 
     ' Display message if no results found
-    If resultCount = 0 Then
+    If matchCount = 0 Then
         Me.lstResults.AddItem "No matching projects found."
+        Debug.Print "Search completed. 0 matching project(s) found."
+        Exit Sub
     End If
 
+    ' Sort the matches alphabetically and add with numbering
+    matches = SortStringArray(matches)
+    For resultCount = 0 To UBound(matches)
+        Me.lstResults.AddItem CStr(resultCount + 1) & ". " & matches(resultCount)
+    Next resultCount
+
     ' Debug message for results
-    Debug.Print "Search completed. " & resultCount & " matching project(s) found."
+    Debug.Print "Search completed. " & matchCount & " matching project(s) found."
     Exit Sub
 
 ErrorHandler:
@@ -1053,6 +1128,188 @@ Private Sub lstResults_Click()
         ' Me.lstResults.ListIndex = -1
     End If
 End Sub
+
+' Double-click: open the PDF file for the selected list item
+Private Sub lstResults_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+    Dim idx As Long
+    Dim projectName As String
+    Dim jsonFilePath As String
+    Dim jsonText As String
+    Dim jsonData As Object
+    Dim item As Object
+    Dim fso As Object
+    Dim originalPath As String
+    Dim resolvedPath As String
+
+    If Me.lstResults.ListCount = 0 Then Exit Sub
+
+    ' Use the ListIndex (selected row) which is reliable for double-clicks
+    If Me.lstResults.ListIndex >= 0 Then
+        idx = Me.lstResults.ListIndex
+    ElseIf clickedIndex >= 0 And clickedIndex < Me.lstResults.ListCount Then
+        ' fallback to clickedIndex if ListIndex not set
+        idx = clickedIndex
+    Else
+        Exit Sub
+    End If
+
+    projectName = Trim(Mid(Me.lstResults.List(idx), InStr(Me.lstResults.List(idx), ". ") + 2))
+
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    jsonFilePath = GetRelativePath("\test output\cache.json")
+
+    If Not fso.fileExists(jsonFilePath) Then
+        MsgBox "Cache file not found: " & jsonFilePath, vbExclamation, "File Missing"
+        Exit Sub
+    End If
+
+    jsonText = ReadUTF8File(jsonFilePath)
+    If Len(Trim(jsonText)) = 0 Then
+        MsgBox "Cache file is empty.", vbExclamation, "Empty Cache"
+        Exit Sub
+    End If
+
+    Set jsonData = JsonConverter.ParseJSON(jsonText)
+    If jsonData Is Nothing Then
+        MsgBox "Unable to parse cache file.", vbExclamation, "Parse Error"
+        Exit Sub
+    End If
+
+    For Each item In jsonData
+        If item.Exists("Project Name") Then
+            If item("Project Name") = projectName Then
+                If item.Exists("File Path") Then
+                    originalPath = item("File Path")
+                    resolvedPath = ResolvePdfFilePath(originalPath, jsonData)
+                    If resolvedPath <> "" Then
+                        On Error Resume Next
+                        Application.FollowHyperlink resolvedPath
+                        If Err.Number <> 0 Then
+                            Err.Clear
+                            Shell "explorer.exe " & Chr(34) & resolvedPath & Chr(34), vbNormalFocus
+                        End If
+                        On Error GoTo 0
+                    Else
+                        MsgBox "File not found: " & originalPath, vbExclamation, "File Missing"
+                    End If
+                Else
+                    MsgBox "No file path recorded for project: " & projectName, vbExclamation, "Missing Data"
+                End If
+                Exit Sub
+            End If
+        End If
+    Next item
+
+    MsgBox "Project not found in cache: " & projectName, vbExclamation, "Not Found"
+End Sub
+
+
+' Resolve a stored PDF path to an actual existing file using the same
+' matching strategies used by the merge routine (exact, code-based,
+' normalized, similarity). Returns empty string if none found.
+Private Function ResolvePdfFilePath(pdfFilePath As String, cacheData As Object) As String
+    Dim fso As Object
+    Dim targetFileName As String
+    Dim searchFolder As String
+    Dim file As Object
+    Dim fileCode As String
+    Dim matchedFile As String
+    Dim otherItem As Object
+    Dim exactMatchPath As String
+    Dim normalizedTarget As String
+    Dim normalizedDisk As String
+    Dim similarityThreshold As Double
+
+    similarityThreshold = 0.8
+    matchedFile = ""
+    Set fso = CreateObject("Scripting.FileSystemObject")
+
+    pdfFilePath = NormalizeFilenameUnicode(pdfFilePath)
+
+    ' Try original path first
+    If fso.FileExists(pdfFilePath) Then
+        ResolvePdfFilePath = pdfFilePath
+        Exit Function
+    End If
+
+    ' Determine a search folder
+    If InStr(pdfFilePath, "\") > 0 Then
+        If fso.FolderExists(fso.GetParentFolderName(pdfFilePath)) Then
+            searchFolder = fso.GetParentFolderName(pdfFilePath)
+        End If
+    Else
+        ' Try to reuse a folder from other cache entries
+        For Each otherItem In cacheData
+            If otherItem.Exists("File Path") Then
+                Dim otherPath As String
+                otherPath = otherItem("File Path")
+                If InStr(otherPath, "\") > 0 And fso.FolderExists(fso.GetParentFolderName(otherPath)) Then
+                    searchFolder = fso.GetParentFolderName(otherPath)
+                    Exit For
+                End If
+            End If
+        Next otherItem
+    End If
+
+    ' If still empty, try global selectedFolderPath if available
+    On Error Resume Next
+    If searchFolder = "" Then
+        If selectedFolderPath <> "" And fso.FolderExists(selectedFolderPath) Then
+            searchFolder = selectedFolderPath
+        End If
+    End If
+    On Error GoTo 0
+
+    targetFileName = fso.GetFileName(pdfFilePath)
+
+    If searchFolder <> "" Then
+        ' Try code-based match (prefix before underscore)
+        If InStr(targetFileName, "_") > 0 Then
+            fileCode = Left(targetFileName, InStr(targetFileName, "_") - 1)
+            For Each file In fso.GetFolder(searchFolder).Files
+                If Left(fso.GetFileName(file.path), Len(fileCode)) = fileCode And LCase(Right(file.Name, 4)) = ".pdf" Then
+                    matchedFile = file.path
+                    Exit For
+                End If
+            Next file
+        End If
+
+        ' Exact match
+        If matchedFile = "" Then
+            exactMatchPath = searchFolder & "\" & targetFileName
+            If fso.FileExists(exactMatchPath) Then matchedFile = exactMatchPath
+        End If
+
+        ' Normalized filename match
+        If matchedFile = "" Then
+            normalizedTarget = NormalizeFilenameUnicode(targetFileName)
+            For Each file In fso.GetFolder(searchFolder).Files
+                normalizedDisk = NormalizeFilenameUnicode(fso.GetFileName(file.path))
+                If StrComp(normalizedTarget, normalizedDisk, vbTextCompare) = 0 Then
+                    matchedFile = file.path
+                    Exit For
+                End If
+            Next file
+        End If
+
+        ' Similarity fallback
+        If matchedFile = "" Then
+            Dim targetBaseName As String, actualBaseName As String
+            targetBaseName = Replace(targetFileName, ".pdf", "", 1, -1, vbTextCompare)
+            For Each file In fso.GetFolder(searchFolder).Files
+                actualBaseName = Replace(fso.GetFileName(file.path), ".pdf", "", 1, -1, vbTextCompare)
+                If SimilarityRatio(targetBaseName, actualBaseName) > similarityThreshold Then
+                    If MsgBox("Original file not found. A similar file '" & fso.GetFileName(file.path) & "' was found. Use this file?", vbYesNo + vbQuestion, "File Not Found") = vbYes Then
+                        matchedFile = file.path
+                        Exit For
+                    End If
+                End If
+            Next file
+        End If
+    End If
+
+    ResolvePdfFilePath = matchedFile
+End Function
 
 
 
@@ -1421,25 +1678,33 @@ Sub PopulateListFromJsonCache()
         Exit Sub
     End If
 
-    ' Clear the lstResults ListBox before populating
-    Me.lstResults.Clear
 
-    ' Initialize result counter
-    resultCount = 0
+    ' Collect project names, then sort alphabetically before populating
+    Dim names() As String
+    Dim countNames As Long
+    countNames = 0
 
-    ' Loop through each project in the JSON data
     For Each projectItem In jsonData
-        ' Get the project name
         If projectItem.Exists("Project Name") Then
             projectName = projectItem("Project Name")
-
-            ' Increment the result counter
-            resultCount = resultCount + 1
-
-            ' Add the project name to the lstResults ListBox
-            Me.lstResults.AddItem CStr(resultCount) & ". " & projectName
+            countNames = countNames + 1
+            ReDim Preserve names(0 To countNames - 1)
+            names(countNames - 1) = CStr(projectName)
         End If
     Next projectItem
+
+    Me.lstResults.Clear
+    If countNames = 0 Then
+        Me.lstResults.AddItem "No projects found in the cache file."
+        Debug.Print "List populated from JSON cache. Total projects: 0"
+        Exit Sub
+    End If
+
+    names = SortStringArray(names)
+
+    For resultCount = 0 To UBound(names)
+        Me.lstResults.AddItem CStr(resultCount + 1) & ". " & names(resultCount)
+    Next resultCount
 
     ' Display a message if no projects were found
     If resultCount = 0 Then
