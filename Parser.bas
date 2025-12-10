@@ -451,59 +451,87 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object,
     End If
     
     ' CRITICAL: Map file paths from originalFilePaths to projects
-    ' Match by finding the best filename match for each project's name
-    ' This prevents API hallucinations and re-ordering issues
+    ' The LLM often corrupts Japanese/Unicode file paths, so we MUST use our stored paths
+    ' Strategy: If counts match, use index-based mapping (most reliable). Otherwise use name matching.
     If Not originalFilePaths Is Nothing And originalFilePaths.Count > 0 Then
         Dim projItem As Variant
-        Dim bestMatch As String
-        Dim bestScore As Double
-        Dim currentScore As Double
+        Dim projIndex As Long
         Dim origPath As Variant
-        Dim projNameClean As String
-        Dim fileNameClean As String
-        Dim usedPaths As Object
-        Set usedPaths = CreateObject("Scripting.Dictionary")
         
-        For Each projItem In projectsArray
-            If TypeName(projItem) = "Dictionary" And projItem.Exists("Project Name") Then
-                bestMatch = ""
-                bestScore = 0
-                projNameClean = UCase(CStr(projItem("Project Name")))
-                
-                ' Find the best matching file path for this project name
-                For Each origPath In originalFilePaths
-                    ' Skip if this path was already used
-                    If usedPaths.Exists(CStr(origPath)) Then GoTo NextOrigPath
-                    
-                    ' Extract project name portion from filename (after underscore, before extension)
-                    fileNameClean = GetFileNameFromPath(CStr(origPath))
-                    If InStr(fileNameClean, "_") > 0 Then
-                        fileNameClean = Mid(fileNameClean, InStr(fileNameClean, "_") + 1)
-                    End If
-                    fileNameClean = Replace(fileNameClean, ".pdf", "", , , vbTextCompare)
-                    fileNameClean = Replace(fileNameClean, "_907", "", , , vbTextCompare)
-                    fileNameClean = UCase(fileNameClean)
-                    
-                    ' Calculate similarity score
-                    currentScore = StringSimilarity(projNameClean, fileNameClean)
-                    
-                    If currentScore > bestScore Then
-                        bestScore = currentScore
-                        bestMatch = CStr(origPath)
-                    End If
-NextOrigPath:
-                Next origPath
-                
-                ' Use the best match if score is reasonable (> 0.5), otherwise keep original
-                If bestScore > 0.5 And bestMatch <> "" Then
-                    projItem("File Path") = bestMatch
-                    usedPaths.Add bestMatch, True
-                    Debug.Print ">>> Matched '" & projItem("Project Name") & "' to: " & GetFileNameFromPath(bestMatch) & " (score: " & Format(bestScore, "0.00") & ")"
-                Else
-                    Debug.Print ">>> WARNING: No good match for '" & projItem("Project Name") & "' (best score: " & Format(bestScore, "0.00") & ")"
+        ' Convert originalFilePaths collection to array for index access
+        Dim pathArray() As String
+        ReDim pathArray(1 To originalFilePaths.Count)
+        Dim pathIdx As Long
+        pathIdx = 1
+        For Each origPath In originalFilePaths
+            pathArray(pathIdx) = CStr(origPath)
+            pathIdx = pathIdx + 1
+        Next origPath
+        
+        ' If counts match exactly, use direct index mapping (most reliable for preserving order)
+        If projectsArray.Count = originalFilePaths.Count Then
+            Debug.Print ">>> Using index-based file path mapping (" & projectsArray.Count & " projects = " & originalFilePaths.Count & " files)"
+            projIndex = 1
+            For Each projItem In projectsArray
+                If TypeName(projItem) = "Dictionary" Then
+                    ' Always overwrite File Path with our stored correct path
+                    projItem("File Path") = pathArray(projIndex)
+                    Debug.Print ">>> [" & projIndex & "] Assigned: " & GetFileNameFromPath(pathArray(projIndex))
+                    projIndex = projIndex + 1
                 End If
-            End If
-        Next projItem
+            Next projItem
+        Else
+            ' Counts don't match - fall back to name-based matching
+            Debug.Print ">>> Count mismatch: " & projectsArray.Count & " projects vs " & originalFilePaths.Count & " files. Using name matching."
+            Dim bestMatch As String
+            Dim bestScore As Double
+            Dim currentScore As Double
+            Dim projNameClean As String
+            Dim fileNameClean As String
+            Dim usedPaths As Object
+            Set usedPaths = CreateObject("Scripting.Dictionary")
+            
+            For Each projItem In projectsArray
+                If TypeName(projItem) = "Dictionary" And projItem.Exists("Project Name") Then
+                    bestMatch = ""
+                    bestScore = 0
+                    projNameClean = UCase(CStr(projItem("Project Name")))
+                    
+                    ' Find the best matching file path for this project name
+                    For Each origPath In originalFilePaths
+                        ' Skip if this path was already used
+                        If usedPaths.Exists(CStr(origPath)) Then GoTo NextOrigPath
+                        
+                        ' Extract project name portion from filename (after underscore, before extension)
+                        fileNameClean = GetFileNameFromPath(CStr(origPath))
+                        If InStr(fileNameClean, "_") > 0 Then
+                            fileNameClean = Mid(fileNameClean, InStr(fileNameClean, "_") + 1)
+                        End If
+                        fileNameClean = Replace(fileNameClean, ".pdf", "", , , vbTextCompare)
+                        fileNameClean = Replace(fileNameClean, "_907", "", , , vbTextCompare)
+                        fileNameClean = UCase(fileNameClean)
+                        
+                        ' Calculate similarity score
+                        currentScore = StringSimilarity(projNameClean, fileNameClean)
+                        
+                        If currentScore > bestScore Then
+                            bestScore = currentScore
+                            bestMatch = CStr(origPath)
+                        End If
+NextOrigPath:
+                    Next origPath
+                    
+                    ' Use the best match if score is reasonable (> 0.3), otherwise keep original
+                    If bestScore > 0.3 And bestMatch <> "" Then
+                        projItem("File Path") = bestMatch
+                        usedPaths.Add bestMatch, True
+                        Debug.Print ">>> Matched '" & projItem("Project Name") & "' to: " & GetFileNameFromPath(bestMatch) & " (score: " & Format(bestScore, "0.00") & ")"
+                    Else
+                        Debug.Print ">>> WARNING: No good match for '" & projItem("Project Name") & "' (best score: " & Format(bestScore, "0.00") & ")"
+                    End If
+                End If
+            Next projItem
+        End If
     End If
     
     If Trim(fileContent) = "" Then
@@ -577,7 +605,6 @@ NextOrigPath:
                     addedCount = addedCount + 1
                 End If
                 skippedCount = skippedCount + (IIf(isDuplicate, 1, 0))
-            Next newItem
             Next newItem
             
             Debug.Print ">>> Batch: " & addedCount & " added, " & skippedCount & " duplicates skipped"
@@ -1139,15 +1166,12 @@ NextFile:
         
         ' Check if extraction was successful
         If Len(extractedContent) > 0 Then
-            ' Use the ACTUAL file path from disk (corrected by FindSimilarFile if needed)
-            ' This ensures the correct filename is sent to the API
+            ' Use the ACTUAL file path from disk - preserve original path with Japanese characters
+            ' Do NOT use NormalizeFilePath as it can corrupt Unicode characters via FSO
             Dim actualFilePath As String
             actualFilePath = CStr(pdfFile)
             
-            ' Normalize the file path to ensure consistent encoding
-            actualFilePath = NormalizeFilePath(actualFilePath)
-            
-            extractedText = extractedText & actualFilePath & vbCrLf & extractedContent & vbCrLf & vbCrLf
+            extractedText = extractedText & "File Path: " & actualFilePath & vbCrLf & extractedContent & vbCrLf & vbCrLf
             batchFilePaths.Add actualFilePath  ' Track the original file path for this batch
             allProcessedFilePaths.Add actualFilePath  ' Accumulate across all batches
             filesInCurrentBatch = filesInCurrentBatch + 1

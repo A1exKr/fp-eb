@@ -120,6 +120,20 @@ Private Function NormalizeFilenameUnicode(fileName As String) As String
     NormalizeFilenameUnicode = result
 End Function
 
+' Normalize city names by removing " City" suffix for consistent matching
+' E.g., "Suzhou City" -> "Suzhou", "Osaka City" -> "Osaka"
+Private Function NormalizeCityName(cityName As String) As String
+    Dim normalized As String
+    normalized = Trim(cityName)
+    
+    ' Remove " City" suffix (case insensitive)
+    If Right(LCase(normalized), 5) = " city" Then
+        normalized = Left(normalized, Len(normalized) - 5)
+    End If
+    
+    NormalizeCityName = Trim(normalized)
+End Function
+
 
 
 Public Sub InitializeSearchForm()
@@ -363,8 +377,12 @@ Sub cmdSavePdf_Click_()
                 pdfFilePath = item("File Path")
                 found = True
                 
-                ' Check if file exists before adding to the collection
-                If Dir(pdfFilePath) <> "" Then
+                ' Normalize Unicode in file path for better matching
+                pdfFilePath = NormalizeFilenameUnicode(pdfFilePath)
+                
+                ' Check if file exists before adding to the collection - use Dir for better Unicode support
+                On Error Resume Next
+                If Len(Dir(pdfFilePath)) > 0 Then
                     filePaths.Add pdfFilePath
                 Else
                     ' File not found - try code-based matching
@@ -401,21 +419,26 @@ Sub cmdSavePdf_Click_()
                             ' No underscore - try exact match first (for Japanese filenames)
                             Dim exactMatchPath As String
                             exactMatchPath = searchFolder & "\" & targetFileName
-                            If fso.FileExists(exactMatchPath) Then
+                            On Error Resume Next
+                            If Len(Dir(exactMatchPath)) > 0 Or fso.FileExists(exactMatchPath) Then
                                 actualFile = exactMatchPath
                             End If
+                            On Error GoTo 0
                         End If
                     End If
                     On Error GoTo 0
                     
                     ' If found by code, use it; otherwise show error
-                    If actualFile <> "" And Dir(actualFile) <> "" Then
+                    On Error Resume Next
+                    If actualFile <> "" And Len(Dir(actualFile)) > 0 Then
                         filePaths.Add actualFile
                         Debug.Print "Code-based match used: " & actualFile
                     Else
+                        On Error GoTo 0
                         MsgBox "File not found: " & pdfFilePath, vbExclamation, "File Missing"
                         Exit Sub
                     End If
+                    On Error GoTo 0
                 End If
                 Exit For
             End If
@@ -932,7 +955,19 @@ Private Sub SearchProjects()
                 
                 matchFound = locationMatch
             Else
-                matchFound = MultiParamMatch(projectItem("City"), cityFilter)
+                ' Use normalized city matching for City field
+                Dim normalizedFilter As String
+                Dim normalizedCity As String
+                normalizedFilter = NormalizeCityName(cityFilter)
+                
+                If projectItem.Exists("City") Then
+                    normalizedCity = NormalizeCityName(CStr(projectItem("City")))
+                    ' Match if normalized filter is contained in normalized city OR vice versa
+                    matchFound = InStr(1, normalizedCity, normalizedFilter, vbTextCompare) > 0 Or _
+                                 InStr(1, normalizedFilter, normalizedCity, vbTextCompare) > 0
+                Else
+                    matchFound = False
+                End If
             End If
         End If
 
@@ -942,8 +977,12 @@ Private Sub SearchProjects()
         'End If
 
         ' Check Country filter with explicit distinction between "China" and "Republic of China"
+        ' Also exclude projects with Country = "n/a" from all country filter searches
         If matchFound And countryFilter <> mDash Then
-            If countryFilter = "China" And InStr(1, projectItem("Country"), "Republic of China", vbTextCompare) > 0 Then
+            ' First check if the project's country is "n/a" - if so, exclude it from any country filter
+            If projectItem.Exists("Country") And LCase(Trim(projectItem("Country"))) = "n/a" Then
+                matchFound = False
+            ElseIf countryFilter = "China" And InStr(1, projectItem("Country"), "Republic of China", vbTextCompare) > 0 Then
                 matchFound = False
             ElseIf countryFilter = "Republic of China" And InStr(1, projectItem("Country"), "China", vbTextCompare) > 0 And _
                    Not InStr(1, projectItem("Country"), "Republic of China", vbTextCompare) > 0 Then
@@ -1226,11 +1265,13 @@ Private Function ResolvePdfFilePath(pdfFilePath As String, cacheData As Object) 
 
     pdfFilePath = NormalizeFilenameUnicode(pdfFilePath)
 
-    ' Try original path first
-    If fso.FileExists(pdfFilePath) Then
+    ' Try original path first using both Dir() and FSO for better Unicode support
+    On Error Resume Next
+    If Len(Dir(pdfFilePath)) > 0 Or fso.FileExists(pdfFilePath) Then
         ResolvePdfFilePath = pdfFilePath
         Exit Function
     End If
+    On Error GoTo 0
 
     ' Determine a search folder
     If InStr(pdfFilePath, "\") > 0 Then
@@ -1274,10 +1315,14 @@ Private Function ResolvePdfFilePath(pdfFilePath As String, cacheData As Object) 
             Next file
         End If
 
-        ' Exact match
+        ' Exact match - use both Dir() and FSO for better Unicode support
         If matchedFile = "" Then
             exactMatchPath = searchFolder & "\" & targetFileName
-            If fso.FileExists(exactMatchPath) Then matchedFile = exactMatchPath
+            On Error Resume Next
+            If Len(Dir(exactMatchPath)) > 0 Or fso.FileExists(exactMatchPath) Then
+                matchedFile = exactMatchPath
+            End If
+            On Error GoTo 0
         End If
 
         ' Normalized filename match
@@ -1579,6 +1624,17 @@ Debug.Print "Populating dropdown for key: " & key
             ' Split values by commas and trim each part
             For Each splitValue In Split(value, ",")
                 splitValue = Trim(CStr(splitValue))
+                
+                ' Skip "n/a" values entirely - don't add them to dropdowns
+                If LCase(splitValue) = "n/a" Then GoTo NextSplitValue
+                
+                ' Normalize city names if we're populating the City dropdown
+                If key = "City" Then
+                    splitValue = NormalizeCityName(CStr(splitValue))
+                    ' Skip empty values after normalization
+                    If Len(splitValue) = 0 Then GoTo NextSplitValue
+                End If
+                
                 'Debug.Print "Processing value: " & splitValue
 
                 ' Use FindOrCreateGroup to determine the grouping key
@@ -1593,6 +1649,7 @@ Debug.Print "Populating dropdown for key: " & key
                 If Not typeGroups(groupedKey).Exists(CStr(splitValue)) Then
                     typeGroups(groupedKey).Add CStr(splitValue), Len(CStr(splitValue))
                 End If
+NextSplitValue:
             Next splitValue
         End If
 ContinueLoop:

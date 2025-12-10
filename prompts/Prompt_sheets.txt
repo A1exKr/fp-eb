@@ -7,8 +7,8 @@ Instructions:
   - "Project Name": string — project title or name; if not present, "n/a".
   - "Type": string — building/project type (e.g., Residential, Office); if not present, "n/a".
   - "Location": string — the full location information (country, prefecture, city, address) joined by commas; if not found, "n/a".
-  - "City": string — city name only. If City is not found, set to Prefecture value if present; otherwise "n/a". Ensure this value is NOT a country name; if it equals a known country, return "n/a".
-  - "Country": string — country name only. Ensure it is not a prefecture or city; if uncertain, return "n/a".
+  - "City": string — city name only. If City is not found, set to Prefecture value if present; otherwise "n/a". Ensure this value is NOT a country name; if it equals a known country, return "n/a". Normalize city names by removing " City" suffix (e.g., "Suzhou City" becomes "Suzhou").
+  - "Country": string — country name only. Extract full country name including any qualifiers like "Republic of Korea", "Republic of China (Taiwan)", "Kingdom of Saudi Arabia". First, look for an explicitly stated country name in the Location field. If country is not explicitly stated, infer it from prefecture/city/location names (see inference rules below). Only return "n/a" if country cannot be determined from either explicit statement or inference.
   - "Total Floor Area": string — return only the numeric figure in square meters, digits only (no units or commas). If not found return "n/a".
   - "Building Height": string — return only the numeric figure in meters, digits only (no units or commas). If not found return "n/a".
   - "Completion Year": string — return a 4-digit year only (e.g., "2022"). If a range is present (e.g., "1998-1999"), return the first year. If not found return "n/a".
@@ -17,7 +17,21 @@ Field extraction rules:
 - Use the first matching value found in each sheet. If multiple candidate numbers appear for numeric fields, choose the most plausible (e.g., the largest numeric-looking floor area). Strip commas, spaces and unit text; return digits only.
 - If a field cannot be confidently determined, return the literal string "n/a".
 - Normalize numerics: "12,345 sqm" -> "12345"; "56 m" -> "56".
-- City/Country validation: if extracted City matches a common country name, set City to "n/a" and attempt Prefecture fallback. If Country is not a known country name, set to "n/a".
+- City normalization: Remove " City" suffix from city names ("Suzhou City" -> "Suzhou", "Osaka City" -> "Osaka").
+- City/Country validation: if extracted City matches a common country name, set City to "n/a" and attempt Prefecture fallback.
+- Country extraction priority:
+  1. FIRST: Look for explicit country names in the Location field (Japan, China, Russia, Korea, Taiwan, Saudi Arabia, USA, UK, France, Germany, Italy, Spain, etc.). If found, use that country name (with proper qualifiers like "Republic of Korea", "Kingdom of Saudi Arabia").
+  2. SECOND: If no explicit country found, infer from prefecture/city/location names using inference rules below.
+  3. ONLY return "n/a" if both explicit search and inference fail.
+- Country inference rules (apply only if country not explicitly stated in Location):
+  • Japanese prefectures or cities (Tokyo, Osaka, Kyoto, Aichi, Nagoya, Hokkaido, Okinawa, Hiroshima, Hyogo, Fukuoka, Chiba, Saitama, Kanagawa, Shizuoka, Gifu, Mie, Nara, Wakayama, Shiga, Tottori, Shimane, Okayama, Yamaguchi, Tokushima, Kagawa, Ehime, Kochi, Saga, Nagasaki, Kumamoto, Oita, Miyazaki, Kagoshima, Ibaraki, Tochigi, Gunma, Yamanashi, Nagano, Niigata, Toyama, Ishikawa, Fukui, Iwate, Miyagi, Akita, Yamagata, Fukushima, Kochi, Katsushika-ku, Setagaya-ku, Minato-ku, Shinjuku-ku, etc.) → "Japan"
+  • Chinese cities/provinces (Beijing, Shanghai, Suzhou, Guangdong, Dongguan, Hangzhou, Shenzhen, Chongqing, Tianjin, Wuhan, Xi'an, Chengdu, Nanjing, Shenyang, Harbin, Changchun, Dalian, Qingdao, Jinan, Zhengzhou, Hefei, Fuzhou, Xiamen, Nanchang, Changsha, Guiyang, Kunming, Lanzhou, Yinchuan, Xining, Urumqi, etc.) → "China"
+  • Korean cities (Seoul, Busan, Incheon, Daegu, Daejeon, Gwangju, Ulsan, Suwon, Goyang, Seongnam, etc.) → "Republic of Korea"
+  • Taiwan cities (Taipei, Kaohsiung, Taichung, Tainan, Hsinchu, Keelung, Chiayi, etc.) → "Republic of China (Taiwan)"
+  • Saudi cities (Riyadh, Jeddah, Mecca, Medina, Dammam, etc.) → "Kingdom of Saudi Arabia"
+  • Russian cities (Moscow, St. Petersburg, Novosibirsk, Yekaterinburg, Kazan, Nizhny Novgorod, Chelyabinsk, Samara, Omsk, Rostov-on-Don, Ufa, Krasnoyarsk, Voronezh, Perm, Volgograd, etc.) → "Russia"
+  • US cities (New York, Los Angeles, Chicago, Houston, Phoenix, Philadelphia, San Antonio, San Diego, Dallas, San Jose, etc.) → "United States"
+- IMPORTANT: Do not output "n/a" if a country name appears anywhere in the Location field. Extract it directly.
 
 Output format (strict JSON only):
 Return exactly one JSON object with key "projects" mapping to an array of extracted project objects. Example output:
