@@ -1668,6 +1668,10 @@ Sub PopulateListFromJsonCache()
 
     ' Read the JSON file content with UTF-8 encoding for Japanese character support
     jsonText = ReadUTF8File(jsonFilePath)
+    
+    ' DEBUG: Show what was actually read from the file
+    Debug.Print "PopulateListFromJsonCache: jsonText length = " & Len(jsonText)
+    Debug.Print "PopulateListFromJsonCache: First 200 chars: " & Left(jsonText, 200)
 
     ' Parse the JSON data
     Set jsonData = JsonConverter.ParseJSON(jsonText)

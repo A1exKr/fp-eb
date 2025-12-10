@@ -72,14 +72,18 @@ Public Function CallAPIsyn(fileContent As String, promptFilePath As String) As S
     Set http = CreateObject("MSXML2.XMLHTTP")
     url = "https://api.openai.com/v1/chat/completions"
     
+    ' Build separate system + user messages to reduce ambiguity and enforce strict JSON output
+    Dim systemMsg As String
+    Dim userMsg As String
+    systemMsg = "You are a strict JSON extractor. Return only valid JSON as specified in the prompt file. Use ""n/a"" for missing fields. Do not include any explanation or markdown."
+    userMsg = requestText
+
+    ' Create valid JSON payload (use a deterministic temperature for extraction tasks)
+    ' Use the model's supported parameter name for maximum completion tokens
+    payload = "{""model"": ""gpt-5.1-2025-11-13"", ""messages"": [{""role"": ""system"", ""content"": """ & EscapeJsonString(systemMsg) & """}, {""role"": ""user"", ""content"": """ & EscapeJsonString(userMsg) & """}], ""max_completion_tokens"": 16000, ""temperature"": 0}"
+
     Debug.Print "Payload Length: " & Len(payload)
-
-    ' Create valid JSON payload
-    'payload = "{""model"": ""gpt-4o-mini-2024-07-18"", ""messages"": [{""role"": ""user"", ""content"": """ & EscapeJsonString(requestText) & """}], ""max_tokens"": 16000}"
-    'payload = "{""model"": ""gpt-5-nano"", ""messages"": [{""role"": ""user"", ""content"": """ & EscapeJsonString(requestText) & """}], ""max_tokens"": 16000}"
-    payload = "{""model"": ""gpt-4.1-nano"", ""messages"": [{""role"": ""user"", ""content"": """ & EscapeJsonString(requestText) & """}], ""max_tokens"": 16000}"
-
-    Debug.Print "Payload: " & payload
+    Debug.Print "Payload: " & Left(payload, 1000)
 
     http.Open "POST", url, False
     http.setRequestHeader "Content-Type", "application/json"
@@ -99,6 +103,25 @@ Public Function CallAPIsyn(fileContent As String, promptFilePath As String) As S
     End If
 
     responseText = http.responseText
+    
+    ' Debug: Save raw API response to file for inspection
+    Dim debugFilePath As String
+    debugFilePath = GetRelativePath("\test output\api_response_debug.txt")
+    Dim debugFile As Integer
+    debugFile = FreeFile
+    On Error Resume Next
+    Open debugFilePath For Output As debugFile
+    Print #debugFile, "=== Raw API Response ==="
+    Print #debugFile, "Timestamp: " & Now
+    Print #debugFile, "Response length: " & Len(responseText)
+    Print #debugFile, "First 2000 chars:"
+    Print #debugFile, Left(responseText, 2000)
+    Print #debugFile, ""
+    Print #debugFile, "Last 1000 chars:"
+    Print #debugFile, Right(responseText, 1000)
+    Close debugFile
+    On Error GoTo 0
+    Debug.Print "API response saved to: " & debugFilePath
 
     CallAPIsyn = responseText
     Exit Function

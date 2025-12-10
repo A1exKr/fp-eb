@@ -418,7 +418,16 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object,
     'Debug.Print "1 contentText = " & contentText
 
     ' Step 4: Parse the inner JSON content into a dictionary
+    Debug.Print "SheetsDynamicExtractItems: Attempting to parse contentText as JSON"
+    Debug.Print "First 500 chars of contentText: " & Left(contentText, 500)
+    On Error Resume Next
     Set innerJson = JsonConverter.ParseJSON(contentText)
+    If Err.Number <> 0 Then
+        Debug.Print "ERROR parsing contentText: " & Err.Number & " - " & Err.Description
+        Debug.Print "Full contentText length: " & Len(contentText)
+        Err.Clear
+    End If
+    On Error GoTo ErrorHandler
 
     ' Step 5: Prepare to update cache file
     Dim fso As Object
@@ -432,9 +441,74 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object,
     End If
 
     ' Initialize or modify the JSON array in the cache file
+    ' We now have innerJson with structure {"projects": [...]}
+    ' Extract the projects array and use it
+    Dim projectsArray As Object
+    If TypeName(innerJson) = "Dictionary" And innerJson.Exists("projects") Then
+        Set projectsArray = innerJson("projects")
+    Else
+        Set projectsArray = innerJson
+    End If
+    
+    ' CRITICAL: Map file paths from originalFilePaths to projects
+    ' Match by finding the best filename match for each project's name
+    ' This prevents API hallucinations and re-ordering issues
+    If Not originalFilePaths Is Nothing And originalFilePaths.Count > 0 Then
+        Dim projItem As Variant
+        Dim bestMatch As String
+        Dim bestScore As Double
+        Dim currentScore As Double
+        Dim origPath As Variant
+        Dim projNameClean As String
+        Dim fileNameClean As String
+        Dim usedPaths As Object
+        Set usedPaths = CreateObject("Scripting.Dictionary")
+        
+        For Each projItem In projectsArray
+            If TypeName(projItem) = "Dictionary" And projItem.Exists("Project Name") Then
+                bestMatch = ""
+                bestScore = 0
+                projNameClean = UCase(CStr(projItem("Project Name")))
+                
+                ' Find the best matching file path for this project name
+                For Each origPath In originalFilePaths
+                    ' Skip if this path was already used
+                    If usedPaths.Exists(CStr(origPath)) Then GoTo NextOrigPath
+                    
+                    ' Extract project name portion from filename (after underscore, before extension)
+                    fileNameClean = GetFileNameFromPath(CStr(origPath))
+                    If InStr(fileNameClean, "_") > 0 Then
+                        fileNameClean = Mid(fileNameClean, InStr(fileNameClean, "_") + 1)
+                    End If
+                    fileNameClean = Replace(fileNameClean, ".pdf", "", , , vbTextCompare)
+                    fileNameClean = Replace(fileNameClean, "_907", "", , , vbTextCompare)
+                    fileNameClean = UCase(fileNameClean)
+                    
+                    ' Calculate similarity score
+                    currentScore = StringSimilarity(projNameClean, fileNameClean)
+                    
+                    If currentScore > bestScore Then
+                        bestScore = currentScore
+                        bestMatch = CStr(origPath)
+                    End If
+NextOrigPath:
+                Next origPath
+                
+                ' Use the best match if score is reasonable (> 0.5), otherwise keep original
+                If bestScore > 0.5 And bestMatch <> "" Then
+                    projItem("File Path") = bestMatch
+                    usedPaths.Add bestMatch, True
+                    Debug.Print ">>> Matched '" & projItem("Project Name") & "' to: " & GetFileNameFromPath(bestMatch) & " (score: " & Format(bestScore, "0.00") & ")"
+                Else
+                    Debug.Print ">>> WARNING: No good match for '" & projItem("Project Name") & "' (best score: " & Format(bestScore, "0.00") & ")"
+                End If
+            End If
+        Next projItem
+    End If
+    
     If Trim(fileContent) = "" Then
-        ' If the cache file is empty, start a new array
-        fileContent = contentText & vbCrLf
+        ' If the cache file is empty, write the projects array directly
+        fileContent = JsonConverter.ConvertToJson(projectsArray, Whitespace:=2)
     Else
         ' Parse existing cache to ensure it's a valid array
         Dim existingArray As Object
@@ -442,194 +516,83 @@ Sub SheetsDynamicExtractItems(gptResponse As String, ByRef parsedData As Object,
         Set existingArray = JsonConverter.ParseJSON(fileContent)
         On Error GoTo ErrorHandler
         
-        ' If cache is valid JSON array, extract items from contentText and append
+        ' If cache is valid JSON array, append new projects (checking for duplicates)
         If Not existingArray Is Nothing And TypeName(existingArray) = "Collection" Then
-            ' Extract items from contentText (which should be an array from API)
-            Dim newArray As Object
-            Set newArray = JsonConverter.ParseJSON(contentText)
+            ' Append each project from the new batch to existing array, skipping duplicates
+            Dim newItem As Variant
+            Dim isDuplicate As Boolean
+            Dim existingItem As Variant
+            Dim newFileName As String
+            Dim existingFileName As String
+            Dim newProjectName As String
+            Dim existingProjectName As String
+            Dim addedCount As Long
+            Dim skippedCount As Long
+            addedCount = 0
+            skippedCount = 0
             
-            If Not newArray Is Nothing And TypeName(newArray) = "Collection" Then
-                ' Append each new item to existing array, checking for duplicates
-                Dim newItem As Variant
-                Dim existingItem As Variant
-                Dim isDuplicate As Boolean
-                Dim newFileName As String
-                Dim existingFileName As String
-                Dim newItemsCount As Long
-                Dim duplicatesCount As Long
-                Dim correctedFilePath As String
+            For Each newItem In projectsArray
+                isDuplicate = False
+                newFileName = ""
+                newProjectName = ""
                 
-                newItemsCount = 0
-                duplicatesCount = 0
-                
-                Debug.Print ">>> API returned " & newArray.Count & " items in this batch"
-                
-                Dim duplicateProjectMsg As String
-                duplicateProjectMsg = ""
-                
-                Dim batchIndex As Long
-                batchIndex = 1
-                
-                For Each newItem In newArray
-                    isDuplicate = False
-                    newFileName = ""  ' Reset for each item to prevent false duplicates
-                    
-                    ' Get the file name from the new item
-                    If TypeName(newItem) = "Dictionary" Then
-                        ' STRICT MAPPING: Always use the original file path from the batch if available
-                        ' This bypasses API hallucinations and character corruption completely
-                        If Not originalFilePaths Is Nothing And newArray.Count = originalFilePaths.Count Then
-                            correctedFilePath = originalFilePaths(batchIndex)
-                            newItem("File Path") = correctedFilePath
-                            newFileName = GetFileNameFromPath(correctedFilePath)
-                            Debug.Print ">>> Mapped by INDEX: " & batchIndex & " -> " & newFileName
-                        Else
-                            ' Fallback to existing logic if counts don't match
-                            If newItem.Exists("File Path") Then
-                                newFileName = GetFileNameFromPath(newItem("File Path"))
-                                correctedFilePath = FindOriginalFilePath(newItem("File Path"), originalFilePaths)
-                                If correctedFilePath <> "" Then
-                                    newItem("File Path") = correctedFilePath
-                                    newFileName = GetFileNameFromPath(correctedFilePath)
-                                End If
-                            Else
-                                Debug.Print ">>> WARNING: Item has no 'File Path' field, cannot check for duplicates"
-                            End If
-                        End If
+                ' Get the filename and project name from the new item
+                If TypeName(newItem) = "Dictionary" Then
+                    If newItem.Exists("File Path") Then
+                        newFileName = GetFileNameFromPath(newItem("File Path"))
                     End If
-                    
-                    ' If we couldn't determine the filename, try to map by batch index or dedupe by Project Name
-                    If Len(newFileName) = 0 Then
-                        Dim mappedFromBatch As Boolean
-                        mappedFromBatch = False
-
-                        If Not originalFilePaths Is Nothing And batchIndex <= originalFilePaths.Count Then
-                            correctedFilePath = originalFilePaths(batchIndex)
-                            newItem("File Path") = correctedFilePath
-                            newFileName = GetFileNameFromPath(correctedFilePath)
-                            mappedFromBatch = True
-                            Debug.Print ">>> Mapped missing filename by batch index: " & newFileName
-                        End If
-
-                        If Not mappedFromBatch Then
-                            ' If we have a Project Name, dedupe by project name to avoid duplicates
-                            If TypeName(newItem) = "Dictionary" Then
-                                If newItem.Exists("Project Name") Then
-                                    pName = newItem("Project Name")
-                                    Dim existsByProject As Boolean
-                                    existsByProject = False
-                                    Dim exChk As Variant
-                                    For Each exChk In existingArray
-                                        If TypeName(exChk) = "Dictionary" And exChk.Exists("Project Name") Then
-                                            If StrComp(exChk("Project Name"), pName, vbTextCompare) = 0 Then
-                                                existsByProject = True
-                                                Exit For
-                                            End If
-                                        End If
-                                    Next exChk
-
-                                    If existsByProject Then
-                                        Debug.Print ">>> Skipping item because project name already exists in cache: " & pName
-                                        duplicatesCount = duplicatesCount + 1
-                                        batchIndex = batchIndex + 1
-                                        GoTo NextNewItem
-                                    Else
-                                        ' Add the item (no filename but unique project name)
-                                        existingArray.Add newItem
-                                        newItemsCount = newItemsCount + 1
-                                        Debug.Print ">>> ADDED (no filename) for unique project: " & pName
-                                        batchIndex = batchIndex + 1
-                                        GoTo NextNewItem
-                                    End If
-                                Else
-                                    Debug.Print ">>> WARNING: No filename determined for item and no project name; adding without duplicate check"
-                                    existingArray.Add newItem
-                                    newItemsCount = newItemsCount + 1
-                                    batchIndex = batchIndex + 1
-                                    GoTo NextNewItem
-                                End If
-                            End If
-                        End If
+                    If newItem.Exists("Project Name") Then
+                        newProjectName = CStr(newItem("Project Name"))
                     End If
-                        
-                    Debug.Print ">>> Checking item: " & newFileName
-                    
-                    ' Check if this file already exists in cache
-                    For Each existingItem In existingArray
-                        If TypeName(existingItem) = "Dictionary" And existingItem.Exists("File Path") Then
+                End If
+                
+                ' Check if this project already exists in cache (by filename OR project name)
+                For Each existingItem In existingArray
+                    If TypeName(existingItem) = "Dictionary" Then
+                        ' Check filename match
+                        If Len(newFileName) > 0 And existingItem.Exists("File Path") Then
                             existingFileName = GetFileNameFromPath(existingItem("File Path"))
-                            Debug.Print ">>>   Comparing with: " & existingFileName & " (len=" & Len(existingFileName) & ")"
                             If StrComp(newFileName, existingFileName, vbTextCompare) = 0 Then
                                 isDuplicate = True
-                                duplicatesCount = duplicatesCount + 1
-                                Debug.Print ">>> DUPLICATE: Skipping " & newFileName
+                                Debug.Print ">>> DUPLICATE skipped (filename match): " & newFileName
                                 Exit For
                             End If
                         End If
-                    Next existingItem
-                    
-                    ' Only add if not a duplicate
-                    If Not isDuplicate Then
-                        ' Check for duplicate Project Name (same project, different file)
-                        Dim exItem As Variant
-                        Dim exFile As String
                         
-                        If TypeName(newItem) = "Dictionary" Then
-                            If newItem.Exists("Project Name") Then
-                                pName = newItem("Project Name")
-                                
-                                For Each exItem In existingArray
-                                    If TypeName(exItem) = "Dictionary" And exItem.Exists("Project Name") Then
-                                        If StrComp(exItem("Project Name"), pName, vbTextCompare) = 0 Then
-                                            ' Same project name found
-                                            If exItem.Exists("File Path") Then
-                                                exFile = GetFileNameFromPath(exItem("File Path"))
-                                                ' If filenames are different, report it
-                                                If StrComp(exFile, newFileName, vbTextCompare) <> 0 Then
-                                                    duplicateProjectMsg = duplicateProjectMsg & _
-                                                        "Project: " & pName & vbCrLf & _
-                                                        " - Existing: " & exFile & vbCrLf & _
-                                                        " - New: " & newFileName & vbCrLf & vbCrLf
-                                                End If
-                                            End If
-                                        End If
-                                    End If
-                                Next exItem
+                        ' Check project name match
+                        If Len(newProjectName) > 0 And existingItem.Exists("Project Name") Then
+                            existingProjectName = CStr(existingItem("Project Name"))
+                            If StrComp(newProjectName, existingProjectName, vbTextCompare) = 0 Then
+                                isDuplicate = True
+                                Debug.Print ">>> DUPLICATE skipped (project name match): " & newProjectName
+                                Exit For
                             End If
                         End If
-                        
-                        existingArray.Add newItem
-                        newItemsCount = newItemsCount + 1
-                        Debug.Print ">>> ADDED to cache: " & newFileName
-                    Else
-                        Debug.Print ">>> SKIPPED (duplicate): " & newFileName
                     End If
-                    
-                    batchIndex = batchIndex + 1
-NextNewItem:
-                Next newItem
+                Next existingItem
                 
-                If duplicateProjectMsg <> "" Then
-                    MsgBox "Note: Multiple files found for the same project." & vbCrLf & _
-                           "Both files have been saved to the cache." & vbCrLf & vbCrLf & _
-                           duplicateProjectMsg, vbInformation, "Multiple Files for Same Project"
+                ' Only add if not a duplicate
+                If Not isDuplicate Then
+                    existingArray.Add newItem
+                    addedCount = addedCount + 1
                 End If
-                
-                Debug.Print ">>> Batch summary: " & newItemsCount & " added, " & duplicatesCount & " duplicates skipped"
-                
-                ' Convert back to JSON manually (JsonConverter.ConvertToJson loses data with large Collections)
-                ' Build JSON array manually to preserve all items
-                fileContent = "["
-                Dim itemIndex As Long
-                For itemIndex = 1 To existingArray.Count
-                    If itemIndex > 1 Then fileContent = fileContent & ","
-                    fileContent = fileContent & JsonConverter.ConvertToJson(existingArray(itemIndex), Whitespace:=2)
-                Next itemIndex
-                fileContent = fileContent & "]"
-            End If
+                skippedCount = skippedCount + (IIf(isDuplicate, 1, 0))
+            Next newItem
+            Next newItem
+            
+            Debug.Print ">>> Batch: " & addedCount & " added, " & skippedCount & " duplicates skipped"
+            
+            ' Convert back to JSON manually
+            fileContent = "["
+            Dim itemIndex As Long
+            For itemIndex = 1 To existingArray.Count
+                If itemIndex > 1 Then fileContent = fileContent & ","
+                fileContent = fileContent & JsonConverter.ConvertToJson(existingArray(itemIndex), Whitespace:=2)
+            Next itemIndex
+            fileContent = fileContent & "]"
         Else
             ' If existing cache is invalid, replace with new content
-            fileContent = contentText & vbCrLf
+            fileContent = JsonConverter.ConvertToJson(projectsArray, Whitespace:=2)
         End If
     End If
 
@@ -648,68 +611,13 @@ NextNewItem:
         Debug.Print ">>> CACHE VERIFICATION: " & verifyArray.Count & " items now in cache file"
     End If
 
-    ' Step 6: Reset parsedData to ensure no previous entries are retained
-    Set parsedData = Nothing
-    Set parsedData = CreateObject("Scripting.Dictionary")
-    ' Step 7: Process each project in the collection
-    projectIndex = 1
-    For Each projectItem In innerJson
-        ' Handle different types of projectItem
-        Select Case TypeName(projectItem)
-        
-            ' If it's a String, try to parse it as JSON
-            Case "String"
-                On Error Resume Next
-                Set projectItem = JsonConverter.ParseJSON(projectItem)
-                On Error GoTo 0
-                
-                ' If parsing fails, use the string directly
-                If TypeName(projectItem) = "String" Then
-                    projectName = projectItem  ' Assign the string directly if it's valid
-                ElseIf TypeName(projectItem) = "Dictionary" Then
-                    ' Proceed to extract project name if it successfully parsed as a Dictionary
-                    If projectItem.Exists("Project Name") Then
-                        projectName = projectItem("Project Name")
-                    Else
-                        projectName = "N/A"
-                    End If
-                Else
-                    projectName = "N/A"
-                End If
-            
-            ' If it's already a Dictionary, extract the project name directly
-            Case "Dictionary"
-                If projectItem.Exists("Project Name") Then
-                    projectName = projectItem("Project Name")
-                Else
-                    projectName = "N/A"
-                End If
-            
-            ' If it's a Collection or Array, try to extract the first item
-            Case "Collection", "Variant()"
-                If projectItem.Count > 0 Then
-                    If TypeName(projectItem(1)) = "Dictionary" Then
-                        ' Extract project name from the first item
-                        If projectItem(1).Exists("Project Name") Then
-                            projectName = projectItem(1)("Project Name")
-                        Else
-                            projectName = "N/A"
-                        End If
-                    End If
-                Else
-                    projectName = "N/A"
-                End If
-            
-            ' Default case if it's an unknown type
-            Case Else
-                projectName = "N/A"
-        
-        End Select
-
-        Debug.Print "projectName: " & projectName
-    Next projectItem
-    Debug.Print "Next projectItem"
-
+    ' All projects from projectsArray have already been written to cache file above
+    If Not originalFilePaths Is Nothing Then
+        Debug.Print ">>> Batch processed: " & originalFilePaths.Count & " files sent, response processed"
+    Else
+        Debug.Print ">>> Batch processed: response processed (no file paths tracked)"
+    End If
+    
     Exit Sub
 
 ErrorHandler:
@@ -717,6 +625,38 @@ ErrorHandler:
     errMsg = "Error " & Err.Number & ": " & Err.Description
     MsgBox errMsg, vbCritical, "Runtime Error"
 End Sub
+
+' Calculate string similarity (0.0 to 1.0) using character matching
+Private Function StringSimilarity(str1 As String, str2 As String) As Double
+    Dim matchCount As Long
+    Dim i As Long
+    Dim maxLen As Long
+    Dim minLen As Long
+    
+    If Len(str1) = 0 Or Len(str2) = 0 Then
+        StringSimilarity = 0
+        Exit Function
+    End If
+    
+    maxLen = Application.Max(Len(str1), Len(str2))
+    minLen = Application.Min(Len(str1), Len(str2))
+    matchCount = 0
+    
+    ' Count matching characters at same positions
+    For i = 1 To minLen
+        If Mid(str1, i, 1) = Mid(str2, i, 1) Then
+            matchCount = matchCount + 1
+        End If
+    Next i
+    
+    ' Also check if one string contains the other
+    If InStr(1, str1, str2, vbTextCompare) > 0 Or InStr(1, str2, str1, vbTextCompare) > 0 Then
+        StringSimilarity = 0.9 ' High score for containment
+        Exit Function
+    End If
+    
+    StringSimilarity = matchCount / maxLen
+End Function
 
 ' Helper function to read the content of a text file with UTF-8 encoding
 Private Function ReadTextFile(filePath As String) As String
@@ -1275,10 +1215,8 @@ NextFile:
     frmSearchForm.lblStatus.Caption = " "
     frmSearchForm.lblStatus.Visible = False
 
-    ' If successful, return True
-    If Not parsedSheetsData Is Nothing Then
-        ExtractAndParsePDFs = True
-    End If
+    ' Return True since we successfully processed files (cache was updated)
+    ExtractAndParsePDFs = True
     
     ' Final summary: count entries in cache
     If Dir(cacheFilePath) <> "" Then
