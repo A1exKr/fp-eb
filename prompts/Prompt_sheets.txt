@@ -9,14 +9,14 @@ Instructions:
   - "Location": string — the full location information (country, prefecture, city, address) joined by commas; if not found, "n/a".
   - "City": string — city name only. If City is not found, set to Prefecture value if present; otherwise "n/a". Ensure this value is NOT a country name; if it equals a known country, return "n/a". Normalize city names by removing " City" suffix (e.g., "Suzhou City" becomes "Suzhou").
   - "Country": string — country name only. Extract full country name including any qualifiers like "Republic of Korea", "Republic of China (Taiwan)", "Kingdom of Saudi Arabia". First, look for an explicitly stated country name in the Location field. If country is not explicitly stated, infer it from prefecture/city/location names (see inference rules below). Only return "n/a" if country cannot be determined from either explicit statement or inference.
-  - "Total Floor Area": string — return only the numeric figure in square meters, digits only (no units or commas). If not found return "n/a".
-  - "Building Height": string — return only the numeric figure in meters, digits only (no units or commas). If not found return "n/a".
+  - "Total Floor Area": string — return the numeric value in square meters. Keep decimal points if present (e.g., "12345.67"). Remove commas, spaces, and unit text like "sqm", "m2", "m²". If not found return "n/a".
+  - "Building Height": string — return the numeric value in meters. Keep decimal points if present (e.g., "24.84" from "GL+24.84m" or "24.84m"). Remove commas, spaces, prefixes like "GL+", and unit text like "m". If not found return "n/a".
   - "Completion Year": string — return a 4-digit year only (e.g., "2022"). If a range is present (e.g., "1998-1999"), return the first year. If not found return "n/a".
 
 Field extraction rules:
 - Use the first matching value found in each sheet. If multiple candidate numbers appear for numeric fields, choose the most plausible (e.g., the largest numeric-looking floor area). Strip commas, spaces and unit text; return digits only.
 - If a field cannot be confidently determined, return the literal string "n/a".
-- Normalize numerics: "12,345 sqm" -> "12345"; "56 m" -> "56".
+- Normalize numerics: "12,345 sqm" -> "12345"; "12,345.67 sqm" -> "12345.67"; "GL+24.84m" -> "24.84"; "56.5 m" -> "56.5".
 - City normalization: Remove " City" suffix from city names ("Suzhou City" -> "Suzhou", "Osaka City" -> "Osaka").
 - City/Country validation: if extracted City matches a common country name, set City to "n/a" and attempt Prefecture fallback.
 - Country extraction priority:

@@ -18,9 +18,20 @@ Option Explicit
 ' Declare a module-level variable to track the clicked index
 Private clickedIndex As Long
 Private isInitialized As Boolean
+Private isUpdatingCombo As Boolean  ' Flag to prevent recursive Click events
+
+' Module-level collections to store multi-select values for each dropdown
+Private selectedTypes As Collection
+Private selectedCities As Collection
+Private selectedCountries As Collection
 
 ' Ensure the form initializes itself when opened directly
 Private Sub UserForm_Initialize()
+    ' Always initialize multi-select collections
+    Set selectedTypes = New Collection
+    Set selectedCities = New Collection
+    Set selectedCountries = New Collection
+    
     If Not isInitialized Then
         On Error Resume Next
         InitializeSearchForm
@@ -142,6 +153,20 @@ Public Sub InitializeSearchForm()
     
     Debug.Print "Initializing Search Form"
     
+    ' Initialize multi-select collections if not already done
+    If selectedTypes Is Nothing Then Set selectedTypes = New Collection
+    If selectedCities Is Nothing Then Set selectedCities = New Collection
+    If selectedCountries Is Nothing Then Set selectedCountries = New Collection
+    
+    ' Set IME mode to disable Japanese input (force English/alphanumeric) for text fields
+    ' fmIMEModeAlpha = 8 forces alphanumeric (romaji/English) input
+    Me.txtAreaMin.IMEMode = fmIMEModeAlpha
+    Me.txtAreaMax.IMEMode = fmIMEModeAlpha
+    Me.txtHeightMin.IMEMode = fmIMEModeAlpha
+    Me.txtHeightMax.IMEMode = fmIMEModeAlpha
+    Me.txtYearMin.IMEMode = fmIMEModeAlpha
+    Me.txtYearMax.IMEMode = fmIMEModeAlpha
+    
     ' Initialize all form controls with mDash
     Me.txtAreaMin.value = mDash
     Me.txtAreaMax.value = mDash
@@ -229,9 +254,24 @@ End Function
 
 Private Function CleanAndConvertValue(inputValue As String) As Double
     Dim cleanedValue As String
-    cleanedValue = Replace(inputValue, ",", "")
-    cleanedValue = Replace(cleanedValue, "m", "")
-    cleanedValue = Replace(cleanedValue, Chr(8212), "")
+    cleanedValue = Trim(inputValue)
+    
+    ' Remove common suffixes and units
+    cleanedValue = Replace(cleanedValue, ",", "")       ' Remove thousands separator commas
+    cleanedValue = Replace(cleanedValue, " ", "")       ' Remove spaces
+    cleanedValue = Replace(cleanedValue, "m2", "")      ' Remove m2 (square meters)
+    cleanedValue = Replace(cleanedValue, "m²", "")      ' Remove m² (square meters unicode)
+    cleanedValue = Replace(cleanedValue, "sqm", "")     ' Remove sqm
+    cleanedValue = Replace(cleanedValue, Chr(8212), "") ' Remove M-dash
+    
+    ' Remove trailing 'm' only if it's a unit suffix (not part of a number)
+    If Right(LCase(cleanedValue), 1) = "m" Then
+        cleanedValue = Left(cleanedValue, Len(cleanedValue) - 1)
+    End If
+    
+    ' Trim again after removals
+    cleanedValue = Trim(cleanedValue)
+    
     If IsNumeric(cleanedValue) Then
         CleanAndConvertValue = CDbl(cleanedValue)
     Else
@@ -306,6 +346,11 @@ Private Sub ResetSearch()
     Me.cmbCity.value = mDash
     Me.cmbCountry.value = mDash
     
+    ' Clear multi-select collections
+    Set selectedTypes = New Collection
+    Set selectedCities = New Collection
+    Set selectedCountries = New Collection
+    
     ' Set TextBoxes to M-dash for area, height, and year values
     Me.txtAreaMin.value = mDash
     Me.txtAreaMax.value = mDash
@@ -319,6 +364,90 @@ Private Sub ResetSearch()
     ' Print a message to the Immediate Window to confirm the reset
     Debug.Print "All controls have been reset to M-dash (?\)."
 End Sub
+
+' Event handler for cmbType - Toggle multi-select items
+Private Sub cmbType_Click()
+    HandleMultiSelectCombo Me.cmbType, selectedTypes
+End Sub
+
+' Event handler for cmbCity - Toggle multi-select items
+Private Sub cmbCity_Click()
+    HandleMultiSelectCombo Me.cmbCity, selectedCities
+End Sub
+
+' Event handler for cmbCountry - Toggle multi-select items
+Private Sub cmbCountry_Click()
+    HandleMultiSelectCombo Me.cmbCountry, selectedCountries
+End Sub
+
+' Helper function to handle multi-select behavior for ComboBoxes
+Private Sub HandleMultiSelectCombo(cmb As MSForms.ComboBox, ByRef selectedItems As Collection)
+    Dim mDash As String
+    Dim selectedValue As String
+    Dim i As Long
+    Dim found As Boolean
+    Dim foundIndex As Long
+    Dim displayText As String
+    
+    ' Prevent recursive calls when we update cmb.value
+    If isUpdatingCombo Then Exit Sub
+    
+    mDash = Chr(8212)  ' Em-dash character
+    selectedValue = cmb.value
+    
+    ' If M-dash is selected, clear all selections
+    If selectedValue = mDash Then
+        Set selectedItems = New Collection
+        isUpdatingCombo = True
+        cmb.value = mDash
+        isUpdatingCombo = False
+        Exit Sub
+    End If
+    
+    ' If the selected value contains "; " it means user clicked on the display text itself
+    ' In this case, we need to find which item from the dropdown was actually clicked
+    ' The ComboBox.value will be one of the actual dropdown items, not the combined display
+    
+    ' Check if the value is already in the collection (toggle off)
+    found = False
+    foundIndex = 0
+    For i = selectedItems.Count To 1 Step -1
+        If selectedItems(i) = selectedValue Then
+            foundIndex = i
+            found = True
+            Exit For
+        End If
+    Next i
+    
+    ' If found, remove it (toggle off) - only remove that specific item
+    If found Then
+        selectedItems.Remove foundIndex
+    Else
+        ' If not found, add it (toggle on)
+        selectedItems.Add selectedValue
+    End If
+    
+    ' Update the ComboBox display to show all selected items
+    ' Use flag to prevent recursive Click events
+    isUpdatingCombo = True
+    If selectedItems.Count = 0 Then
+        cmb.value = mDash
+    Else
+        displayText = ""
+        For i = 1 To selectedItems.Count
+            If i > 1 Then displayText = displayText & "; "
+            displayText = displayText & selectedItems(i)
+        Next i
+        ' Set the text display (this won't match a dropdown item, but shows the selection)
+        cmb.value = displayText
+    End If
+    isUpdatingCombo = False
+End Sub
+
+' Helper function to get selected items as a collection for filtering
+Private Function GetSelectedFilterItems(selectedItems As Collection) As Collection
+    Set GetSelectedFilterItems = selectedItems
+End Function
 
 Sub cmdSavePdf_Click_()
     Dim pdfFilePath As String
@@ -895,10 +1024,13 @@ Private Sub SearchProjects()
         Exit Sub
     End If
 
-    ' Retrieve filter values from the form
-    typeFilter = Me.cmbType.value
-    cityFilter = Me.cmbCity.value
-    countryFilter = Me.cmbCountry.value
+    ' Check if multi-select collections have items, otherwise use single value
+    Dim hasTypeFilters As Boolean, hasCityFilters As Boolean, hasCountryFilters As Boolean
+    hasTypeFilters = (selectedTypes.Count > 0)
+    hasCityFilters = (selectedCities.Count > 0)
+    hasCountryFilters = (selectedCountries.Count > 0)
+    
+    ' Retrieve numeric filter values from the form
     areaMinFilter = GetNumericValue(Me.txtAreaMin.value, 0)
     areaMaxFilter = GetNumericValue(Me.txtAreaMax.value, 9999999)
     heightMinFilter = GetNumericValue(Me.txtHeightMin.value, 0)
@@ -928,13 +1060,13 @@ Private Sub SearchProjects()
             GoTo ContinueLoop
         End If
 
-        ' Check Type filter, allowing partial matches
-        If typeFilter <> mDash Then
-            matchFound = MultiParamMatch(projectItem("Type"), typeFilter)
+        ' Check Type filter using multi-select collection
+        If hasTypeFilters Then
+            matchFound = MultiSelectMatch(projectItem("Type"), selectedTypes)
         End If
         
-        ' Check City filter, allowing partial matches or matching any Location
-        If matchFound And cityFilter <> mDash Then
+        ' Check City filter using multi-select collection
+        If matchFound And hasCityFilters Then
             If projectItem.Exists("Location") Then
                 ' Location is an array, so we need to check each element
                 Dim locationMatch As Boolean
@@ -942,15 +1074,24 @@ Private Sub SearchProjects()
                 
                 If TypeName(projectItem("Location")) = "Collection" Then
                     Dim locItem As Variant
+                    Dim cityItem As Variant
                     For Each locItem In projectItem("Location")
-                        If InStr(1, CStr(locItem), cityFilter, vbTextCompare) > 0 Then
-                            locationMatch = True
-                            Exit For
-                        End If
+                        For Each cityItem In selectedCities
+                            If InStr(1, CStr(locItem), CStr(cityItem), vbTextCompare) > 0 Then
+                                locationMatch = True
+                                Exit For
+                            End If
+                        Next cityItem
+                        If locationMatch Then Exit For
                     Next locItem
                 Else
                     ' Fallback if Location is a string
-                    locationMatch = InStr(1, CStr(projectItem("Location")), cityFilter, vbTextCompare) > 0
+                    For Each cityItem In selectedCities
+                        If InStr(1, CStr(projectItem("Location")), CStr(cityItem), vbTextCompare) > 0 Then
+                            locationMatch = True
+                            Exit For
+                        End If
+                    Next cityItem
                 End If
                 
                 matchFound = locationMatch
@@ -958,37 +1099,33 @@ Private Sub SearchProjects()
                 ' Use normalized city matching for City field
                 Dim normalizedFilter As String
                 Dim normalizedCity As String
-                normalizedFilter = NormalizeCityName(cityFilter)
+                Dim cityMatchFound As Boolean
+                cityMatchFound = False
                 
                 If projectItem.Exists("City") Then
                     normalizedCity = NormalizeCityName(CStr(projectItem("City")))
-                    ' Match if normalized filter is contained in normalized city OR vice versa
-                    matchFound = InStr(1, normalizedCity, normalizedFilter, vbTextCompare) > 0 Or _
-                                 InStr(1, normalizedFilter, normalizedCity, vbTextCompare) > 0
-                Else
-                    matchFound = False
+                    For Each cityItem In selectedCities
+                        normalizedFilter = NormalizeCityName(CStr(cityItem))
+                        ' Match if normalized filter is contained in normalized city OR vice versa
+                        If InStr(1, normalizedCity, normalizedFilter, vbTextCompare) > 0 Or _
+                           InStr(1, normalizedFilter, normalizedCity, vbTextCompare) > 0 Then
+                            cityMatchFound = True
+                            Exit For
+                        End If
+                    Next cityItem
                 End If
+                matchFound = cityMatchFound
             End If
         End If
 
-        ' Check City filter, allowing partial matches
-        'If matchFound And cityFilter <> mDash Then
-        '    matchFound = MultiParamMatch(projectItem("City"), cityFilter)
-        'End If
-
-        ' Check Country filter with explicit distinction between "China" and "Republic of China"
+        ' Check Country filter using multi-select collection
         ' Also exclude projects with Country = "n/a" from all country filter searches
-        If matchFound And countryFilter <> mDash Then
+        If matchFound And hasCountryFilters Then
             ' First check if the project's country is "n/a" - if so, exclude it from any country filter
             If projectItem.Exists("Country") And LCase(Trim(projectItem("Country"))) = "n/a" Then
                 matchFound = False
-            ElseIf countryFilter = "China" And InStr(1, projectItem("Country"), "Republic of China", vbTextCompare) > 0 Then
-                matchFound = False
-            ElseIf countryFilter = "Republic of China" And InStr(1, projectItem("Country"), "China", vbTextCompare) > 0 And _
-                   Not InStr(1, projectItem("Country"), "Republic of China", vbTextCompare) > 0 Then
-                matchFound = False
             Else
-                matchFound = MultiParamMatch(projectItem("Country"), countryFilter)
+                matchFound = MultiSelectMatchCountry(projectItem("Country"), selectedCountries)
             End If
         End If
 
@@ -1092,6 +1229,78 @@ Private Function MultiParamMatch(groupedValue As String, filter As String) As Bo
             End If
         Next part
     Next searchPart
+End Function
+
+' Function to check if any selected item from multi-select collection matches the grouped value
+Private Function MultiSelectMatch(groupedValue As String, selectedItems As Collection) As Boolean
+    Dim part As Variant
+    Dim selectedItem As Variant
+    Dim splitGroup() As String
+    Dim splitParts() As String
+    Dim searchPart As Variant
+    
+    MultiSelectMatch = False
+    
+    ' Split the grouped value by commas
+    splitGroup = Split(groupedValue, ",")
+    
+    ' Loop through each selected item
+    For Each selectedItem In selectedItems
+        ' The selected item may contain " / " separators, so split those too
+        splitParts = Split(CStr(selectedItem), "/")
+        
+        For Each searchPart In splitParts
+            For Each part In splitGroup
+                ' Trim spaces and check if there's a partial match
+                If InStr(1, Trim(CStr(part)), Trim(CStr(searchPart)), vbTextCompare) > 0 Then
+                    MultiSelectMatch = True
+                    Exit Function
+                End If
+            Next part
+        Next searchPart
+    Next selectedItem
+End Function
+
+' Function to check country matches with special handling for China/Republic of China
+Private Function MultiSelectMatchCountry(projectCountry As String, selectedItems As Collection) As Boolean
+    Dim selectedItem As Variant
+    Dim splitParts() As String
+    Dim searchPart As Variant
+    
+    MultiSelectMatchCountry = False
+    
+    ' Loop through each selected country
+    For Each selectedItem In selectedItems
+        ' The selected item may contain " / " separators
+        splitParts = Split(CStr(selectedItem), "/")
+        
+        For Each searchPart In splitParts
+            Dim trimmedSearch As String
+            trimmedSearch = Trim(CStr(searchPart))
+            
+            ' Special handling for China vs Republic of China
+            If trimmedSearch = "China" Then
+                ' Match China but not Republic of China
+                If InStr(1, projectCountry, "China", vbTextCompare) > 0 And _
+                   InStr(1, projectCountry, "Republic of China", vbTextCompare) = 0 Then
+                    MultiSelectMatchCountry = True
+                    Exit Function
+                End If
+            ElseIf trimmedSearch = "Republic of China" Then
+                ' Match only Republic of China
+                If InStr(1, projectCountry, "Republic of China", vbTextCompare) > 0 Then
+                    MultiSelectMatchCountry = True
+                    Exit Function
+                End If
+            Else
+                ' Regular country match
+                If InStr(1, projectCountry, trimmedSearch, vbTextCompare) > 0 Then
+                    MultiSelectMatchCountry = True
+                    Exit Function
+                End If
+            End If
+        Next searchPart
+    Next selectedItem
 End Function
 
 ' Function to convert values to numeric after removing non-numeric characters
@@ -1655,15 +1864,18 @@ NextSplitValue:
 ContinueLoop:
     Next projectItem
 
-    ' Populate ComboBox with grouped and sorted values
+    ' Populate ComboBox with grouped and sorted values (alphabetically)
     cmb.Clear
     cmb.AddItem mDash  ' Set M-dash as the initial value
 
     Dim sortedValues As Collection
     Dim finalValue As String
     Dim sortedArray() As String
+    Dim allItems() As String
+    Dim itemCount As Long
+    itemCount = 0
 
-    ' Iterate over each group in typeGroups
+    ' First, collect all items into an array
     For Each groupedKey In typeGroups.keys
         Set sortedValues = SortValuesByLength(typeGroups(groupedKey))
 
@@ -1671,10 +1883,22 @@ ContinueLoop:
         sortedArray = CollectionToArray(sortedValues)
         finalValue = Join(sortedArray, " / ")
 
-        ' Add to ComboBox
-        'Debug.Print "Adding to ComboBox: " & finalValue
-        cmb.AddItem CStr(finalValue)
+        ' Add to temporary array for sorting
+        itemCount = itemCount + 1
+        ReDim Preserve allItems(0 To itemCount - 1)
+        allItems(itemCount - 1) = CStr(finalValue)
     Next groupedKey
+    
+    ' Sort all items alphabetically before adding to ComboBox
+    If itemCount > 0 Then
+        allItems = SortStringArray(allItems)
+        
+        ' Add sorted items to ComboBox
+        Dim idx As Long
+        For idx = 0 To UBound(allItems)
+            cmb.AddItem allItems(idx)
+        Next idx
+    End If
 
     ' Set the M-dash as the default selected value
     cmb.value = mDash
