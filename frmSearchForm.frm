@@ -15,15 +15,120 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
 Option Explicit
+
+Private Const DEBUG_UI As Boolean = True
 ' Declare a module-level variable to track the clicked index
 Private clickedIndex As Long
+Private typeClickedIndex As Long
+Private cityClickedIndex As Long
+Private countryClickedIndex As Long
 Private isInitialized As Boolean
 Private isUpdatingCombo As Boolean  ' Flag to prevent recursive Click events
+Private isRemovingSelection As Boolean  ' Flag to prevent recursive ListBox click events
+
+' Variables to track checkbox state changes
+' (No longer used with simplified logic)
 
 ' Module-level collections to store multi-select values for each dropdown
 Private selectedTypes As Collection
 Private selectedCities As Collection
 Private selectedCountries As Collection
+
+' Deferred UI work (avoid ListBox mutations during mouse events)
+Private deferredScheduled As Boolean
+Private pendingTypeRemovals As Collection
+Private pendingCityRemovals As Collection
+Private pendingCountryRemovals As Collection
+
+Private Sub Dbg(ByVal msg As String)
+    If DEBUG_UI Then Debug.Print Format$(Now, "hh:nn:ss.000") & " | " & msg
+End Sub
+
+Private Sub ScheduleDeferredUIWork()
+    On Error Resume Next
+    If deferredScheduled Then Exit Sub
+    deferredScheduled = True
+
+    ' NOTE: frmSearchForm is shown modally, so Application.OnTime won't run.
+    ' Use a WinAPI timer instead (see MainModule).
+    ScheduleDeferredSearchFormWork 50
+    If Err.Number <> 0 Then
+        Dbg "ScheduleDeferredUIWork ERROR: " & Err.Number & " - " & Err.Description
+        Err.Clear
+        deferredScheduled = False
+    Else
+        Dbg "ScheduleDeferredUIWork: timer scheduled"
+    End If
+End Sub
+
+Private Sub CancelDeferredUIWork()
+    On Error Resume Next
+    CancelDeferredSearchFormWork
+    deferredScheduled = False
+End Sub
+
+Public Sub ProcessDeferredUIWork()
+    Dim j As Long
+    Dim v As Variant
+    Dim didType As Boolean
+    Dim didCity As Boolean
+    Dim didCountry As Boolean
+
+    On Error GoTo Cleanup
+    deferredScheduled = False
+    If Not Me.Visible Then Exit Sub
+
+    If Not pendingTypeRemovals Is Nothing Then
+        For Each v In pendingTypeRemovals
+            Dbg "Deferred: Type remove '" & CStr(v) & "'"
+            For j = selectedTypes.Count To 1 Step -1
+                If selectedTypes(j) = CStr(v) Then selectedTypes.Remove j
+            Next j
+            didType = True
+        Next v
+        Set pendingTypeRemovals = New Collection
+        If didType Then
+            UpdateComboDisplay Me.cmbType, selectedTypes
+            RefreshSelectedTypesList
+        End If
+    End If
+
+    If Not pendingCityRemovals Is Nothing Then
+        For Each v In pendingCityRemovals
+            Dbg "Deferred: City remove '" & CStr(v) & "'"
+            For j = selectedCities.Count To 1 Step -1
+                If selectedCities(j) = CStr(v) Then selectedCities.Remove j
+            Next j
+            didCity = True
+        Next v
+        Set pendingCityRemovals = New Collection
+        If didCity Then
+            UpdateComboDisplay Me.cmbCity, selectedCities
+            RefreshSelectedCitiesList
+        End If
+    End If
+
+    If Not pendingCountryRemovals Is Nothing Then
+        For Each v In pendingCountryRemovals
+            Dbg "Deferred: Country remove '" & CStr(v) & "'"
+            For j = selectedCountries.Count To 1 Step -1
+                If selectedCountries(j) = CStr(v) Then selectedCountries.Remove j
+            Next j
+            didCountry = True
+        Next v
+        Set pendingCountryRemovals = New Collection
+        If didCountry Then
+            UpdateComboDisplay Me.cmbCountry, selectedCountries
+            RefreshSelectedCountriesList
+        End If
+    End If
+
+    Exit Sub
+
+Cleanup:
+    Dbg "ProcessDeferredUIWork ERROR: " & Err.Number & " - " & Err.Description
+    deferredScheduled = False
+End Sub
 
 ' Ensure the form initializes itself when opened directly
 Private Sub UserForm_Initialize()
@@ -32,11 +137,103 @@ Private Sub UserForm_Initialize()
     Set selectedCities = New Collection
     Set selectedCountries = New Collection
     
+    ' Configure selected-items ListBoxes for checkbox style
+    On Error Resume Next
+    ' Set ListStyle to show checkboxes (fmListStyleOption = 1)
+    Me.lstTypeSelected.ListStyle = fmListStyleOption
+    Me.lstCitySelected.ListStyle = fmListStyleOption
+    Me.lstCountrySelected.ListStyle = fmListStyleOption
+    ' Set MultiSelect to allow multiple selections with checkboxes
+    Me.lstTypeSelected.MultiSelect = fmMultiSelectMulti
+    Me.lstCitySelected.MultiSelect = fmMultiSelectMulti
+    Me.lstCountrySelected.MultiSelect = fmMultiSelectMulti
+    
+    ' Keep checkbox listboxes scrollable without resizing the form layout.
+    ' IntegralHeight=True can round the control height down (making fewer visible rows).
+    Me.lstTypeSelected.IntegralHeight = False
+    Me.lstCitySelected.IntegralHeight = False
+    Me.lstCountrySelected.IntegralHeight = False
+
+    ' City listbox must behave identically to Type listbox (scroll range, row height).
+    ' Under some DPI settings MSForms computes scroll bounds differently if Height/Font differ even slightly.
+    SyncListBoxToTemplate Me.lstCitySelected, Me.lstTypeSelected
+    SyncListBoxToTemplate Me.lstCountrySelected, Me.lstTypeSelected
+
+    typeClickedIndex = -1
+    cityClickedIndex = -1
+    countryClickedIndex = -1
+
+    If pendingTypeRemovals Is Nothing Then Set pendingTypeRemovals = New Collection
+    If pendingCityRemovals Is Nothing Then Set pendingCityRemovals = New Collection
+    If pendingCountryRemovals Is Nothing Then Set pendingCountryRemovals = New Collection
+    
+    ' Set tooltips
+    Me.lstTypeSelected.ControlTipText = "Uncheck to remove"
+    Me.lstCitySelected.ControlTipText = "Uncheck to remove"
+    Me.lstCountrySelected.ControlTipText = "Uncheck to remove"
+    On Error GoTo 0
+    
     If Not isInitialized Then
         On Error Resume Next
         InitializeSearchForm
         On Error GoTo 0
     End If
+End Sub
+
+Private Sub SyncListBoxToTemplate(ByRef target As MSForms.ListBox, ByRef template As MSForms.ListBox)
+    On Error Resume Next
+    target.ListStyle = template.ListStyle
+    target.MultiSelect = template.MultiSelect
+    target.IntegralHeight = False
+
+    target.Font.Name = template.Font.Name
+    target.Font.Size = template.Font.Size
+    target.Font.Bold = template.Font.Bold
+    target.Font.Italic = template.Font.Italic
+
+    target.Height = template.Height
+End Sub
+
+' If exactly one item is selected, selecting it again from the dropdown won't fire Click
+' unless the ComboBox.Value changes. Force it to mDash when the user clicks the control.
+Private Sub cmbType_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    On Error GoTo Cleanup
+    If isUpdatingCombo Then Exit Sub
+    If selectedTypes Is Nothing Then Exit Sub
+    If selectedTypes.Count = 1 Then
+        isUpdatingCombo = True
+        Me.cmbType.value = Chr(8212)
+    End If
+Cleanup:
+    isUpdatingCombo = False
+End Sub
+
+Private Sub cmbCity_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    On Error GoTo Cleanup
+    If isUpdatingCombo Then Exit Sub
+    If selectedCities Is Nothing Then Exit Sub
+    If selectedCities.Count = 1 Then
+        isUpdatingCombo = True
+        Me.cmbCity.value = Chr(8212)
+    End If
+Cleanup:
+    isUpdatingCombo = False
+End Sub
+
+Private Sub cmbCountry_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    On Error GoTo Cleanup
+    If isUpdatingCombo Then Exit Sub
+    If selectedCountries Is Nothing Then Exit Sub
+    If selectedCountries.Count = 1 Then
+        isUpdatingCombo = True
+        Me.cmbCountry.value = Chr(8212)
+    End If
+Cleanup:
+    isUpdatingCombo = False
+End Sub
+
+Private Sub UserForm_Terminate()
+    CancelDeferredUIWork
 End Sub
 
 ' Helper function to read UTF-8 text files (required for Japanese characters)
@@ -351,6 +548,19 @@ Private Sub ResetSearch()
     Set selectedCities = New Collection
     Set selectedCountries = New Collection
     
+    ' Clear the selected-items ListBoxes
+    On Error Resume Next
+    Me.lstTypeSelected.Clear
+    Me.lstCitySelected.Clear
+    Me.lstCountrySelected.Clear
+    On Error GoTo 0
+
+    ' Clear any queued deferred removals
+    CancelDeferredUIWork
+    Set pendingTypeRemovals = New Collection
+    Set pendingCityRemovals = New Collection
+    Set pendingCountryRemovals = New Collection
+    
     ' Set TextBoxes to M-dash for area, height, and year values
     Me.txtAreaMin.value = mDash
     Me.txtAreaMax.value = mDash
@@ -370,14 +580,68 @@ Private Sub cmbType_Click()
     HandleMultiSelectCombo Me.cmbType, selectedTypes
 End Sub
 
+' Safer than DropButtonClick: runs before opening the dropdown.
+' Temporarily show mDash so re-picking the single selected item triggers Click and toggles off.
+Private Sub cmbType_Enter()
+    On Error GoTo Cleanup
+    If isUpdatingCombo Then Exit Sub
+    If selectedTypes Is Nothing Then Exit Sub
+    If selectedTypes.Count = 1 Then
+        isUpdatingCombo = True
+        Me.cmbType.value = Chr(8212)
+    End If
+Cleanup:
+    isUpdatingCombo = False
+End Sub
+
+' If the user leaves the control without picking anything, restore the display.
+Private Sub cmbType_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+    On Error Resume Next
+    UpdateComboDisplay Me.cmbType, selectedTypes
+End Sub
+
 ' Event handler for cmbCity - Toggle multi-select items
 Private Sub cmbCity_Click()
     HandleMultiSelectCombo Me.cmbCity, selectedCities
 End Sub
 
+Private Sub cmbCity_Enter()
+    On Error GoTo Cleanup
+    If isUpdatingCombo Then Exit Sub
+    If selectedCities Is Nothing Then Exit Sub
+    If selectedCities.Count = 1 Then
+        isUpdatingCombo = True
+        Me.cmbCity.value = Chr(8212)
+    End If
+Cleanup:
+    isUpdatingCombo = False
+End Sub
+
+Private Sub cmbCity_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+    On Error Resume Next
+    UpdateComboDisplay Me.cmbCity, selectedCities
+End Sub
+
 ' Event handler for cmbCountry - Toggle multi-select items
 Private Sub cmbCountry_Click()
     HandleMultiSelectCombo Me.cmbCountry, selectedCountries
+End Sub
+
+Private Sub cmbCountry_Enter()
+    On Error GoTo Cleanup
+    If isUpdatingCombo Then Exit Sub
+    If selectedCountries Is Nothing Then Exit Sub
+    If selectedCountries.Count = 1 Then
+        isUpdatingCombo = True
+        Me.cmbCountry.value = Chr(8212)
+    End If
+Cleanup:
+    isUpdatingCombo = False
+End Sub
+
+Private Sub cmbCountry_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+    On Error Resume Next
+    UpdateComboDisplay Me.cmbCountry, selectedCountries
 End Sub
 
 ' Helper function to handle multi-select behavior for ComboBoxes
@@ -442,12 +706,320 @@ Private Sub HandleMultiSelectCombo(cmb As MSForms.ComboBox, ByRef selectedItems 
         cmb.value = displayText
     End If
     isUpdatingCombo = False
+    
+    ' Refresh the corresponding selected-items ListBox
+    If cmb.Name = "cmbType" Then
+        RefreshSelectedTypesList
+    ElseIf cmb.Name = "cmbCity" Then
+        RefreshSelectedCitiesList
+    ElseIf cmb.Name = "cmbCountry" Then
+        RefreshSelectedCountriesList
+    End If
 End Sub
 
 ' Helper function to get selected items as a collection for filtering
 Private Function GetSelectedFilterItems(selectedItems As Collection) As Collection
     Set GetSelectedFilterItems = selectedItems
 End Function
+
+' Refresh the lstTypeSelected ListBox to show current selections
+Private Sub RefreshSelectedTypesList()
+    Dim i As Long
+    On Error GoTo Cleanup
+
+    isRemovingSelection = True
+    Me.lstTypeSelected.Clear
+    For i = 1 To selectedTypes.Count
+        Me.lstTypeSelected.AddItem selectedTypes(i)
+        Me.lstTypeSelected.Selected(i - 1) = True  ' Check the checkbox
+    Next i
+    ScrollListBoxToBottom Me.lstTypeSelected
+    Me.lstTypeSelected.ListIndex = -1
+
+Cleanup:
+    isRemovingSelection = False
+End Sub
+
+' Refresh the lstCitySelected ListBox to show current selections
+Private Sub RefreshSelectedCitiesList()
+    Dim i As Long
+    On Error GoTo Cleanup
+
+    isRemovingSelection = True
+    Me.lstCitySelected.Clear
+    For i = 1 To selectedCities.Count
+        Me.lstCitySelected.AddItem selectedCities(i)
+        Me.lstCitySelected.Selected(i - 1) = True  ' Check the checkbox
+    Next i
+    ScrollListBoxToBottom Me.lstCitySelected
+    Me.lstCitySelected.ListIndex = -1
+
+Cleanup:
+    isRemovingSelection = False
+End Sub
+
+' Refresh the lstCountrySelected ListBox to show current selections
+Private Sub RefreshSelectedCountriesList()
+    Dim i As Long
+    On Error GoTo Cleanup
+
+    isRemovingSelection = True
+    Me.lstCountrySelected.Clear
+    For i = 1 To selectedCountries.Count
+        Me.lstCountrySelected.AddItem selectedCountries(i)
+        Me.lstCountrySelected.Selected(i - 1) = True  ' Check the checkbox
+    Next i
+    ScrollListBoxToBottom Me.lstCountrySelected
+    Me.lstCountrySelected.ListIndex = -1
+
+Cleanup:
+    isRemovingSelection = False
+End Sub
+
+Private Sub ScrollListBoxToBottom(ByRef lb As MSForms.ListBox)
+    Dim lastIdx As Long
+    Dim wasSelected As Boolean
+
+    On Error Resume Next
+    If lb.ListCount <= 0 Then Exit Sub
+
+    lastIdx = lb.ListCount - 1
+    ' Force the control to scroll so the last row is visible.
+    ' Preserve the checkbox state of the last item.
+    wasSelected = lb.Selected(lastIdx)
+    lb.ListIndex = lastIdx
+    DoEvents
+    lb.Selected(lastIdx) = wasSelected
+    lb.ListIndex = -1
+End Sub
+
+' MouseDown: capture which row was clicked (so we don't scan/remove unintended rows)
+Private Sub lstTypeSelected_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Dim topIndex As Long
+    Dim rowHeight As Single
+
+    If Me.lstTypeSelected.ListCount = 0 Then
+        typeClickedIndex = -1
+        Exit Sub
+    End If
+
+    rowHeight = Me.lstTypeSelected.Font.Size + 2
+    If rowHeight <= 0 Then rowHeight = 12
+
+    topIndex = Me.lstTypeSelected.topIndex
+    typeClickedIndex = topIndex + CLng(Y \ rowHeight)
+    If typeClickedIndex < 0 Or typeClickedIndex >= Me.lstTypeSelected.ListCount Then typeClickedIndex = -1
+
+    Dbg "Type MouseDown: ListCount=" & Me.lstTypeSelected.ListCount & " topIndex=" & topIndex & " rowHeight=" & rowHeight & " Y=" & Y & " computedIdx=" & typeClickedIndex & " ListIndex=" & Me.lstTypeSelected.ListIndex
+End Sub
+
+' MouseUp: process after the checkbox state has updated
+Private Sub lstTypeSelected_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Dbg "Type MouseUp: BEFORE DoEvents ListIndex=" & Me.lstTypeSelected.ListIndex & " computedIdx=" & typeClickedIndex
+    DoEvents
+    Dbg "Type MouseUp: AFTER  DoEvents ListIndex=" & Me.lstTypeSelected.ListIndex & " computedIdx=" & typeClickedIndex
+    ProcessTypeListCheckboxChange
+End Sub
+
+' Click handler for lstTypeSelected - ignored (we process on MouseUp)
+Private Sub lstTypeSelected_Click()
+End Sub
+
+' Helper to process checkbox changes for Type list
+Private Sub ProcessTypeListCheckboxChange()
+    Dim idx As Long
+    Dim itemValue As String
+
+    On Error GoTo Cleanup
+
+    If isRemovingSelection Then Exit Sub
+    If Me.lstTypeSelected.ListCount = 0 Then Exit Sub
+
+    ' Prefer ListIndex (works reliably with scrolling). Fallback to MouseDown-estimated index.
+    idx = Me.lstTypeSelected.ListIndex
+    If idx < 0 Then idx = typeClickedIndex
+    If idx < 0 Or idx >= Me.lstTypeSelected.ListCount Then Exit Sub
+
+    Dbg "Type Process: START ListCount=" & Me.lstTypeSelected.ListCount & " ListIndex=" & Me.lstTypeSelected.ListIndex & " idx=" & idx
+
+    On Error Resume Next
+    Dbg "Type Process: state Selected(idx)=" & Me.lstTypeSelected.Selected(idx) & " value='" & Me.lstTypeSelected.List(idx) & "'"
+    If Err.Number <> 0 Then
+        Dbg "Type Process: ERROR reading Selected/List: " & Err.Number & " - " & Err.Description
+        Err.Clear
+        On Error GoTo Cleanup
+        GoTo Cleanup
+    End If
+    On Error GoTo Cleanup
+
+    ' Only act if the clicked row is now UN-checked
+    If Me.lstTypeSelected.Selected(idx) = False Then
+        itemValue = Me.lstTypeSelected.List(idx)
+        Dbg "Type Process: QUEUE remove value='" & itemValue & "'"
+        On Error Resume Next
+        pendingTypeRemovals.Add itemValue, itemValue
+        On Error GoTo Cleanup
+        ScheduleDeferredUIWork
+    End If
+
+Cleanup:
+    isRemovingSelection = False
+    typeClickedIndex = -1
+    If Err.Number <> 0 Then Dbg "Type Process: ERROR " & Err.Number & " - " & Err.Description
+End Sub
+
+' MouseDown: capture which row was clicked
+Private Sub lstCitySelected_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Dim topIndex As Long
+    Dim rowHeight As Single
+
+    If Me.lstCitySelected.ListCount = 0 Then
+        cityClickedIndex = -1
+        Exit Sub
+    End If
+
+    rowHeight = Me.lstCitySelected.Font.Size + 2
+    If rowHeight <= 0 Then rowHeight = 12
+
+    topIndex = Me.lstCitySelected.topIndex
+    cityClickedIndex = topIndex + CLng(Y \ rowHeight)
+    If cityClickedIndex < 0 Or cityClickedIndex >= Me.lstCitySelected.ListCount Then cityClickedIndex = -1
+
+    Dbg "City MouseDown: ListCount=" & Me.lstCitySelected.ListCount & " topIndex=" & topIndex & " rowHeight=" & rowHeight & " Y=" & Y & " computedIdx=" & cityClickedIndex & " ListIndex=" & Me.lstCitySelected.ListIndex
+End Sub
+
+Private Sub lstCitySelected_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Dbg "City MouseUp: BEFORE DoEvents ListIndex=" & Me.lstCitySelected.ListIndex & " computedIdx=" & cityClickedIndex
+    DoEvents
+    Dbg "City MouseUp: AFTER  DoEvents ListIndex=" & Me.lstCitySelected.ListIndex & " computedIdx=" & cityClickedIndex
+    ProcessCityListCheckboxChange
+End Sub
+
+Private Sub lstCitySelected_Click()
+End Sub
+
+' Helper to process checkbox changes for City list
+Private Sub ProcessCityListCheckboxChange()
+    Dim idx As Long
+    Dim itemValue As String
+
+    On Error GoTo Cleanup
+
+    If isRemovingSelection Then Exit Sub
+    If Me.lstCitySelected.ListCount = 0 Then Exit Sub
+
+    idx = Me.lstCitySelected.ListIndex
+    If idx < 0 Then idx = cityClickedIndex
+    If idx < 0 Or idx >= Me.lstCitySelected.ListCount Then Exit Sub
+
+    Dbg "City Process: START ListCount=" & Me.lstCitySelected.ListCount & " ListIndex=" & Me.lstCitySelected.ListIndex & " idx=" & idx
+
+    If Me.lstCitySelected.Selected(idx) = False Then
+        itemValue = Me.lstCitySelected.List(idx)
+        Dbg "City Process: QUEUE remove value='" & itemValue & "'"
+        On Error Resume Next
+        pendingCityRemovals.Add itemValue, itemValue
+        On Error GoTo Cleanup
+        ScheduleDeferredUIWork
+    End If
+
+Cleanup:
+    isRemovingSelection = False
+    cityClickedIndex = -1
+    If Err.Number <> 0 Then Dbg "City Process: ERROR " & Err.Number & " - " & Err.Description
+End Sub
+
+' MouseDown: capture which row was clicked
+Private Sub lstCountrySelected_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Dim topIndex As Long
+    Dim rowHeight As Single
+
+    If Me.lstCountrySelected.ListCount = 0 Then
+        countryClickedIndex = -1
+        Exit Sub
+    End If
+
+    rowHeight = Me.lstCountrySelected.Font.Size + 2
+    If rowHeight <= 0 Then rowHeight = 12
+
+    topIndex = Me.lstCountrySelected.topIndex
+    countryClickedIndex = topIndex + CLng(Y \ rowHeight)
+    If countryClickedIndex < 0 Or countryClickedIndex >= Me.lstCountrySelected.ListCount Then countryClickedIndex = -1
+
+    Dbg "Country MouseDown: ListCount=" & Me.lstCountrySelected.ListCount & " topIndex=" & topIndex & " rowHeight=" & rowHeight & " Y=" & Y & " computedIdx=" & countryClickedIndex & " ListIndex=" & Me.lstCountrySelected.ListIndex
+End Sub
+
+Private Sub lstCountrySelected_MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+    Dbg "Country MouseUp: BEFORE DoEvents ListIndex=" & Me.lstCountrySelected.ListIndex & " computedIdx=" & countryClickedIndex
+    DoEvents
+    Dbg "Country MouseUp: AFTER  DoEvents ListIndex=" & Me.lstCountrySelected.ListIndex & " computedIdx=" & countryClickedIndex
+    ProcessCountryListCheckboxChange
+End Sub
+
+Private Sub lstCountrySelected_Click()
+End Sub
+
+' Helper to process checkbox changes for Country list
+Private Sub ProcessCountryListCheckboxChange()
+    Dim idx As Long
+    Dim itemValue As String
+
+    On Error GoTo Cleanup
+
+    If isRemovingSelection Then Exit Sub
+    If Me.lstCountrySelected.ListCount = 0 Then Exit Sub
+
+    idx = Me.lstCountrySelected.ListIndex
+    If idx < 0 Then idx = countryClickedIndex
+    If idx < 0 Or idx >= Me.lstCountrySelected.ListCount Then Exit Sub
+
+    Dbg "Country Process: START ListCount=" & Me.lstCountrySelected.ListCount & " ListIndex=" & Me.lstCountrySelected.ListIndex & " idx=" & idx
+
+    If Me.lstCountrySelected.Selected(idx) = False Then
+        itemValue = Me.lstCountrySelected.List(idx)
+        Dbg "Country Process: QUEUE remove value='" & itemValue & "'"
+        On Error Resume Next
+        pendingCountryRemovals.Add itemValue, itemValue
+        On Error GoTo Cleanup
+        ScheduleDeferredUIWork
+    End If
+
+Cleanup:
+    isRemovingSelection = False
+    countryClickedIndex = -1
+    If Err.Number <> 0 Then Dbg "Country Process: ERROR " & Err.Number & " - " & Err.Description
+End Sub
+
+' Helper to update ComboBox display text after removing from ListBox
+Private Sub UpdateComboDisplay(cmb As MSForms.ComboBox, selectedItems As Collection)
+    Dim mDash As String
+    Dim displayText As String
+    Dim i As Long
+
+    On Error GoTo Cleanup
+
+    mDash = Chr(8212)
+    isUpdatingCombo = True
+
+    If selectedItems Is Nothing Then
+        cmb.value = mDash
+        GoTo Cleanup
+    End If
+
+    If selectedItems.Count = 0 Then
+        cmb.value = mDash
+    Else
+        displayText = ""
+        For i = 1 To selectedItems.Count
+            If i > 1 Then displayText = displayText & "; "
+            displayText = displayText & selectedItems(i)
+        Next i
+        cmb.value = displayText
+    End If
+
+Cleanup:
+    isUpdatingCombo = False
+End Sub
 
 Sub cmdSavePdf_Click_()
     Dim pdfFilePath As String
