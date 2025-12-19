@@ -1,18 +1,4 @@
-VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSearchForm 
-   Caption         =   "UserForm1"
-   ClientHeight    =   8310
-   ClientLeft      =   120
-   ClientTop       =   465
-   ClientWidth     =   11325
-   OleObjectBlob   =   "frmSearchForm.frx":0000
-   StartUpPosition =   1  '�I�[�i�[ �t�H�[���̒���
-End
-Attribute VB_Name = "frmSearchForm"
-Attribute VB_GlobalNameSpace = False
-Attribute VB_Creatable = False
-Attribute VB_PredeclaredId = True
-Attribute VB_Exposed = False
+
 
 Option Explicit
 
@@ -25,9 +11,7 @@ Private countryClickedIndex As Long
 Private isInitialized As Boolean
 Private isUpdatingCombo As Boolean  ' Flag to prevent recursive Click events
 Private isRemovingSelection As Boolean  ' Flag to prevent recursive ListBox click events
-
-' Variables to track checkbox state changes
-' (No longer used with simplified logic)
+Private framesCreated As Boolean
 
 ' Module-level collections to store multi-select values for each dropdown
 Private selectedTypes As Collection
@@ -39,6 +23,394 @@ Private deferredScheduled As Boolean
 Private pendingTypeRemovals As Collection
 Private pendingCityRemovals As Collection
 Private pendingCountryRemovals As Collection
+
+' ---------------------------
+' Language filter support
+' ---------------------------
+
+Private Sub GetLanguageShowFlags(ByRef showENG As Boolean, ByRef showJPN As Boolean)
+    Dim engExists As Boolean, jpnExists As Boolean
+    Dim engVal As Boolean, jpnVal As Boolean
+
+    engVal = TryGetCheckboxValue("chkENG", engExists)
+    jpnVal = TryGetCheckboxValue("chkJPN", jpnExists)
+
+    ' If neither checkbox exists, default to showing both.
+    If Not engExists And Not jpnExists Then
+        showENG = True
+        showJPN = True
+        Exit Sub
+    End If
+
+    ' Both ON or both OFF => show both.
+    If (engVal And jpnVal) Or ((Not engVal) And (Not jpnVal)) Then
+        showENG = True
+        showJPN = True
+    Else
+        showENG = engVal
+        showJPN = jpnVal
+    End If
+End Sub
+
+Private Function TryGetCheckboxValue(ByVal controlName As String, ByRef exists As Boolean) As Boolean
+    Dim ctl As Object
+    Set ctl = FindControlRecursive(Me, controlName)
+    If ctl Is Nothing Then
+        exists = False
+        TryGetCheckboxValue = False
+        Exit Function
+    End If
+
+    exists = True
+    On Error Resume Next
+    TryGetCheckboxValue = (ctl.Value = True)
+    On Error GoTo 0
+End Function
+
+Private Sub TrySetCheckboxValue(ByVal controlName As String, ByVal newValue As Boolean)
+    Dim ctl As Object
+    Set ctl = FindControlRecursive(Me, controlName)
+    If ctl Is Nothing Then Exit Sub
+    On Error Resume Next
+    ctl.Value = newValue
+    On Error GoTo 0
+End Sub
+
+Private Function FindControlRecursive(ByVal container As Object, ByVal controlName As String) As Object
+    Dim ctl As Object
+
+    On Error Resume Next
+    Set FindControlRecursive = container.Controls(controlName)
+    If Err.Number = 0 And Not FindControlRecursive Is Nothing Then
+        Exit Function
+    End If
+    Err.Clear
+    On Error GoTo 0
+
+    On Error Resume Next
+    For Each ctl In container.Controls
+        If Not ctl Is Nothing Then
+            If HasControlsCollection(ctl) Then
+                Set FindControlRecursive = FindControlRecursive(ctl, controlName)
+                If Not FindControlRecursive Is Nothing Then Exit Function
+            End If
+        End If
+    Next ctl
+    On Error GoTo 0
+End Function
+
+Private Function HasControlsCollection(ByVal obj As Object) As Boolean
+    On Error GoTo No
+    Dim tmp As Object
+    Set tmp = obj.Controls
+    HasControlsCollection = True
+    Exit Function
+No:
+    HasControlsCollection = False
+End Function
+
+Private Sub InitializeLanguageCheckboxDefaults()
+    ' First show behavior:
+    ' - Always default to both languages ON.
+    
+    Dim engExists As Boolean, jpnExists As Boolean
+    
+    ' Ensure controls exist
+    TryGetCheckboxValue "chkENG", engExists
+    TryGetCheckboxValue "chkJPN", jpnExists
+    
+    If engExists Then TrySetCheckboxValue "chkENG", True
+    If jpnExists Then TrySetCheckboxValue "chkJPN", True
+End Sub
+
+Private Sub GetCacheLanguageAvailability(ByRef hasENG As Boolean, ByRef hasJPN As Boolean)
+    hasENG = False
+    hasJPN = False
+
+    On Error GoTo Cleanup
+
+    Dim cachePath As String
+    cachePath = GetRelativePath("\test output\cache.json")
+
+    Dim fso As Object
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    If Not fso.FileExists(cachePath) Then Exit Sub
+
+    Dim jsonText As String
+    jsonText = ReadUTF8File(cachePath)
+    If Len(Trim$(jsonText)) = 0 Then Exit Sub
+
+    Dim jsonData As Object
+    Set jsonData = JsonConverter.ParseJSON(jsonText)
+    If jsonData Is Nothing Or TypeName(jsonData) <> "Collection" Then Exit Sub
+
+    Dim projectItem As Variant
+    Dim lang As String
+    For Each projectItem In jsonData
+        If TypeName(projectItem) = "Dictionary" Then
+            lang = GetProjectLanguageCode(projectItem)
+            If lang = "ENG" Then hasENG = True
+            If lang = "JPN" Then hasJPN = True
+            If hasENG And hasJPN Then Exit Sub
+        End If
+    Next projectItem
+
+Cleanup:
+End Sub
+
+Private Function NormalizeLanguageCodeUI(ByVal rawCode As String) As String
+    Dim t As String
+    t = UCase$(Trim$(rawCode))
+    If t = "ENG" Or t = "EN" Or t = "ENGLISH" Then
+        NormalizeLanguageCodeUI = "ENG"
+    ElseIf t = "JPN" Or t = "JP" Or t = "JA" Or t = "JAPANESE" Then
+        NormalizeLanguageCodeUI = "JPN"
+    Else
+        NormalizeLanguageCodeUI = vbNullString
+    End If
+End Function
+
+Private Function ContainsJapaneseScriptUI(ByVal text As String) As Boolean
+    Dim i As Long
+    Dim codePoint As Long
+
+    For i = 1 To Len(text)
+        codePoint = AscW(Mid$(text, i, 1))
+
+        If codePoint >= &H3040 And codePoint <= &H309F Then ContainsJapaneseScriptUI = True: Exit Function
+        If codePoint >= &H30A0 And codePoint <= &H30FF Then ContainsJapaneseScriptUI = True: Exit Function
+        If codePoint >= &H4E00 And codePoint <= &H9FFF Then ContainsJapaneseScriptUI = True: Exit Function
+        If codePoint >= &HFF66 And codePoint <= &HFF9D Then ContainsJapaneseScriptUI = True: Exit Function
+    Next i
+End Function
+
+Private Function GetProjectLanguageCode(ByVal projectItem As Object) As String
+    On Error GoTo Fallback
+
+    If Not projectItem Is Nothing Then
+        If projectItem.Exists("Language") Then
+            GetProjectLanguageCode = NormalizeLanguageCodeUI(CStr(projectItem("Language")))
+            If Len(GetProjectLanguageCode) > 0 Then Exit Function
+        End If
+
+        ' Fallback inference for older caches
+        Dim s As String
+        s = vbNullString
+        If projectItem.Exists("Project Name") Then s = s & " " & CStr(projectItem("Project Name"))
+        If projectItem.Exists("Type") Then s = s & " " & CStr(projectItem("Type"))
+        If projectItem.Exists("Location") Then s = s & " " & CStr(projectItem("Location"))
+        If projectItem.Exists("City") Then s = s & " " & CStr(projectItem("City"))
+        If projectItem.Exists("File Path") Then
+            Dim p As String
+            p = UCase$(CStr(projectItem("File Path")))
+            If InStr(1, p, "JPN", vbTextCompare) > 0 Or InStr(1, p, "\\JP\\", vbTextCompare) > 0 Then
+                GetProjectLanguageCode = "JPN"
+                Exit Function
+            End If
+            If InStr(1, p, "ENG", vbTextCompare) > 0 Or InStr(1, p, "\\EN\\", vbTextCompare) > 0 Then
+                GetProjectLanguageCode = "ENG"
+                Exit Function
+            End If
+        End If
+
+        If ContainsJapaneseScriptUI(s) Then
+            GetProjectLanguageCode = "JPN"
+        Else
+            GetProjectLanguageCode = "ENG"
+        End If
+        Exit Function
+    End If
+
+Fallback:
+    GetProjectLanguageCode = vbNullString
+End Function
+
+Private Function ShouldIncludeProjectByLanguage(ByVal projectItem As Object) As Boolean
+    Dim showENG As Boolean, showJPN As Boolean
+    Dim lang As String
+
+    GetLanguageShowFlags showENG, showJPN
+    If showENG And showJPN Then
+        ShouldIncludeProjectByLanguage = True
+        Exit Function
+    End If
+
+    lang = GetProjectLanguageCode(projectItem)
+    If lang = "ENG" Then
+        ShouldIncludeProjectByLanguage = showENG
+    ElseIf lang = "JPN" Then
+        ShouldIncludeProjectByLanguage = showJPN
+    Else
+        ' Unknown language: safest to include.
+        ShouldIncludeProjectByLanguage = True
+    End If
+End Function
+
+Private Sub RefreshLanguageFilteredUI()
+    Dim showENG As Boolean, showJPN As Boolean
+
+    ' Ensure filter collections are initialized (language toggles can happen before full init).
+    If selectedTypes Is Nothing Then Set selectedTypes = New Collection
+    If selectedCities Is Nothing Then Set selectedCities = New Collection
+    If selectedCountries Is Nothing Then Set selectedCountries = New Collection
+
+    ' Repopulate dropdown menus based on language selection.
+    PopulateDropdown frmSearchForm.cmbType, "Type"
+    PopulateDropdown frmSearchForm.cmbCity, "City"
+    PopulateDropdown frmSearchForm.cmbCountry, "Country"
+
+    ' Only deselect when the language filter is restrictive (exactly one language shown).
+    ' If both languages are shown, nothing becomes invalid by language, so keep selections.
+    GetLanguageShowFlags showENG, showJPN
+    If (showENG Xor showJPN) Then
+        ' Reconfirm existing selections are still valid under current language filter.
+        ' If not, deselect them.
+        Call ReconcileSelectedItemsWithCombo(Me.cmbType, selectedTypes)
+        Call ReconcileSelectedItemsWithCombo(Me.cmbCity, selectedCities)
+        Call ReconcileSelectedItemsWithCombo(Me.cmbCountry, selectedCountries)
+    End If
+
+    ' Always restore the UI display from the selection collections
+    ' (PopulateDropdown resets ComboBox.Value to mDash).
+    UpdateComboDisplay Me.cmbType, selectedTypes
+    RefreshSelectedTypesList
+    UpdateComboDisplay Me.cmbCity, selectedCities
+    RefreshSelectedCitiesList
+    UpdateComboDisplay Me.cmbCountry, selectedCountries
+    RefreshSelectedCountriesList
+
+    ' Language checkboxes are search criteria: re-run search immediately.
+    SearchProjects
+End Sub
+
+Private Function ReconcileSelectedItemsWithCombo(ByRef cmb As MSForms.ComboBox, ByRef selectedItems As Collection) As Boolean
+    Dim allowedRows As Object
+    Dim allowedAtoms As Object
+    Dim i As Long
+    Dim j As Long
+    Dim v As String
+    Dim mDash As String
+    Dim parts() As String
+    Dim part As String
+
+    ReconcileSelectedItemsWithCombo = False
+    If selectedItems Is Nothing Then Exit Function
+
+    ' If dropdown isn't populated, don't destructively clear selections.
+    If cmb.ListCount <= 0 Then Exit Function
+
+    mDash = Chr(8212)
+    Set allowedRows = CreateObject("Scripting.Dictionary")
+    Set allowedAtoms = CreateObject("Scripting.Dictionary")
+
+    ' Build allowed rows and allowed atomic values (split by '/')
+    For i = 0 To cmb.ListCount - 1
+        v = CStr(cmb.List(i))
+        If v <> mDash And Len(Trim$(v)) > 0 Then
+            If Not allowedRows.Exists(v) Then allowedRows.Add v, True
+            parts = Split(v, "/")
+            For j = LBound(parts) To UBound(parts)
+                part = Trim$(CStr(parts(j)))
+                If Len(part) > 0 Then
+                    If Not allowedAtoms.Exists(part) Then allowedAtoms.Add part, True
+                End If
+            Next j
+        End If
+    Next i
+
+    ' If the dropdown has no usable items (only mDash), keep current selections.
+    If allowedRows.Count = 0 Then Exit Function
+
+    ' Reconcile selected items:
+    ' - Keep if exact row still exists.
+    ' - Else keep if any atomic part still exists in the filtered dropdown.
+    ' - If possible, remap to the closest current row (superset match).
+    For i = selectedItems.Count To 1 Step -1
+        v = Trim$(CStr(selectedItems(i)))
+        If Len(v) = 0 Then
+            selectedItems.Remove i
+            ReconcileSelectedItemsWithCombo = True
+        ElseIf allowedRows.Exists(v) Then
+            ' still valid
+        Else
+            Dim keepIt As Boolean
+            keepIt = False
+            parts = Split(v, "/")
+            For j = LBound(parts) To UBound(parts)
+                part = Trim$(CStr(parts(j)))
+                If Len(part) > 0 And allowedAtoms.Exists(part) Then
+                    keepIt = True
+                    Exit For
+                End If
+            Next j
+
+            If Not keepIt Then
+                selectedItems.Remove i
+                ReconcileSelectedItemsWithCombo = True
+            Else
+                ' Try to remap to a current dropdown row that contains all parts.
+                Dim mapped As String
+                mapped = FindBestRowSupersetMatch(cmb, v, mDash)
+                If Len(mapped) > 0 Then
+                    selectedItems.Remove i
+                    selectedItems.Add mapped, , i
+                    ReconcileSelectedItemsWithCombo = True
+                End If
+            End If
+        End If
+    Next i
+End Function
+
+Private Function FindBestRowSupersetMatch(ByRef cmb As MSForms.ComboBox, ByVal selectedRow As String, ByVal mDash As String) As String
+    Dim selectedParts() As String
+    Dim rowParts() As String
+    Dim i As Long, j As Long
+    Dim rowText As String
+    Dim needed As Object
+
+    selectedParts = Split(selectedRow, "/")
+    Set needed = CreateObject("Scripting.Dictionary")
+    For j = LBound(selectedParts) To UBound(selectedParts)
+        Dim p As String
+        p = Trim$(CStr(selectedParts(j)))
+        If Len(p) > 0 Then
+            If Not needed.Exists(p) Then needed.Add p, True
+        End If
+    Next j
+    If needed.Count = 0 Then Exit Function
+
+    ' Prefer the first row that contains all needed parts (stable).
+    For i = 0 To cmb.ListCount - 1
+        rowText = CStr(cmb.List(i))
+        If rowText <> mDash And Len(Trim$(rowText)) > 0 Then
+            Dim rowAtoms As Object
+            Set rowAtoms = CreateObject("Scripting.Dictionary")
+            rowParts = Split(rowText, "/")
+            For j = LBound(rowParts) To UBound(rowParts)
+                Dim rp As String
+                rp = Trim$(CStr(rowParts(j)))
+                If Len(rp) > 0 Then
+                    If Not rowAtoms.Exists(rp) Then rowAtoms.Add rp, True
+                End If
+            Next j
+
+            Dim allFound As Boolean
+            allFound = True
+            Dim k As Variant
+            For Each k In needed.Keys
+                If Not rowAtoms.Exists(CStr(k)) Then
+                    allFound = False
+                    Exit For
+                End If
+            Next k
+
+            If allFound Then
+                FindBestRowSupersetMatch = rowText
+                Exit Function
+            End If
+        End If
+    Next i
+End Function
 
 Private Sub Dbg(ByVal msg As String)
     If DEBUG_UI Then Debug.Print Format$(Now, "hh:nn:ss.000") & " | " & msg
@@ -236,6 +608,15 @@ Private Sub UserForm_Terminate()
     CancelDeferredUIWork
 End Sub
 
+' Ensure frames are created once the form is visible (MSForms sometimes delays layout until shown)
+Private Sub UserForm_Activate()
+    On Error GoTo Cleanup
+    If framesCreated Then Exit Sub
+    CreateGroupFrames
+    framesCreated = True
+Cleanup:
+End Sub
+
 ' Helper function to read UTF-8 text files (required for Japanese characters)
 Private Function ReadUTF8File(filePath As String) As String
     Dim stream As Object
@@ -371,6 +752,10 @@ Public Sub InitializeSearchForm()
     Me.txtHeightMax.value = mDash
     Me.txtYearMin.value = mDash
     Me.txtYearMax.value = mDash
+
+    ' First show: set language checkboxes to a non-ambiguous default,
+    ' then populate dropdowns/list accordingly.
+    InitializeLanguageCheckboxDefaults
     
     ' Ensure the cache file exists and handle it
     If Not EnsureCacheFileExists Then
@@ -388,6 +773,10 @@ Public Sub InitializeSearchForm()
 
     ' Mark initialized so UserForm_Initialize or external callers don't re-run
     isInitialized = True
+    ' Create visual frames for grouped controls (combo + selected list)
+    On Error Resume Next
+    CreateGroupFrames
+    On Error GoTo 0
 End Sub
 
 
@@ -1540,6 +1929,14 @@ Private Sub cmdSearch_Click()
     SearchProjects
 End Sub
 
+Private Sub chkENG_Click()
+    RefreshLanguageFilteredUI
+End Sub
+
+Private Sub chkJPN_Click()
+    RefreshLanguageFilteredUI
+End Sub
+
 ' Event handler for cmdExit: Exits the program
 Private Sub cmdSExit_Click()
     ' Confirm exit with the user
@@ -1623,6 +2020,11 @@ Private Sub SearchProjects()
 
     ' Loop through each project in the parsed JSON data
     For Each projectItem In jsonData
+        ' Language filter
+        If Not ShouldIncludeProjectByLanguage(projectItem) Then
+            GoTo ContinueLoop
+        End If
+
         matchFound = True
 
         ' Get the project name
@@ -2391,6 +2793,9 @@ Debug.Print "Populating dropdown for key: " & key
 
     ' Loop through each project in the JSON data
     For Each projectItem In jsonData
+        ' Language filter
+        If Not ShouldIncludeProjectByLanguage(projectItem) Then GoTo ContinueLoop
+
         ' Check if the required key exists in the project item
         If projectItem.Exists(key) Then
             value = projectItem(key)
@@ -2437,6 +2842,7 @@ ContinueLoop:
     Next projectItem
 
     ' Populate ComboBox with grouped and sorted values (alphabetically)
+    isUpdatingCombo = True
     cmb.Clear
     cmb.AddItem mDash  ' Set M-dash as the initial value
 
@@ -2474,10 +2880,12 @@ ContinueLoop:
 
     ' Set the M-dash as the default selected value
     cmb.value = mDash
+    isUpdatingCombo = False
     Debug.Print "Finished populating dropdown for key: " & key
     Exit Sub
 
 ErrorHandler:
+    isUpdatingCombo = False
     MsgBox "Error in PopulateDropdown: " & Err.Description, vbCritical, "Error"
 End Sub
 
@@ -2542,12 +2950,14 @@ Sub PopulateListFromJsonCache()
     countNames = 0
 
     For Each projectItem In jsonData
+        If Not ShouldIncludeProjectByLanguage(projectItem) Then GoTo ContinueLoop
         If projectItem.Exists("Project Name") Then
             projectName = projectItem("Project Name")
             countNames = countNames + 1
             ReDim Preserve names(0 To countNames - 1)
             names(countNames - 1) = CStr(projectName)
         End If
+ContinueLoop:
     Next projectItem
 
     Me.lstResults.Clear
@@ -2575,10 +2985,123 @@ ErrorHandler:
     MsgBox "Error in PopulateListFromJsonCache: " & Err.Description, vbCritical, "Error"
 End Sub
 
+' Create white-edged transparent frames behind grouped controls
+Private Sub CreateGroupFrames()
+    On Error GoTo Fail
+    ' Type group: cmbType + lstTypeSelected
+    CreateWhiteBorderForControls "frmType", Me.cmbType, Me.lstTypeSelected
 
+    ' City group: cmbCity + lstCitySelected
+    CreateWhiteBorderForControls "frmCity", Me.cmbCity, Me.lstCitySelected
 
+    ' Country group: cmbCountry + lstCountrySelected
+    CreateWhiteBorderForControls "frmCountry", Me.cmbCountry, Me.lstCountrySelected
 
+    ' TFA (Total Floor Area) group: min/max textboxes
+    CreateWhiteBorderForControls "frmTFA", Me.txtAreaMin, Me.txtAreaMax
 
+    ' Height group: min/max textboxes
+    CreateWhiteBorderForControls "frmHeight", Me.txtHeightMin, Me.txtHeightMax
 
+    ' Year group: min/max textboxes
+    CreateWhiteBorderForControls "frmYear", Me.txtYearMin, Me.txtYearMax
 
+    ' Results list
+    CreateWhiteBorderForControls "frmResults", Me.lstResults
+    framesCreated = True
+    Exit Sub
 
+Fail:
+    Dbg "CreateGroupFrames ERROR: " & Err.Number & " - " & Err.Description
+End Sub
+
+Private Sub CreateWhiteBorderForControls(baseName As String, ParamArray ctrls() As Variant)
+    Dim container As Object
+    Dim i As Long
+    Dim leftMin As Single, topMin As Single, rightMax As Single, bottomMax As Single
+    Dim pad As Single
+    Dim widthPos As Single, heightPos As Single
+
+    If UBound(ctrls) < 0 Then Exit Sub
+    Set container = ctrls(0).Parent
+    If container Is Nothing Then Exit Sub
+
+    pad = 6
+    leftMin = CSng(ctrls(0).Left)
+    topMin = CSng(ctrls(0).Top)
+    rightMax = CSng(ctrls(0).Left + ctrls(0).Width)
+    bottomMax = CSng(ctrls(0).Top + ctrls(0).Height)
+
+    For i = LBound(ctrls) To UBound(ctrls)
+        If ctrls(i) Is Nothing Then GoTo NextCtrl
+        ' If a control is on a different parent, skip it
+        If Not (ctrls(i).Parent Is container) Then GoTo NextCtrl
+        leftMin = MinSng(leftMin, CSng(ctrls(i).Left))
+        topMin = MinSng(topMin, CSng(ctrls(i).Top))
+        rightMax = MaxSng(rightMax, CSng(ctrls(i).Left + ctrls(i).Width))
+        bottomMax = MaxSng(bottomMax, CSng(ctrls(i).Top + ctrls(i).Height))
+NextCtrl:
+    Next i
+
+    leftMin = leftMin - pad
+    topMin = topMin - pad
+    widthPos = (rightMax - leftMin) + pad
+    heightPos = (bottomMax - topMin) + pad
+
+    CreateWhiteBorderOnContainer container, baseName, leftMin, topMin, widthPos, heightPos
+
+    ' Ensure border is visible above any background images, but inputs stay on top
+    For i = LBound(ctrls) To UBound(ctrls)
+        On Error Resume Next
+        ctrls(i).ZOrder 0
+        On Error GoTo 0
+    Next i
+End Sub
+
+' Draw a border using 4 thin Labels (top/bottom/left/right) inside the same container as the target controls.
+Private Sub CreateWhiteBorderOnContainer(container As Object, baseName As String, leftPos As Single, topPos As Single, widthPos As Single, heightPos As Single)
+    Const t As Single = 2 ' border thickness in points
+    CreateBorderLineOnContainer container, baseName & "_Top", leftPos, topPos, widthPos, t
+    CreateBorderLineOnContainer container, baseName & "_Bottom", leftPos, topPos + heightPos - t, widthPos, t
+    CreateBorderLineOnContainer container, baseName & "_Left", leftPos, topPos, t, heightPos
+    CreateBorderLineOnContainer container, baseName & "_Right", leftPos + widthPos - t, topPos, t, heightPos
+End Sub
+
+Private Sub CreateBorderLineOnContainer(container As Object, name As String, leftPos As Single, topPos As Single, widthPos As Single, heightPos As Single)
+    Dim lbl As MSForms.Label
+
+    On Error GoTo Fail
+    On Error Resume Next
+    Set lbl = container.Controls(name)
+    On Error GoTo Fail
+
+    If lbl Is Nothing Then
+        Set lbl = container.Controls.Add("Forms.Label.1", name, True)
+    End If
+
+    With lbl
+        .Caption = vbNullString
+        .Left = leftPos
+        .Top = topPos
+        .Width = widthPos
+        .Height = heightPos
+        .BackStyle = fmBackStyleOpaque
+        .BackColor = vbWhite
+        .SpecialEffect = fmSpecialEffectFlat
+        .BorderStyle = fmBorderStyleNone
+        .Visible = True
+        .ZOrder 0 ' bring above container background
+    End With
+    Exit Sub
+
+Fail:
+    Dbg "CreateBorderLineOnContainer('" & name & "') ERROR: " & Err.Number & " - " & Err.Description
+End Sub
+
+' Small helpers
+Private Function MinSng(a As Single, b As Single) As Single
+    If a < b Then MinSng = a Else MinSng = b
+End Function
+Private Function MaxSng(a As Single, b As Single) As Single
+    If a > b Then MaxSng = a Else MaxSng = b
+End Function
