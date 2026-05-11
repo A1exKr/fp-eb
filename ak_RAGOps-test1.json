@@ -1,0 +1,2761 @@
+{
+  "schemaVersion": "5.0",
+  "canvasProperties": {
+    "authorizedIpSetting": {
+      "allowAll": true
+    },
+    "authorizedIps": {
+      "9X5N4VU9PBpGM1XxN9JDC4": {
+        "_order": "a097C",
+        "ip": ""
+      }
+    },
+    "variables": {
+      "pHcrCMFkYEk5YMYJTEmf6U": {
+        "_order": "a02zt",
+        "name": "APP_URL",
+        "value": "https://c9g6vi1bxxz4ro1b.circuits.examt001.studio.exabase.ai/"
+      },
+      "5JULSeqG2yKAUBU5LdqNjP": {
+        "_order": "a14Y7",
+        "name": "AUTH_URL",
+        "value": "https://ajjsjrijnlcdcq69.circuits.examt001.studio.exabase.ai/"
+      },
+      "gqwk4Jmu5kB7iMhjtCydMw": {
+        "_order": "a21W7",
+        "name": "DB_USER",
+        "value": "postgres"
+      },
+      "oLedc38fuDM5CFfhm63mPF": {
+        "_order": "a30cp",
+        "name": "DB_PASSWORD",
+        "value": "postgres"
+      },
+      "kR9xCONFIG_CRYPTO_001": {
+        "_order": "a48rS",
+        "name": "CONFIG_CRYPTO_KEY",
+        "value": "default-key-tgb2lk"
+      }
+    },
+    "documents": {}
+  },
+  "edgesMap": {
+    "hJyJxVRYcc1VBRs39oYU3w": {
+      "id": "hJyJxVRYcc1VBRs39oYU3w",
+      "source": "aAiDn9bcARNXhtz695AT7m",
+      "sourceHandle": "aAiDn9bcARNXhtz695AT7m.left",
+      "target": "uK7RCMQnMi9Ty3evC8jtFz",
+      "targetHandle": "uK7RCMQnMi9Ty3evC8jtFz.right",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "dujQc8czHBZCA54Br9Rw1i": {
+      "id": "dujQc8czHBZCA54Br9Rw1i",
+      "source": "sASAHtnZA1jUYxWi2iH1yE",
+      "sourceHandle": "sASAHtnZA1jUYxWi2iH1yE.left",
+      "target": "hqhrv76QZnnVFrjWyMUF81",
+      "targetHandle": "hqhrv76QZnnVFrjWyMUF81.right",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "beKx7PfuQPHb5uy7ASoyX4": {
+      "id": "beKx7PfuQPHb5uy7ASoyX4",
+      "source": "hqhrv76QZnnVFrjWyMUF81",
+      "sourceHandle": "hqhrv76QZnnVFrjWyMUF81.bottom",
+      "target": "aAiDn9bcARNXhtz695AT7m",
+      "targetHandle": "aAiDn9bcARNXhtz695AT7m.top",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "bqy5cviF38FktrusxzD6VW": {
+      "id": "bqy5cviF38FktrusxzD6VW",
+      "source": "vTJcSoLAse5HtrayKgKAPp",
+      "sourceHandle": "vTJcSoLAse5HtrayKgKAPp.right",
+      "target": "bM4dJUKQjMyxR284ingzqq",
+      "targetHandle": "bM4dJUKQjMyxR284ingzqq.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "wouJ172ugHx5Q9dD3pCR3f": {
+      "id": "wouJ172ugHx5Q9dD3pCR3f",
+      "source": "7aT62t24nt3H9Pe7pEVQMf",
+      "sourceHandle": "7aT62t24nt3H9Pe7pEVQMf.bottom",
+      "target": "p6rhhC85g9pFsEEwWHYuTB",
+      "targetHandle": "p6rhhC85g9pFsEEwWHYuTB.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "25yCZpPgX9oMoojU57AxxB": {
+      "id": "25yCZpPgX9oMoojU57AxxB",
+      "source": "qbYtTZAs96mtdMSN3FjhYb",
+      "sourceHandle": "qbYtTZAs96mtdMSN3FjhYb.right",
+      "target": "24mjaWjXV9DrW55ALmhKpH",
+      "targetHandle": "24mjaWjXV9DrW55ALmhKpH.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "8ofWodwaky5SANzrntP9uZ": {
+      "id": "8ofWodwaky5SANzrntP9uZ",
+      "source": "oB64WhA714yUzmoRvY7tGi",
+      "sourceHandle": "oB64WhA714yUzmoRvY7tGi.right",
+      "target": "p6rhhC85g9pFsEEwWHYuTB",
+      "targetHandle": "p6rhhC85g9pFsEEwWHYuTB.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "kizCqS2ne6BeT6N9eVfqgp": {
+      "id": "kizCqS2ne6BeT6N9eVfqgp",
+      "source": "24mjaWjXV9DrW55ALmhKpH",
+      "sourceHandle": "24mjaWjXV9DrW55ALmhKpH.right",
+      "target": "oB64WhA714yUzmoRvY7tGi",
+      "targetHandle": "oB64WhA714yUzmoRvY7tGi.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "915bDNjNhjZs7eJF8cLt1k": {
+      "id": "915bDNjNhjZs7eJF8cLt1k",
+      "source": "qbYtTZAs96mtdMSN3FjhYb",
+      "sourceHandle": "qbYtTZAs96mtdMSN3FjhYb.right",
+      "target": "awwG9rouNgYsNPoGXUiCde",
+      "targetHandle": "awwG9rouNgYsNPoGXUiCde.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "k39h8fbsEneB6EDTaQoyKj": {
+      "id": "k39h8fbsEneB6EDTaQoyKj",
+      "source": "p6rhhC85g9pFsEEwWHYuTB",
+      "sourceHandle": "p6rhhC85g9pFsEEwWHYuTB.bottom",
+      "target": "52CmhoDJYD2wMAZr6ykoyc",
+      "targetHandle": "52CmhoDJYD2wMAZr6ykoyc.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "71rPgE3ApmwPHeVoKFtgY9": {
+      "id": "71rPgE3ApmwPHeVoKFtgY9",
+      "source": "p6rhhC85g9pFsEEwWHYuTB",
+      "sourceHandle": "p6rhhC85g9pFsEEwWHYuTB.bottom",
+      "target": "bU4nprjijKetfyGhm29E68",
+      "targetHandle": "bU4nprjijKetfyGhm29E68.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "kud2gZowudfvUnnujQrxYu": {
+      "id": "kud2gZowudfvUnnujQrxYu",
+      "source": "p6rhhC85g9pFsEEwWHYuTB",
+      "sourceHandle": "p6rhhC85g9pFsEEwWHYuTB.bottom",
+      "target": "23Wbz2UTAGmDToaBkBCxSZ",
+      "targetHandle": "23Wbz2UTAGmDToaBkBCxSZ.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "9WtcKNt93NgFGH51rj5huk": {
+      "id": "9WtcKNt93NgFGH51rj5huk",
+      "source": "p6rhhC85g9pFsEEwWHYuTB",
+      "sourceHandle": "p6rhhC85g9pFsEEwWHYuTB.bottom",
+      "target": "9mTUpAGuiA61tUykWvpfZK",
+      "targetHandle": "9mTUpAGuiA61tUykWvpfZK.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gnmYfRbLxyAgvxbkxpj9cS": {
+      "id": "gnmYfRbLxyAgvxbkxpj9cS",
+      "source": "p6rhhC85g9pFsEEwWHYuTB",
+      "sourceHandle": "p6rhhC85g9pFsEEwWHYuTB.bottom",
+      "target": "87NVHncR4aucLky2VhUi5W",
+      "targetHandle": "87NVHncR4aucLky2VhUi5W.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "w68iGZfBcUbXqGQ2ZzwivX": {
+      "id": "w68iGZfBcUbXqGQ2ZzwivX",
+      "source": "hgq7DPRWZaoQkNNPTp2Qii",
+      "sourceHandle": "hgq7DPRWZaoQkNNPTp2Qii.bottom",
+      "target": "vTJcSoLAse5HtrayKgKAPp",
+      "targetHandle": "vTJcSoLAse5HtrayKgKAPp.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "5Ygk77YGZy3Yqkq8q7iQuM": {
+      "id": "5Ygk77YGZy3Yqkq8q7iQuM",
+      "source": "qpLHQex8dFAcdT89uJE6Gh",
+      "sourceHandle": "qpLHQex8dFAcdT89uJE6Gh.bottom",
+      "target": "hgq7DPRWZaoQkNNPTp2Qii",
+      "targetHandle": "hgq7DPRWZaoQkNNPTp2Qii.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "ogseM59bihJU8unVfdck1P": {
+      "id": "ogseM59bihJU8unVfdck1P",
+      "source": "no7ZQfyUyC6EdJkpVPdQum",
+      "sourceHandle": "no7ZQfyUyC6EdJkpVPdQum.bottom",
+      "target": "qpLHQex8dFAcdT89uJE6Gh",
+      "targetHandle": "qpLHQex8dFAcdT89uJE6Gh.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "quGzJaCZMLEGGYufR8Z8Ly": {
+      "id": "quGzJaCZMLEGGYufR8Z8Ly",
+      "source": "9yY2qArnoCDnu4cjU2Hex4",
+      "sourceHandle": "9yY2qArnoCDnu4cjU2Hex4.bottom",
+      "target": "bM4dJUKQjMyxR284ingzqq",
+      "targetHandle": "bM4dJUKQjMyxR284ingzqq.right",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "7sLfNKYkANxrGj3cmLevHL": {
+      "id": "7sLfNKYkANxrGj3cmLevHL",
+      "source": "dutx7Kf9RpSnG1TyKrrDSg",
+      "sourceHandle": "dutx7Kf9RpSnG1TyKrrDSg.left",
+      "target": "bM4dJUKQjMyxR284ingzqq",
+      "targetHandle": "bM4dJUKQjMyxR284ingzqq.bottom",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "xgqh4Q37W4d53MmwXhvZZF": {
+      "id": "xgqh4Q37W4d53MmwXhvZZF",
+      "source": "sVQaf3tHKE6RgmnLhVu5Vh",
+      "sourceHandle": "sVQaf3tHKE6RgmnLhVu5Vh.right",
+      "target": "qf96Po1oJRDhYuL2ca8MMr",
+      "targetHandle": "qf96Po1oJRDhYuL2ca8MMr.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "vzsJboc7Lt4XuRhQzgpuJA": {
+      "id": "vzsJboc7Lt4XuRhQzgpuJA",
+      "source": "qf96Po1oJRDhYuL2ca8MMr",
+      "sourceHandle": "qf96Po1oJRDhYuL2ca8MMr.right",
+      "target": "8ro5F2NFNNXgwoUAm46r5Z",
+      "targetHandle": "8ro5F2NFNNXgwoUAm46r5Z.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "x138f6BmXCczwYFTjG1V5o": {
+      "id": "x138f6BmXCczwYFTjG1V5o",
+      "source": "8ro5F2NFNNXgwoUAm46r5Z",
+      "sourceHandle": "8ro5F2NFNNXgwoUAm46r5Z.bottom",
+      "target": "ucrtFTgDe3PgSofZCKrwxR",
+      "targetHandle": "ucrtFTgDe3PgSofZCKrwxR.right",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "2KrH5rn8XAMxKynCVrcEqo": {
+      "id": "2KrH5rn8XAMxKynCVrcEqo",
+      "source": "qf96Po1oJRDhYuL2ca8MMr",
+      "sourceHandle": "qf96Po1oJRDhYuL2ca8MMr.bottom",
+      "target": "hdRjEppZJVkZtyqz2BZKSJ",
+      "targetHandle": "hdRjEppZJVkZtyqz2BZKSJ.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "w7Ww6fBm1FbZZSZdWMWgRh": {
+      "id": "w7Ww6fBm1FbZZSZdWMWgRh",
+      "source": "qf96Po1oJRDhYuL2ca8MMr",
+      "sourceHandle": "qf96Po1oJRDhYuL2ca8MMr.right",
+      "target": "ucrtFTgDe3PgSofZCKrwxR",
+      "targetHandle": "ucrtFTgDe3PgSofZCKrwxR.bottom",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "6xXcZ3TNkWxnfm1cuLdezE": {
+      "id": "6xXcZ3TNkWxnfm1cuLdezE",
+      "source": "vTJcSoLAse5HtrayKgKAPp",
+      "sourceHandle": "vTJcSoLAse5HtrayKgKAPp.bottom",
+      "target": "73GaNgWxsmfxMRy6RbKwqu",
+      "targetHandle": "73GaNgWxsmfxMRy6RbKwqu.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "wnEmhWzCBtWkcJSo7JUXMP": {
+      "id": "wnEmhWzCBtWkcJSo7JUXMP",
+      "source": "dutx7Kf9RpSnG1TyKrrDSg",
+      "sourceHandle": "dutx7Kf9RpSnG1TyKrrDSg.left",
+      "target": "73GaNgWxsmfxMRy6RbKwqu",
+      "targetHandle": "73GaNgWxsmfxMRy6RbKwqu.right",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "tuLBngcpyJ2Jy3FwEjCRMw": {
+      "id": "tuLBngcpyJ2Jy3FwEjCRMw",
+      "source": "3UmGPfP9BjgqLsVe1NH8wS",
+      "sourceHandle": "3UmGPfP9BjgqLsVe1NH8wS.bottom",
+      "target": "uK7RCMQnMi9Ty3evC8jtFz",
+      "targetHandle": "uK7RCMQnMi9Ty3evC8jtFz.top",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "upHqSYvQzXRRZQ9KSVVCnP": {
+      "id": "upHqSYvQzXRRZQ9KSVVCnP",
+      "source": "qWAaCq97nFdMNjpQT6Qvdk",
+      "sourceHandle": "qWAaCq97nFdMNjpQT6Qvdk.right",
+      "target": "qbYtTZAs96mtdMSN3FjhYb",
+      "targetHandle": "qbYtTZAs96mtdMSN3FjhYb.left",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "26xqzRbhDGv9B6pBSmLaKo": {
+      "id": "26xqzRbhDGv9B6pBSmLaKo",
+      "source": "4Akwo3E4cBcECbz6y6QzB4",
+      "sourceHandle": "4Akwo3E4cBcECbz6y6QzB4.bottom",
+      "target": "m6EvFuUS9QMNJHX1moQAod",
+      "targetHandle": "m6EvFuUS9QMNJHX1moQAod.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "vXQXeDYmhotpBzuh6Eq5sw": {
+      "id": "vXQXeDYmhotpBzuh6Eq5sw",
+      "source": "qbYtTZAs96mtdMSN3FjhYb",
+      "sourceHandle": "qbYtTZAs96mtdMSN3FjhYb.top",
+      "target": "nnRuoNqxYq5W87242Euta4",
+      "targetHandle": "nnRuoNqxYq5W87242Euta4.bottom",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "2FqztEg7y2hxXDYsnzD6fR": {
+      "id": "2FqztEg7y2hxXDYsnzD6fR",
+      "source": "qbYtTZAs96mtdMSN3FjhYb",
+      "sourceHandle": "qbYtTZAs96mtdMSN3FjhYb.bottom",
+      "target": "no7ZQfyUyC6EdJkpVPdQum",
+      "targetHandle": "no7ZQfyUyC6EdJkpVPdQum.right",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "2f3g1UYusvmaczBbLv4hco": {
+      "id": "2f3g1UYusvmaczBbLv4hco",
+      "source": "tmWQxeZ7UPFrJtoLDn4w5J",
+      "sourceHandle": "tmWQxeZ7UPFrJtoLDn4w5J.bottom",
+      "target": "sX1aauUCy1TSMPJhtTMVo7",
+      "targetHandle": "sX1aauUCy1TSMPJhtTMVo7.top",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "f26hhg8uDyGBicBbL5DNPj": {
+      "id": "f26hhg8uDyGBicBbL5DNPj",
+      "source": "xam6ejTF3pPyjR7YGtiRQY",
+      "sourceHandle": "xam6ejTF3pPyjR7YGtiRQY.right",
+      "target": "3UmGPfP9BjgqLsVe1NH8wS",
+      "targetHandle": "3UmGPfP9BjgqLsVe1NH8wS.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    }
+  },
+  "nodesMap": {
+    "xcNLcPJgedPvGhsMTAnHN4": {
+      "type": "workspace",
+      "id": "xcNLcPJgedPvGhsMTAnHN4",
+      "width": 1335,
+      "height": 864,
+      "data": {
+        "id": "app",
+        "name": "",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0908"
+      },
+      "position": {
+        "x": -675.045065573412,
+        "y": 40.99091688746148
+      }
+    },
+    "6H7USbWwdsZAFkbrJYYgeE": {
+      "type": "workspace",
+      "id": "6H7USbWwdsZAFkbrJYYgeE",
+      "width": 1865,
+      "height": 857,
+      "position": {
+        "x": 754.7843355136242,
+        "y": 44.49091688746148
+      },
+      "data": {
+        "id": "admin",
+        "name": "",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a1AZa"
+      }
+    },
+    "6fLBykVT85zBRTFVFeGzU9": {
+      "type": "workspace",
+      "id": "6fLBykVT85zBRTFVFeGzU9",
+      "width": 1176,
+      "height": 528,
+      "data": {
+        "id": "evaluation-manager",
+        "name": "",
+        "authorizedIps": {},
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "_order": "a21cN"
+      },
+      "position": {
+        "x": 754.7843355136242,
+        "y": 984.9957450716878
+      }
+    },
+    "8J7UnxcXCE6WhcZnyMtvXY": {
+      "type": "workspace",
+      "id": "8J7UnxcXCE6WhcZnyMtvXY",
+      "width": 426,
+      "height": 239,
+      "position": {
+        "x": 234.43691878943446,
+        "y": 950.6471412193862
+      },
+      "data": {
+        "id": "llm-gateway",
+        "name": "",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a30Hd"
+      }
+    },
+    "ggac5dWfzY2J6pY1Uv2kqu": {
+      "type": "workspace",
+      "id": "ggac5dWfzY2J6pY1Uv2kqu",
+      "width": 325,
+      "height": 387,
+      "position": {
+        "x": -675.045065573412,
+        "y": 950.6471412193862
+      },
+      "data": {
+        "id": "auth",
+        "name": "",
+        "authorizedIps": {},
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "_order": "a421J"
+      }
+    },
+    "2e6SusqxUmeP9XfomPMGs2": {
+      "type": "workspace",
+      "id": "2e6SusqxUmeP9XfomPMGs2",
+      "width": 335,
+      "height": 269,
+      "data": {
+        "id": "auth-tools",
+        "name": "",
+        "authorizedIps": {},
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "_order": "a59Am"
+      },
+      "position": {
+        "x": -336.7803235306701,
+        "y": 950.6471412193862
+      }
+    },
+    "87NVHncR4aucLky2VhUi5W": {
+      "type": "pipeline",
+      "id": "87NVHncR4aucLky2VhUi5W",
+      "width": 350,
+      "data": {
+        "id": "pl-csv-register",
+        "name": "CSV-登録",
+        "_order": "a6AID"
+      },
+      "position": {
+        "x": 19.380918340719745,
+        "y": 516.5925633503468
+      },
+      "parentId": "6H7USbWwdsZAFkbrJYYgeE"
+    },
+    "9mTUpAGuiA61tUykWvpfZK": {
+      "type": "pipeline",
+      "id": "9mTUpAGuiA61tUykWvpfZK",
+      "width": 350,
+      "position": {
+        "x": 389.0259408140805,
+        "y": 524.5317555719462
+      },
+      "data": {
+        "id": "pl-word-register",
+        "name": "Word-登録",
+        "_order": "a7BB2"
+      },
+      "parentId": "6H7USbWwdsZAFkbrJYYgeE"
+    },
+    "bU4nprjijKetfyGhm29E68": {
+      "type": "pipeline",
+      "id": "bU4nprjijKetfyGhm29E68",
+      "width": 350,
+      "position": {
+        "x": 1119.9935184308583,
+        "y": 526.3560687548409
+      },
+      "data": {
+        "id": "pl-pdf-register",
+        "name": "PDF-登録",
+        "_order": "a80w1"
+      },
+      "parentId": "6H7USbWwdsZAFkbrJYYgeE"
+    },
+    "23Wbz2UTAGmDToaBkBCxSZ": {
+      "type": "pipeline",
+      "id": "23Wbz2UTAGmDToaBkBCxSZ",
+      "width": 354,
+      "position": {
+        "x": 753.1580937380604,
+        "y": 527.9083189489705
+      },
+      "data": {
+        "id": "pl-web-register",
+        "name": "WEBスクレイピング-登録",
+        "_order": "a97n7"
+      },
+      "parentId": "6H7USbWwdsZAFkbrJYYgeE"
+    },
+    "52CmhoDJYD2wMAZr6ykoyc": {
+      "type": "pipeline",
+      "id": "52CmhoDJYD2wMAZr6ykoyc",
+      "width": 350,
+      "data": {
+        "id": "pl-recipe-register",
+        "name": "コンテンツマイスター登録",
+        "_order": "aAB42"
+      },
+      "position": {
+        "x": 1492.1599731334509,
+        "y": 531.044366368932
+      },
+      "parentId": "6H7USbWwdsZAFkbrJYYgeE"
+    },
+    "4Akwo3E4cBcECbz6y6QzB4": {
+      "type": "sticky",
+      "id": "4Akwo3E4cBcECbz6y6QzB4",
+      "position": {
+        "x": 516.2406977891362,
+        "y": -159.00908311253852
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "<p>✅ データベースを永続化する場合はSideAppのStorageに以下のパスを設定してください。</p><p><br></p><p>Storage:</p><p>/var/lib/postgresql/data</p>\n\n",
+        "fill": "gray",
+        "_order": "aB0jJ"
+      }
+    },
+    "gTScDV1LDVSE6LHaToAfpF": {
+      "type": "sticky",
+      "id": "gTScDV1LDVSE6LHaToAfpF",
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "RAGOps: v1.11.0",
+        "fill": "blue",
+        "_order": "aCAJt"
+      },
+      "position": {
+        "x": -892.5753624650213,
+        "y": -271.8743729798516
+      }
+    },
+    "kotrqTUJnwgfakU3DJjgfW": {
+      "type": "sticky",
+      "id": "kotrqTUJnwgfakU3DJjgfW",
+      "position": {
+        "x": -1124.271718927904,
+        "y": -71.87437297985161
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "🚨必須シークレット<br><div><div></div><div>・LITE_LLM_ADMIN_PASSWORD</div><div><br></div><div>任意シークレット</div><div>・SENDGRID_API_KEY</div></div><div><br></div><div></div><div></div><div>必須変数</div><div><div>・DB_USER</div><div>・DB_PASSWORD<br></div><div>・CONFIG_CRYPTO_KEY</div><div>・APP_URL</div><div>・AUTH_URL</div><div><br></div>\n【補足】</div><div>APP_URL: appワークスペースの下側のエンドポイントURL</div><div><br></div><div>AUTH_URL: authワークスペースの下側のエンドポイントURL</div><div><br></div><div>LITE_LLM_ADMIN_PASSWORD: sk- から始まる任意の英数字</div>",
+        "fill": "pink",
+        "_order": "aD6ZK"
+      }
+    },
+    "qbJyZ1DmjpsBZFEreTGjhS": {
+      "type": "sticky",
+      "id": "qbJyZ1DmjpsBZFEreTGjhS",
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "<div>🔑 認証情報（デフォルト）</div><div>・admin_user1@example.com</div><div>・admin_user2@example.com</div>・normal_user1@example.com<div>・normal_user2@example.com<div>・operator_user1@example.com</div><div>・operator_user2@example.com</div><div><br></div><div>いずれもtestpass</div></div>",
+        "fill": "gray",
+        "_order": "aE34p"
+      },
+      "position": {
+        "x": -892.5753624650213,
+        "y": 44.49091688746148
+      }
+    },
+    "hqhrv76QZnnVFrjWyMUF81": {
+      "type": "endpoint",
+      "id": "hqhrv76QZnnVFrjWyMUF81",
+      "width": 250,
+      "position": {
+        "x": 26.378761726204118,
+        "y": 34.3208335630635
+      },
+      "data": {
+        "bind": "ReadWrite",
+        "port": 8080,
+        "uri": "/",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "aFBLc"
+      },
+      "parentId": "2e6SusqxUmeP9XfomPMGs2"
+    },
+    "m6EvFuUS9QMNJHX1moQAod": {
+      "type": "sideapp",
+      "id": "m6EvFuUS9QMNJHX1moQAod",
+      "width": 250,
+      "data": {
+        "id": "rdb",
+        "name": "PostgreSQL DB server",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/rdb_postgresql_17:1.2.1",
+        "injection": {
+          "kMeWsmD5uimCCkUUa5NVt6": {
+            "_order": "a082z",
+            "path": "/docker-entrypoint-initdb.d/initial_ragops_01.sql",
+            "data": "CREATE SCHEMA IF NOT EXISTS keycloak;\n\nCREATE SCHEMA IF NOT EXISTS litellm;\n\nCREATE SCHEMA IF NOT EXISTS evaluation_manager;\nCREATE SCHEMA IF NOT EXISTS file_manager;\nCREATE SCHEMA IF NOT EXISTS conversation_manager;\nCREATE SCHEMA IF NOT EXISTS config_manager;"
+          },
+          "1hJ8DsyGAutJHV9JzKrrjJ": {
+            "_order": "a125n",
+            "path": "/docker-entrypoint-always-initdb.d/ensure_schema.sql",
+            "data": "CREATE SCHEMA IF NOT EXISTS keycloak;\nCREATE SCHEMA IF NOT EXISTS litellm;"
+          }
+        },
+        "environment": {
+          "1zQpSELzVDBKQg6C6sPsKV": {
+            "key": "POSTGRES_USER",
+            "value": "$[[DB_USER]]",
+            "_id": "1zQpSELzVDBKQg6C6sPsKV",
+            "_order": "a0FesZ"
+          },
+          "nE3hYxUw6gLpNCWiRi8siu": {
+            "key": "POSTGRES_PASSWORD",
+            "value": "$[[DB_PASSWORD]]",
+            "_id": "nE3hYxUw6gLpNCWiRi8siu",
+            "_order": "a0V1C2"
+          },
+          "uPpNCXwQDJ66MzV6gEPHRU": {
+            "key": "POSTGRES_MAX_CONNECTIONS",
+            "value": "300",
+            "_id": "uPpNCXwQDJ66MzV6gEPHRU",
+            "_order": "a0keVh"
+          }
+        },
+        "storage": {
+          "nt611ybLk7QK5VPDBHeHpG": {
+            "path": "/var/lib/postgresql/data",
+            "_id": "nt611ybLk7QK5VPDBHeHpG",
+            "_order": "a0VC5R"
+          }
+        },
+        "_order": "aG3Fc",
+        "replicas": 1,
+        "size": "m"
+      },
+      "position": {
+        "x": 842.4960033016991,
+        "y": 79.93067614525552
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "nnRuoNqxYq5W87242Euta4": {
+      "type": "sideapp",
+      "id": "nnRuoNqxYq5W87242Euta4",
+      "width": 249,
+      "position": {
+        "x": 523.7331085296595,
+        "y": 38.434410122840234
+      },
+      "data": {
+        "id": "oauth2-proxy",
+        "name": "認証プロバイダー",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/oauth2_proxy:1.1.3",
+        "environment": {
+          "8dJa3AT4mboLyuZXKYnubW": {
+            "key": "KEYCLOAK_URL",
+            "value": "$[[AUTH_URL]]",
+            "_id": "8dJa3AT4mboLyuZXKYnubW",
+            "_order": "a03zFp"
+          },
+          "skuzGKEYzF84sKqUXYMSnC": {
+            "key": "KEYCLOAK_REALM",
+            "value": "ragops",
+            "_id": "skuzGKEYzF84sKqUXYMSnC",
+            "_order": "a0NUEH"
+          },
+          "pFJNVvZURevf2yWCHnX6ik": {
+            "key": "KEYCLOAK_INTERNAL_URL",
+            "value": "http://auth-keycloak:8080",
+            "_id": "pFJNVvZURevf2yWCHnX6ik",
+            "_order": "a0kaat"
+          },
+          "WpYBATfgKHSXOpBtfytoYA": {
+            "key": "REDIRECT_BASE_URL",
+            "value": "$[[APP_URL]]",
+            "_id": "WpYBATfgKHSXOpBtfytoYA",
+            "_order": "a2a000"
+          },
+          "obFRhcVZ2eFYrdV8CUaZrA": {
+            "key": "KEYCLOAK_OIDC_CLIENT_ID",
+            "value": "ragops-oidc",
+            "_id": "obFRhcVZ2eFYrdV8CUaZrA",
+            "_order": "a2b000"
+          },
+          "kiX5z7l4dUB-PgFyoK_zDg": {
+            "key": "KEYCLOAK_OIDC_CLIENT_SECRET",
+            "value": "ragops-secret",
+            "_id": "kiX5z7l4dUB-PgFyoK_zDg",
+            "_order": "a2c000"
+          },
+          "l80zpUAYrsqM81x9MHl0eg": {
+            "key": "COOKIE_EXPIRE",
+            "value": "24h",
+            "_id": "l80zpUAYrsqM81x9MHl0eg",
+            "_order": "a2d000"
+          }
+        },
+        "_order": "aH1qf",
+        "replicas": 1,
+        "size": "s",
+        "injection": {
+          "hY4LBoomWf1DatXNV6gv6S": {
+            "_order": "a03V8",
+            "path": "/app/config/template-oauth2-proxy.cfg",
+            "data": "http_address = \"0.0.0.0:8080\"\nreverse_proxy = false\n\nprovider = \"oidc\"\nskip_oidc_discovery = true\ninsecure_oidc_skip_issuer_verification = true\n\nemail_domains = [\n    \"*\"\n]\n\nskip_auth_preflight = true\nskip_provider_button = true\npass_user_headers = true\nset_xauthrequest = true\npass_access_token = true\n\n# 環境変数で設定する必要がある\n# - REDIRECT_BASE_URL\n# - KEYCLOAK_OIDC_CLIENT_ID\n# - KEYCLOAK_OIDC_CLIENT_SECRET\n# - KEYCLOAK_REALM\n# - KEYCLOAK_URL\n# - KEYCLOAK_INTERNAL_URL\nclient_id = \"${KEYCLOAK_OIDC_CLIENT_ID}\"\nclient_secret = \"${KEYCLOAK_OIDC_CLIENT_SECRET}\"\n\nlogin_url = \"${KEYCLOAK_URL}realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth\"\n\nredeem_url = \"${KEYCLOAK_INTERNAL_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token\"\noidc_jwks_url = \"${KEYCLOAK_INTERNAL_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/certs\"\nprofile_url = \"${KEYCLOAK_INTERNAL_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/userinfo\"\noidc_issuer_url = \"${KEYCLOAK_INTERNAL_URL}/realms/${KEYCLOAK_REALM}\"\n\nredirect_url = \"${REDIRECT_BASE_URL}oauth2/callback\"\n\n# セッション有効期限（デフォルト24時間）\n# - COOKIE_EXPIRE: セッションの有効期限（例: \"24h\", \"1h\", \"30m\"）\ncookie_expire = \"${COOKIE_EXPIRE}\"\n\n# リダイレクト設定: ログイン後に元のURLに戻る\n# REDIRECT_BASE_URLから自動的に抽出される\nwhitelist_domains = [\n    \"${WHITELIST_DOMAIN}\"\n]\n\n# 起動スクリプトでランダムな値を生成する\n# - COOKIE_SECRET\ncookie_secret = \"${COOKIE_SECRET}\"\n"
+          }
+        }
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "7aT62t24nt3H9Pe7pEVQMf": {
+      "type": "sideapp",
+      "id": "7aT62t24nt3H9Pe7pEVQMf",
+      "width": 250,
+      "position": {
+        "x": 878.588319920065,
+        "y": 63.410789069637985
+      },
+      "data": {
+        "id": "file-viewer",
+        "name": "File Viewer",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_file_viewer:1.11.0",
+        "environment": {
+          "aam1LmDUc7tTZL2H8Ydi8n": {
+            "key": "FILE_MANAGER_API_URL",
+            "value": "http://admin-filemanager:8080",
+            "_id": "aam1LmDUc7tTZL2H8Ydi8n",
+            "_order": "a07spl"
+          },
+          "ptmfwcA6zd8rj1Z2kqBY1A": {
+            "key": "BASE_PATH",
+            "value": "/files",
+            "_id": "ptmfwcA6zd8rj1Z2kqBY1A",
+            "_order": "a0FhDM"
+          },
+          "2wHFKWscKg31Sb67vrvwZz": {
+            "key": "FILEMANAGER_WEBAPI_URL",
+            "value": "http://admin-filemanager:8080",
+            "_id": "2wHFKWscKg31Sb67vrvwZz",
+            "_order": "a0V7IV"
+          },
+          "kpjPFy9cy6oMRadpKHVLtY": {
+            "key": "STORAGE_API_URL",
+            "value": "http://admin-storage-manager:8080",
+            "_id": "kpjPFy9cy6oMRadpKHVLtY",
+            "_order": "a0d2jC"
+          },
+          "gqsXCXMGm1NREBnxo3NRdK": {
+            "key": "VECTORDB_WEBAPI_URL",
+            "value": "http://app-vectordb-webapi:8080",
+            "_id": "gqsXCXMGm1NREBnxo3NRdK",
+            "_order": "a0kdq7"
+          }
+        },
+        "_order": "aM4aI",
+        "replicas": 1,
+        "size": "s",
+        "storage": {
+          "oxfN9syargjpaLLkL8ngUQ": {
+            "_order": "a07Eh",
+            "path": ""
+          }
+        },
+        "showDescription": false
+      },
+      "parentId": "6H7USbWwdsZAFkbrJYYgeE"
+    },
+    "8ro5F2NFNNXgwoUAm46r5Z": {
+      "type": "entity",
+      "id": "8ro5F2NFNNXgwoUAm46r5Z",
+      "width": 200,
+      "position": {
+        "x": 707.4415946478362,
+        "y": 77.58579475751367
+      },
+      "data": {
+        "id": "evaluation-id",
+        "name": "Evaluation ID to execute",
+        "showDescription": false,
+        "description": "",
+        "expires": 60000,
+        "interval": 1000,
+        "type": "io.ebstudio.core.entity.data",
+        "_order": "aN7Rl"
+      },
+      "parentId": "6fLBykVT85zBRTFVFeGzU9"
+    },
+    "nTRzc2dszoQt2mad7KpBx5": {
+      "type": "function",
+      "id": "nTRzc2dszoQt2mad7KpBx5",
+      "width": 290,
+      "data": {
+        "id": "recipe-register",
+        "name": "",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_recipe_importer:1.11.0",
+        "computeType": "CPU",
+        "inputs": {},
+        "outputs": {},
+        "environment": {
+          "kT94prQ6Ai691Dzb4AKyMk": {
+            "key": "CHAT_BASE_URL",
+            "value": "http://app-chat-webapi:8080",
+            "_id": "kT94prQ6Ai691Dzb4AKyMk",
+            "_order": "a045qj"
+          },
+          "8oD7TwVX5WRhu6EbBPNMgF": {
+            "key": "VECTORDB_WEBAPI_URL",
+            "value": "http://app-vectordb-webapi:8080",
+            "_id": "8oD7TwVX5WRhu6EbBPNMgF",
+            "_order": "a07ufG"
+          },
+          "hiareWj3xeLuModTKvHpnu": {
+            "key": "STORAGE_API_URL",
+            "value": "http://admin-storage-manager:8080",
+            "_id": "hiareWj3xeLuModTKvHpnu",
+            "_order": "a0Fl18"
+          },
+          "19iB3VFfVfem1SLSUCVVM1": {
+            "key": "CONFIG_WEBAPI_URL",
+            "value": "http://admin-config:8080/config",
+            "_id": "19iB3VFfVfem1SLSUCVVM1",
+            "_order": "a0NcVd"
+          },
+          "axLd3ogQq2Xmh7en8xaazc": {
+            "key": "CRYPTO_KEY",
+            "value": "$[[CONFIG_CRYPTO_KEY]]",
+            "_id": "axLd3ogQq2Xmh7en8xaazc",
+            "_order": "a0V8jC"
+          },
+          "mwRJcNUxAhhmEnYi18X5PC": {
+            "key": "FILEMANAGER_WEBAPI_URL",
+            "value": "http://admin-filemanager:8080",
+            "_id": "mwRJcNUxAhhmEnYi18X5PC",
+            "_order": "a0cxJq"
+          },
+          "rbKnVpKDGjD64GUTjodVGR": {
+            "key": "LITELLM_URL",
+            "value": "http://llm-gateway-litellm:8080",
+            "_id": "rbKnVpKDGjD64GUTjodVGR",
+            "_order": "a0kapz"
+          },
+          "oaxM2eXme3ZofNHWK16egY": {
+            "key": "LITELLM_MASTER_KEY",
+            "value": "${{SECRET.LITE_LLM_ADMIN_PASSWORD}}",
+            "_id": "oaxM2eXme3ZofNHWK16egY",
+            "_order": "a0sQ6x"
+          }
+        },
+        "storage": {},
+        "_order": "aO2Ix"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "parentId": "52CmhoDJYD2wMAZr6ykoyc"
+    },
+    "7Jvv8wG7QmNbRVdJsmv3LP": {
+      "type": "function",
+      "id": "7Jvv8wG7QmNbRVdJsmv3LP",
+      "width": 290,
+      "data": {
+        "id": "csv-register",
+        "name": "",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_csv_importer:1.11.0",
+        "computeType": "CPU",
+        "environment": {
+          "aBHE1j3D4vaHpe4PoZSJQW": {
+            "key": "CHAT_BASE_URL",
+            "value": "http://app-chat-webapi:8080",
+            "_id": "aBHE1j3D4vaHpe4PoZSJQW",
+            "_order": "a07npa"
+          },
+          "pGqMqeyiGq9erSnbi5xDmu": {
+            "key": "VECTORDB_WEBAPI_URL",
+            "value": "http://app-vectordb-webapi:8080",
+            "_id": "pGqMqeyiGq9erSnbi5xDmu",
+            "_order": "a0FbEr"
+          },
+          "xj5peaCg1fGBTFE9xtSVR7": {
+            "key": "STORAGE_API_URL",
+            "value": "http://admin-storage-manager:8080",
+            "_id": "xj5peaCg1fGBTFE9xtSVR7",
+            "_order": "a0V65Q"
+          },
+          "2VYdWDEcnYMt46FD5yE6iw": {
+            "key": "FILEMANAGER_WEBAPI_URL",
+            "value": "http://admin-filemanager:8080",
+            "_id": "2VYdWDEcnYMt46FD5yE6iw",
+            "_order": "a0kfMa"
+          }
+        },
+        "inputs": {},
+        "outputs": {},
+        "_order": "aP84w"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "parentId": "87NVHncR4aucLky2VhUi5W"
+    },
+    "kK9v1jrL3Y8UaCZKd8s76y": {
+      "type": "function",
+      "id": "kK9v1jrL3Y8UaCZKd8s76y",
+      "width": 290,
+      "data": {
+        "id": "pdf-register",
+        "name": "",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_pdf_importer:1.11.0",
+        "computeType": "CPU",
+        "outputs": {},
+        "inputs": {},
+        "environment": {
+          "cVejsufAeck5m58msBhMZr": {
+            "key": "CHAT_BASE_URL",
+            "value": "http://app-chat-webapi:8080",
+            "_id": "cVejsufAeck5m58msBhMZr",
+            "_order": "a048me"
+          },
+          "3wxm4AwoxGsMkM49wtgdq9": {
+            "key": "VECTORDB_WEBAPI_URL",
+            "value": "http://app-vectordb-webapi:8080",
+            "_id": "3wxm4AwoxGsMkM49wtgdq9",
+            "_order": "a07wKc"
+          },
+          "d43FUfpciXyHg4fhtRcBiu": {
+            "key": "PHOTO_SERVER_URL",
+            "value": "http://admin-photo-server:8080/",
+            "_id": "d43FUfpciXyHg4fhtRcBiu",
+            "_order": "a0Ffuh"
+          },
+          "su2FofFjHQC7pRNbeJRYaQ": {
+            "key": "IMPORT_IMAGES",
+            "value": "false",
+            "_id": "su2FofFjHQC7pRNbeJRYaQ",
+            "_order": "a0JgYj"
+          },
+          "87FXxszbDshHwvhrMZ3S3g": {
+            "key": "STORAGE_API_URL",
+            "value": "http://admin-storage-manager:8080",
+            "_id": "87FXxszbDshHwvhrMZ3S3g",
+            "_order": "a0NY8V"
+          },
+          "hQbQ3jR439JrBSRwCzrX5N": {
+            "key": "CONFIG_WEBAPI_URL",
+            "value": "http://admin-config:8080/config",
+            "_id": "hQbQ3jR439JrBSRwCzrX5N",
+            "_order": "a0V5B6"
+          },
+          "pekgPzPC6Tz51xvN78hsjm": {
+            "key": "CRYPTO_KEY",
+            "value": "$[[CONFIG_CRYPTO_KEY]]",
+            "_id": "pekgPzPC6Tz51xvN78hsjm",
+            "_order": "a0ZDgu"
+          },
+          "fyFegcEUV6gpAHZ2ryY4q1": {
+            "key": "FILEMANAGER_WEBAPI_URL",
+            "value": "http://admin-filemanager:8080",
+            "_id": "fyFegcEUV6gpAHZ2ryY4q1",
+            "_order": "a0d06G"
+          },
+          "nS2zwCw2mZefSnVML5qGmf": {
+            "key": "LITELLM_URL",
+            "value": "http://llm-gateway-litellm:8080",
+            "_id": "nS2zwCw2mZefSnVML5qGmf",
+            "_order": "a0kdiS"
+          },
+          "7rPpgu6VCCXxVzQf3UjzF1": {
+            "key": "LITELLM_MASTER_KEY",
+            "value": "${{SECRET.LITE_LLM_ADMIN_PASSWORD}}",
+            "_id": "7rPpgu6VCCXxVzQf3UjzF1",
+            "_order": "a0sUai"
+          }
+        },
+        "_order": "aQ8bk"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "parentId": "bU4nprjijKetfyGhm29E68"
+    },
+    "5mNj4HPQUqUvTK3emHwpSF": {
+      "type": "function",
+      "id": "5mNj4HPQUqUvTK3emHwpSF",
+      "width": 294,
+      "data": {
+        "id": "web-register",
+        "name": "",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_web_importer:1.11.0",
+        "computeType": "CPU",
+        "outputs": {},
+        "environment": {
+          "8gJPThtksK11DWiGWPUeMV": {
+            "key": "CHAT_BASE_URL",
+            "value": "http://app-chat-webapi:8080",
+            "_id": "8gJPThtksK11DWiGWPUeMV",
+            "_order": "a07s5i"
+          },
+          "rJuYz4RqQpVT8LSjwYTLVF": {
+            "key": "VECTORDB_WEBAPI_URL",
+            "value": "http://app-vectordb-webapi:8080",
+            "_id": "rJuYz4RqQpVT8LSjwYTLVF",
+            "_order": "a0FbS2"
+          },
+          "u9QtQoW5hhHpSTDTGkLYMk": {
+            "key": "STORAGE_API_URL",
+            "value": "http://admin-storage-manager:8080",
+            "_id": "u9QtQoW5hhHpSTDTGkLYMk",
+            "_order": "a0V06e"
+          },
+          "d7sJfRQSwViuBZy6dmfe6j": {
+            "key": "FILEMANAGER_WEBAPI_URL",
+            "value": "http://admin-filemanager:8080",
+            "_id": "d7sJfRQSwViuBZy6dmfe6j",
+            "_order": "a0kdVy"
+          }
+        },
+        "inputs": {},
+        "_order": "aRBJg"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "parentId": "23Wbz2UTAGmDToaBkBCxSZ"
+    },
+    "kimZNnxrdfWX7mQ5Edsa8b": {
+      "type": "function",
+      "id": "kimZNnxrdfWX7mQ5Edsa8b",
+      "width": 290,
+      "data": {
+        "id": "word-register",
+        "name": "",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_word_importer:1.11.0",
+        "computeType": "CPU",
+        "inputs": {},
+        "environment": {
+          "cXH8Womj1XTMdjSCrK19Hv": {
+            "key": "CHAT_BASE_URL",
+            "value": "http://app-chat-webapi:8080",
+            "_id": "cXH8Womj1XTMdjSCrK19Hv",
+            "_order": "a040UX"
+          },
+          "8GJhJA3Xb6pCCZdYxFWmzd": {
+            "key": "VECTORDB_WEBAPI_URL",
+            "value": "http://app-vectordb-webapi:8080",
+            "_id": "8GJhJA3Xb6pCCZdYxFWmzd",
+            "_order": "a07u49"
+          },
+          "8FLAW35GReoU8XhuVU4iAe": {
+            "key": "PHOTO_SERVER_URL",
+            "value": "http://admin-photo-server:8080/",
+            "_id": "8FLAW35GReoU8XhuVU4iAe",
+            "_order": "a0FlZS"
+          },
+          "9k2G7mZmoAk2otfYthe1zL": {
+            "key": "IMPORT_IMAGES",
+            "value": "false",
+            "_id": "9k2G7mZmoAk2otfYthe1zL",
+            "_order": "a0Jli7"
+          },
+          "ukf9dsZXda2PZj8EvQ4Ye4": {
+            "key": "STORAGE_API_URL",
+            "value": "http://admin-storage-manager:8080",
+            "_id": "ukf9dsZXda2PZj8EvQ4Ye4",
+            "_order": "a0NdxX"
+          },
+          "gJfGWgBXHBuR7PkQeAyPdq": {
+            "key": "CONFIG_WEBAPI_URL",
+            "value": "http://admin-config:8080/config",
+            "_id": "gJfGWgBXHBuR7PkQeAyPdq",
+            "_order": "a0V9ew"
+          },
+          "mt8ssdrMdm65YwXq5MZZNx": {
+            "key": "CRYPTO_KEY",
+            "value": "$[[CONFIG_CRYPTO_KEY]]",
+            "_id": "mt8ssdrMdm65YwXq5MZZNx",
+            "_order": "a0Z5jB"
+          },
+          "hN73A3t4UHRZxdPq3YvTJj": {
+            "key": "FILEMANAGER_WEBAPI_URL",
+            "value": "http://admin-filemanager:8080",
+            "_id": "hN73A3t4UHRZxdPq3YvTJj",
+            "_order": "a0czYa"
+          },
+          "4QDJX9NXVKiUGpkuviprBd": {
+            "key": "LITELLM_URL",
+            "value": "http://llm-gateway-litellm:8080",
+            "_id": "4QDJX9NXVKiUGpkuviprBd",
+            "_order": "a0kbvk"
+          },
+          "gtD5PMDaDDLnKHCtjEqMzp": {
+            "key": "LITELLM_MASTER_KEY",
+            "value": "${{SECRET.LITE_LLM_ADMIN_PASSWORD}}",
+            "_id": "gtD5PMDaDDLnKHCtjEqMzp",
+            "_order": "a0sPxc"
+          }
+        },
+        "outputs": {},
+        "_order": "aS3A9"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "parentId": "9mTUpAGuiA61tUykWvpfZK"
+    },
+    "awwG9rouNgYsNPoGXUiCde": {
+      "type": "sideapp",
+      "id": "awwG9rouNgYsNPoGXUiCde",
+      "width": 250,
+      "data": {
+        "id": "config",
+        "name": "Config Center",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_config_center:1.11.0",
+        "storage": {
+          "3ofQhLrYrvVsgufFoZMRkx": {
+            "path": "/app/storage",
+            "_id": "3ofQhLrYrvVsgufFoZMRkx",
+            "_order": "a0V505"
+          }
+        },
+        "environment": {
+          "1nKzxGyg8azjyh1KEvmTDu": {
+            "key": "SIGNOUT_REDIRECT_URL",
+            "value": "/logout",
+            "_id": "1nKzxGyg8azjyh1KEvmTDu",
+            "_order": "a046IK"
+          },
+          "h6rxXENmsWtWoHV1iX3oXW": {
+            "key": "CRYPTO_KEY",
+            "value": "$[[CONFIG_CRYPTO_KEY]]",
+            "_id": "h6rxXENmsWtWoHV1iX3oXW",
+            "_order": "a084Ja"
+          },
+          "pV8MC452oYekRC9XauvMDM": {
+            "key": "VECTOR_WEBAPI_URL",
+            "value": "http://app-vectordb-webapi:8080",
+            "_id": "pV8MC452oYekRC9XauvMDM",
+            "_order": "a0C4Qh"
+          },
+          "3U9evr1JyNfycCwWaD48Xe": {
+            "key": "AUTH_WEBAPI_URL",
+            "value": "http://auth-webapi:8080",
+            "_id": "3U9evr1JyNfycCwWaD48Xe",
+            "_order": "a0FkQQ"
+          },
+          "dzh2cm95rYNxZMugJHEsDy": {
+            "key": "BASE_PATH",
+            "value": "/config",
+            "_id": "dzh2cm95rYNxZMugJHEsDy",
+            "_order": "a0JihG"
+          },
+          "sfqq3kPjiQmMVCTdaAqPYR": {
+            "key": "LITELLM_URL",
+            "value": "http://llm-gateway-litellm:8080",
+            "_id": "sfqq3kPjiQmMVCTdaAqPYR",
+            "_order": "a0NUrJ"
+          },
+          "67TKaLnpZgLa5GPWX4PPu6": {
+            "key": "LITELLM_MASTER_KEY",
+            "value": "${{SECRET.LITE_LLM_ADMIN_PASSWORD}}",
+            "_id": "67TKaLnpZgLa5GPWX4PPu6",
+            "_order": "a0V9Vi"
+          },
+          "qhJn1fRJfnTtyJYMZWeAwv": {
+            "key": "POSTGRES_HOST",
+            "value": "app-rdb",
+            "_id": "qhJn1fRJfnTtyJYMZWeAwv",
+            "_order": "a0ZDbN"
+          },
+          "ot58nwnxrDz48hNNxeFqwk": {
+            "key": "POSTGRES_PORT",
+            "value": "8080",
+            "_id": "ot58nwnxrDz48hNNxeFqwk",
+            "_order": "a0d2cg"
+          },
+          "rEcc111AzffGAQaY124RXf": {
+            "key": "POSTGRES_DB",
+            "value": "postgres",
+            "_id": "rEcc111AzffGAQaY124RXf",
+            "_order": "a0khpB"
+          },
+          "snxCHsAmnoCWJJq3bYHyRJ": {
+            "key": "POSTGRES_USER",
+            "value": "$[[DB_USER]]",
+            "_id": "snxCHsAmnoCWJJq3bYHyRJ",
+            "_order": "a0ohhP"
+          },
+          "o1uswPx6Wa2Rh6dABiQ5Z2": {
+            "key": "POSTGRES_PASSWORD",
+            "value": "$[[DB_PASSWORD]]",
+            "_id": "o1uswPx6Wa2Rh6dABiQ5Z2",
+            "_order": "a0sPp8"
+          },
+          "YM1WXZ6ooZ4NmGVXV9_XFg": {
+            "key": "POSTGRES_SCHEMA",
+            "value": "config_manager",
+            "_id": "YM1WXZ6ooZ4NmGVXV9_XFg",
+            "_order": "a8a000"
+          }
+        },
+        "_order": "aT03s",
+        "replicas": 3,
+        "size": "m"
+      },
+      "position": {
+        "x": 204.30130028265967,
+        "y": 50.63471013268692
+      },
+      "parentId": "6H7USbWwdsZAFkbrJYYgeE"
+    },
+    "sX1aauUCy1TSMPJhtTMVo7": {
+      "type": "sideapp",
+      "id": "sX1aauUCy1TSMPJhtTMVo7",
+      "width": 250,
+      "data": {
+        "id": "litellm",
+        "name": "LiteLLM（LLM Gateway）",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/llm_gateway_litellm:1.1.1",
+        "environment": {
+          "1a7ECpMg3XxLVaecpcNffw": {
+            "key": "LITELLM_MASTER_KEY",
+            "value": "${{SECRET.LITE_LLM_ADMIN_PASSWORD}}",
+            "_id": "1a7ECpMg3XxLVaecpcNffw",
+            "_order": "a07x7I"
+          },
+          "rLCGjeeSc1of4oR751bxUz": {
+            "key": "DATABASE_URL",
+            "value": "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@app-rdb:8080/postgres?schema=litellm",
+            "_id": "rLCGjeeSc1of4oR751bxUz",
+            "_order": "a0FZk3"
+          },
+          "kHg9ekJJf6xzwM3Q9Ht1cu": {
+            "key": "POSTGRES_USER",
+            "value": "$[[DB_USER]]",
+            "_id": "kHg9ekJJf6xzwM3Q9Ht1cu",
+            "_order": "a0NNcI"
+          },
+          "wkcT59yMttoXeErufGW1gU": {
+            "key": "POSTGRES_PASSWORD",
+            "value": "$[[DB_PASSWORD]]",
+            "_id": "wkcT59yMttoXeErufGW1gU",
+            "_order": "a0V38z"
+          },
+          "4ycLSz6kQfWo2vigeS6iZG": {
+            "key": "STORE_MODEL_IN_DB",
+            "value": "True",
+            "_id": "4ycLSz6kQfWo2vigeS6iZG",
+            "_order": "a0cxvY"
+          },
+          "7ncCx2ymxP71bGUCCKpifV": {
+            "key": "OPENAI_API_KEY",
+            "value": "${{SECRET.OPENAI_API_KEY}}",
+            "_id": "7ncCx2ymxP71bGUCCKpifV",
+            "_order": "a0kg0f"
+          }
+        },
+        "injection": {
+          "wYNT7hL9YKajV561w2x5pK": {
+            "path": "/app/config.yaml",
+            "data": "model_list: []",
+            "lang": "yaml",
+            "_id": "wYNT7hL9YKajV561w2x5pK",
+            "_order": "a0V1mm"
+          }
+        },
+        "_order": "aU836",
+        "replicas": 1,
+        "size": "xxxl"
+      },
+      "position": {
+        "x": 66.91650179326399,
+        "y": 104.80456526397415
+      },
+      "parentId": "8J7UnxcXCE6WhcZnyMtvXY"
+    },
+    "aAiDn9bcARNXhtz695AT7m": {
+      "type": "sideapp",
+      "id": "aAiDn9bcARNXhtz695AT7m",
+      "width": 250,
+      "data": {
+        "id": "keycloak-importer",
+        "name": "CSV一括ユーザー登録画面",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_keycloak_importer:1.11.0",
+        "environment": {
+          "wrE4kr77V7ADFc3ZKyyCmZ": {
+            "key": "KEYCLOAK_REALM",
+            "value": "ragops",
+            "_id": "wrE4kr77V7ADFc3ZKyyCmZ",
+            "_order": "a0FkJ2"
+          },
+          "j6JVtDUfJoMesKE9eTudQV": {
+            "key": "KEYCLOAK_URL",
+            "value": "http://auth-keycloak:8080",
+            "_id": "j6JVtDUfJoMesKE9eTudQV",
+            "_order": "a0V8QA"
+          }
+        },
+        "_order": "aVAws",
+        "replicas": 1,
+        "size": "xxs"
+      },
+      "position": {
+        "x": 26.378761726204118,
+        "y": 138.662907117141
+      },
+      "parentId": "2e6SusqxUmeP9XfomPMGs2"
+    },
+    "uK7RCMQnMi9Ty3evC8jtFz": {
+      "type": "sideapp",
+      "id": "uK7RCMQnMi9Ty3evC8jtFz",
+      "width": 250,
+      "position": {
+        "x": 23.18600929779757,
+        "y": 146.2949366831108
+      },
+      "data": {
+        "id": "keycloak",
+        "name": "Identity Provider",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/keycloak:1.0.1",
+        "environment": {
+          "qgMHvPbXTb9hWij8QFDD8q": {
+            "key": "KC_HOSTNAME",
+            "value": "$[[AUTH_URL]]",
+            "_id": "qgMHvPbXTb9hWij8QFDD8q",
+            "_order": "a07sP2"
+          },
+          "iAr2rk7Sqs8xDErQxxWKzN": {
+            "key": "KEYCLOAK_REALM",
+            "value": "ragops",
+            "_id": "iAr2rk7Sqs8xDErQxxWKzN",
+            "_order": "a0NRz5"
+          },
+          "A7rmxDTO8596goSXjidywQ": {
+            "key": "KC_DB",
+            "value": "postgres",
+            "_id": "A7rmxDTO8596goSXjidywQ",
+            "_order": "a1a000"
+          },
+          "ZW4aq4_rjn9qV3xraRqz-g": {
+            "key": "KC_DB_URL",
+            "value": "jdbc:postgresql://app-rdb:8080/postgres",
+            "_id": "ZW4aq4_rjn9qV3xraRqz-g",
+            "_order": "a1b000"
+          },
+          "59phmnbCIhesgxjyoDiRPw": {
+            "key": "KC_DB_USERNAME",
+            "value": "$[[DB_USER]]",
+            "_id": "59phmnbCIhesgxjyoDiRPw",
+            "_order": "a1c000"
+          },
+          "31ngBRWGiT6N7rEN47LG2g": {
+            "key": "KC_DB_PASSWORD",
+            "value": "$[[DB_PASSWORD]]",
+            "_id": "31ngBRWGiT6N7rEN47LG2g",
+            "_order": "a1d000"
+          },
+          "d1W47ix3UOfT1yTjT095hw": {
+            "key": "KC_DB_SCHEMA",
+            "value": "keycloak",
+            "_id": "d1W47ix3UOfT1yTjT095hw",
+            "_order": "a1e000"
+          },
+          "Rf5PjX4XbIjcUBI-PpsUWA": {
+            "key": "KC_PROXY_HEADERS",
+            "value": "xforwarded",
+            "_id": "Rf5PjX4XbIjcUBI-PpsUWA",
+            "_order": "a1f000"
+          },
+          "UwYpU0NWzRR09H1N4KYkUw": {
+            "key": "KC_HTTP_ENABLED",
+            "value": "true",
+            "_id": "UwYpU0NWzRR09H1N4KYkUw",
+            "_order": "a1g000"
+          },
+          "qR3qcQ-dIh-3hqPugjnwFQ": {
+            "key": "KC_BOOTSTRAP_ADMIN_USERNAME",
+            "value": "admin",
+            "_id": "qR3qcQ-dIh-3hqPugjnwFQ",
+            "_order": "a1h000"
+          },
+          "ubpj2SFp8NEaQuNTBNpwLQ": {
+            "key": "KC_BOOTSTRAP_ADMIN_PASSWORD",
+            "value": "ragops_admin_default",
+            "_id": "ubpj2SFp8NEaQuNTBNpwLQ",
+            "_order": "a1i000"
+          },
+          "4wjCKnuzU4AJcfgLoDqAhg": {
+            "_order": "a28h2",
+            "key": "POST_START_HOOK",
+            "value": "/opt/keycloak/hooks/post-start.sh"
+          }
+        },
+        "injection": {
+          "wrsfVHcqsGaaUEKe2eC1b7": {
+            "_order": "a00hO",
+            "path": "/opt/keycloak/data/import/ragops-realm.json",
+            "data": "{\r\n  \"realm\": \"ragops\",\r\n  \"displayName\": \"RAGOps\",\r\n  \"enabled\": true,\r\n  \"loginWithEmailAllowed\": true,\r\n  \"registrationAllowed\": false,\r\n  \"resetPasswordAllowed\": false,\r\n  \"editUsernameAllowed\": false,\r\n  \"sslRequired\": \"none\",\r\n  \"ssoSessionIdleTimeout\": 86400,\r\n  \"ssoSessionMaxLifespan\": 86400,\r\n  \"bruteForceProtected\": true,\r\n  \"permanentLockout\": true,\r\n  \"failureFactor\": 30,\r\n  \"eventsEnabled\": true,\r\n  \"eventsListeners\": [\"jboss-logging\"],\r\n  \"eventsExpiration\": 7776000,\r\n  \"adminEventsEnabled\": true,\r\n  \"adminEventsDetailsEnabled\": true,\r\n  \"enabledEventTypes\": [\r\n    \"LOGIN\", \"LOGOUT\", \"LOGIN_ERROR\", \"REGISTER\",\r\n    \"UPDATE_PASSWORD\", \"CLIENT_LOGIN\", \"CLIENT_DELETE\",\r\n    \"CODE_TO_TOKEN\", \"REFRESH_TOKEN\"\r\n  ],\r\n  \"roles\": {\r\n    \"realm\": [\r\n      {\"name\": \"ragops_admin\", \"description\": \"RAGOps Administrator\"},\r\n      {\"name\": \"ragops_operator\", \"description\": \"RAGOps Operator\"},\r\n      {\"name\": \"ragops_normal\", \"description\": \"RAGOps Normal User\"},\r\n      {\"name\": \"ragops_developer\", \"description\": \"RAGOps Developer\"}\r\n    ]\r\n  },\r\n  \"groups\": [\r\n    {\"name\": \"ゲスト\"},\r\n    {\"name\": \"マネージャー\"},\r\n    {\"name\": \"メンバー\"}\r\n  ],\r\n  \"users\": [\r\n    {\r\n      \"username\": \"default_admin1\",\r\n      \"enabled\": true,\r\n      \"firstName\": \"default\",\r\n      \"lastName\": \"admin1\",\r\n      \"email\": \"admin_user1@example.com\",\r\n      \"emailVerified\": true,\r\n      \"credentials\": [{\"type\": \"password\", \"value\": \"testpass\", \"temporary\": false}],\r\n      \"requiredActions\": [],\r\n      \"realmRoles\": [\"ragops_admin\"],\r\n      \"groups\": [\"/ゲスト\", \"/マネージャー\", \"/メンバー\"]\r\n    },\r\n    {\r\n      \"username\": \"default_admin2\",\r\n      \"enabled\": true,\r\n      \"firstName\": \"default\",\r\n      \"lastName\": \"admin2\",\r\n      \"email\": \"admin_user2@example.com\",\r\n      \"emailVerified\": true,\r\n      \"credentials\": [{\"type\": \"password\", \"value\": \"testpass\", \"temporary\": false}],\r\n      \"requiredActions\": [],\r\n      \"realmRoles\": [\"ragops_admin\"],\r\n      \"groups\": [\"/マネージャー\"]\r\n    },\r\n    {\r\n      \"username\": \"default_operator1\",\r\n      \"enabled\": true,\r\n      \"firstName\": \"default\",\r\n      \"lastName\": \"operator\",\r\n      \"email\": \"operator_user1@example.com\",\r\n      \"emailVerified\": true,\r\n      \"credentials\": [{\"type\": \"password\", \"value\": \"testpass\", \"temporary\": false}],\r\n      \"requiredActions\": [],\r\n      \"realmRoles\": [\"ragops_operator\"],\r\n      \"groups\": [\"/ゲスト\", \"/マネージャー\", \"/メンバー\"]\r\n    },\r\n    {\r\n      \"username\": \"default_operator2\",\r\n      \"enabled\": true,\r\n      \"firstName\": \"default\",\r\n      \"lastName\": \"operator2\",\r\n      \"email\": \"operator_user2@example.com\",\r\n      \"emailVerified\": true,\r\n      \"credentials\": [{\"type\": \"password\", \"value\": \"testpass\", \"temporary\": false}],\r\n      \"requiredActions\": [],\r\n      \"realmRoles\": [\"ragops_operator\"],\r\n      \"groups\": [\"/メンバー\"]\r\n    },\r\n    {\r\n      \"username\": \"default_normal1\",\r\n      \"enabled\": true,\r\n      \"firstName\": \"default\",\r\n      \"lastName\": \"normal1\",\r\n      \"email\": \"normal_user1@example.com\",\r\n      \"emailVerified\": true,\r\n      \"credentials\": [{\"type\": \"password\", \"value\": \"testpass\", \"temporary\": false}],\r\n      \"requiredActions\": [],\r\n      \"realmRoles\": [\"ragops_normal\"],\r\n      \"groups\": [\"/ゲスト\", \"/マネージャー\", \"/メンバー\"]\r\n    },\r\n    {\r\n      \"username\": \"default_normal2\",\r\n      \"enabled\": true,\r\n      \"firstName\": \"default\",\r\n      \"lastName\": \"normal2\",\r\n      \"email\": \"normal_user2@example.com\",\r\n      \"emailVerified\": true,\r\n      \"credentials\": [{\"type\": \"password\", \"value\": \"testpass\", \"temporary\": false}],\r\n      \"requiredActions\": [],\r\n      \"realmRoles\": [\"ragops_normal\"],\r\n      \"groups\": [\"/ゲスト\"]\r\n    }\r\n  ],\r\n  \"clients\": [\r\n    {\r\n      \"clientId\": \"ragops-oidc\",\r\n      \"name\": \"RAGOps OIDC Client\",\r\n      \"enabled\": true,\r\n      \"protocol\": \"openid-connect\",\r\n      \"clientAuthenticatorType\": \"client-secret\",\r\n      \"secret\": \"ragops-secret\",\r\n      \"redirectUris\": [\"http://*\", \"https://*\"],\r\n      \"webOrigins\": [\"/*\"],\r\n      \"standardFlowEnabled\": true,\r\n      \"frontchannelLogout\": true,\r\n      \"protocolMappers\": [\r\n        {\r\n          \"name\": \"groups\",\r\n          \"protocol\": \"openid-connect\",\r\n          \"protocolMapper\": \"oidc-group-membership-mapper\",\r\n          \"consentRequired\": false,\r\n          \"config\": {\r\n            \"full.path\": \"true\",\r\n            \"introspection.token.claim\": \"true\",\r\n            \"userinfo.token.claim\": \"true\",\r\n            \"id.token.claim\": \"true\",\r\n            \"lightweight.claim\": \"false\",\r\n            \"access.token.claim\": \"true\",\r\n            \"claim.name\": \"groups\"\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}"
+          },
+          "suLGHikw6Pr6zRqXNT4yJ4": {
+            "_order": "a11Bu",
+            "path": "/opt/keycloak/hooks/post-start.sh",
+            "data": "#!/bin/bash\n# RAGOps-specific Keycloak post-start bootstrap.\n#\n# Ensures resources introduced in newer versions are back-filled onto\n# existing realms without disturbing existing users, passwords, or admin\n# changes. The generic Keycloak image runs this hook after the admin API\n# is ready and kcadm.sh is already authenticated.\n#\n# When future versions add more resources that need back-filling, add\n# further `ensure_*` blocks below following the same idempotent pattern.\n\nset -e\n\nREALM_NAME=ragops\nOIDC_CLIENT_ID=ragops-oidc\nOIDC_CLIENT_SECRET=ragops-secret\n\nif ! /opt/keycloak/bin/kcadm.sh get \"realms/${REALM_NAME}\" >/dev/null 2>&1; then\n  echo \"🆕 Post-start: realm '${REALM_NAME}' not present — fresh-install path handled by --import-realm\"\n  exit 0\nfi\n\necho \"✨ Post-start: realm '${REALM_NAME}' detected — checking for missing resources\"\n\n# --- ensure client: ragops-oidc -----------------------------------------\nEXISTING_CLIENT_ID=$(/opt/keycloak/bin/kcadm.sh get clients \\\n  -r \"${REALM_NAME}\" \\\n  -q \"clientId=${OIDC_CLIENT_ID}\" \\\n  --fields id \\\n  --format csv \\\n  --noquotes 2>/dev/null | head -n 1)\n\nif [ -z \"$EXISTING_CLIENT_ID\" ]; then\n  echo \"➕ Creating missing client: ${OIDC_CLIENT_ID}\"\n\n  CLIENT_UUID=$(/opt/keycloak/bin/kcadm.sh create clients \\\n    -r \"${REALM_NAME}\" \\\n    -s \"clientId=${OIDC_CLIENT_ID}\" \\\n    -s \"name=RAGOps OIDC Client\" \\\n    -s 'enabled=true' \\\n    -s 'protocol=openid-connect' \\\n    -s 'clientAuthenticatorType=client-secret' \\\n    -s \"secret=${OIDC_CLIENT_SECRET}\" \\\n    -s 'redirectUris=[\"http://*\",\"https://*\"]' \\\n    -s 'webOrigins=[\"/*\"]' \\\n    -s 'standardFlowEnabled=true' \\\n    -s 'frontchannelLogout=true' \\\n    -i)\n\n  echo \"➕ Adding 'groups' protocol mapper to client ${OIDC_CLIENT_ID}\"\n  /opt/keycloak/bin/kcadm.sh create \\\n    \"clients/${CLIENT_UUID}/protocol-mappers/models\" \\\n    -r \"${REALM_NAME}\" \\\n    -s 'name=groups' \\\n    -s 'protocol=openid-connect' \\\n    -s 'protocolMapper=oidc-group-membership-mapper' \\\n    -s 'consentRequired=false' \\\n    -s 'config.\"full.path\"=true' \\\n    -s 'config.\"introspection.token.claim\"=true' \\\n    -s 'config.\"userinfo.token.claim\"=true' \\\n    -s 'config.\"id.token.claim\"=true' \\\n    -s 'config.\"lightweight.claim\"=false' \\\n    -s 'config.\"access.token.claim\"=true' \\\n    -s 'config.\"claim.name\"=groups'\n\n  echo \"✅ Client ${OIDC_CLIENT_ID} created\"\nelse\n  echo \"✓ Client ${OIDC_CLIENT_ID} already exists — no action needed\"\nfi\n"
+          }
+        },
+        "_order": "aW5Jv",
+        "replicas": 1,
+        "size": "xxl",
+        "showDescription": false
+      },
+      "parentId": "ggac5dWfzY2J6pY1Uv2kqu"
+    },
+    "no7ZQfyUyC6EdJkpVPdQum": {
+      "type": "sideapp",
+      "id": "no7ZQfyUyC6EdJkpVPdQum",
+      "width": 250,
+      "position": {
+        "x": 118.48831022779848,
+        "y": 184.49023163656483
+      },
+      "data": {
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/chat_frontend_ui:1.0.6",
+        "id": "chat-frontend",
+        "name": "チャットボット",
+        "showDescription": false,
+        "injection": {
+          "fDAxRsYWxKNkoq45Qn3iSo": {
+            "path": "/app/injection/config.yaml",
+            "data": "envs:\n  system_settings:\n    USE_FAKE: false\n    IS_RAGOPS: true\n\n    CHAT_API_KEY: '$CHAT_API_KEY'\n    CHAT_BASE_URL: 'http://app-chat-webapi:8080/api'\n    CHAT_DEFAULT_MODEL: ''\n    AUTH_API_URL: 'http://auth-webapi:8080/api'\n    CONV_API_URL: 'http://app-conversation-webapi:8080/api'\n    LOGOUT_REDIRECT_URL: '/logout'\n    SENDER_EMAIL: \"\"\n    RECIEVER_EMAIL:\n      - ''\n    SENDGRID_API_KEY: '$SENDGRID_API_KEY'\n\n  ui_settings:\n    USE_FEEDBACK: true\n    USE_FEEDBACK_EMAIL: true\n\n    HEADER_TITLE: 'Chat'\n    HEADER_LOGO_IMAGE: '/logos/logo-studio.svg'\n    HEADER_LOGO_IMAGE_DARK: '/logos/logo-studio-w.svg'\n    WELCOME_MESSAGE: |\n      こんにちは\n      お困りごとはなんですか？\n    INVALID_WELCOME_MESSAGE: |\n      会話をできるトピックが存在しません。\n      管理者へお問い合わせください。\n",
+            "lang": "yaml",
+            "_id": "fDAxRsYWxKNkoq45Qn3iSo",
+            "_order": "a0V1bV"
+          }
+        },
+        "environment": {
+          "7LXiVFWXSwwZqBZgBEEyzu": {
+            "key": "SENDGRID_API_KEY",
+            "value": "${{SECRET.SENDGRID_API_KEY}}",
+            "_id": "7LXiVFWXSwwZqBZgBEEyzu",
+            "_order": "a0V3z7"
+          }
+        },
+        "_order": "aX5ZM",
+        "replicas": 3,
+        "size": "xl"
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "sVQaf3tHKE6RgmnLhVu5Vh": {
+      "type": "sideapp",
+      "id": "sVQaf3tHKE6RgmnLhVu5Vh",
+      "width": 250,
+      "position": {
+        "x": 51.92803031826122,
+        "y": 153.55441543740608
+      },
+      "data": {
+        "id": "frontend",
+        "name": "Evaluation Manager",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/evaluation_manager:1.11.0",
+        "showDescription": false,
+        "injection": {
+          "m5qeYqTwZoMwgk3a4XfpP3": {
+            "path": "/app/dist/config.json",
+            "data": "{\n  \"backendUrl\": \"/evaluation_manager/api\",\n  \"logoutRedirectUrl\": \"/logout\"\n}\n",
+            "lang": "json",
+            "_id": "m5qeYqTwZoMwgk3a4XfpP3",
+            "_order": "a0Fd75"
+          },
+          "fNunEbUdjmExSKgREmfJ9h": {
+            "path": "/app/dist/dataset-template.csv",
+            "data": "question,answer,golden_data1,source1,page1\n,,,,,,\n,,,,,,\n,,,,,,\n,,,,,,",
+            "_id": "fNunEbUdjmExSKgREmfJ9h",
+            "_order": "a0V4pD"
+          }
+        },
+        "_order": "aY7Yn",
+        "replicas": 1,
+        "size": "xxs"
+      },
+      "parentId": "6fLBykVT85zBRTFVFeGzU9"
+    },
+    "qbYtTZAs96mtdMSN3FjhYb": {
+      "type": "sideapp",
+      "id": "qbYtTZAs96mtdMSN3FjhYb",
+      "width": 248,
+      "position": {
+        "x": 524.7331085296595,
+        "y": 165.93067614525552
+      },
+      "data": {
+        "id": "nginx",
+        "name": "アプリ用のリバースプロキシ",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/nginx_v1_29:1.0.2",
+        "injection": {
+          "aDYNPViYR3F1aWSM4shF6x": {
+            "_order": "a19JV",
+            "path": "/app/template.conf",
+            "data": "user nginx;\nworker_processes auto;\n\nevents {\n    worker_connections 1024;\n}\n\nhttp {\n    include /etc/nginx/mime.types;\n    default_type application/octet-stream;\n\n    sendfile on;\n    client_max_body_size 0;\n\n    # タイムアウト設定\n    keepalive_timeout 180;\n    proxy_connect_timeout 180s;\n    proxy_send_timeout 180s;\n    proxy_read_timeout 180s;\n\n    server {\n        listen 8080;\n        server_name localhost;\n\n        port_in_redirect off;\n        absolute_redirect off;\n\n        # ログ設定\n        access_log /var/log/nginx/nginx-access.log;\n        error_log /var/log/nginx/nginx-error.log;\n        access_log /dev/stdout;\n        error_log /dev/stderr;\n\n        # ------------------------------------------------------------\n        # OAuth2 Proxy共通設定\n        # ------------------------------------------------------------\n\n        # OAuth2 ProxyがセットするCookieや認証情報が大きい場合に対応するための設定\n        proxy_buffer_size 32k;\n        proxy_buffers 8 16k;\n        proxy_busy_buffers_size 64k;\n\n        # OAuth2 Proxyから得られる認証情報を取得するために変数に格納するための設定\n        auth_request_set $auth_user $upstream_http_x_auth_request_user;\n        auth_request_set $auth_email $upstream_http_x_auth_request_email;\n        auth_request_set $auth_preferred_username $upstream_http_x_auth_request_preferred_username;\n        auth_request_set $groups $upstream_http_x_auth_request_groups;\n        auth_request_set $access_token $upstream_http_x_auth_request_access_token;\n\n        # 変数に格納した認証情報をヘッダーにセットするための設定\n        proxy_set_header X-Forwarded-User $auth_user;\n        proxy_set_header X-Forwarded-Email $auth_email;\n        proxy_set_header X-Forwarded-Preferred-Username $auth_preferred_username;\n        proxy_set_header X-Forwarded-groups $groups;\n       proxy_set_header X-Forwarded-Access-Token $access_token;\n\n        # 共通の proxy_set_header 設定\n        proxy_set_header Host $http_host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;\n\n        # WebSocket support (Streamlitアプリをリバースプロキシ連携するのに必要な設定)\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade $http_upgrade;\n        proxy_set_header Connection \"upgrade\";\n\n        # キャッシュ無効化設定\n        proxy_cache off;\n        proxy_no_cache 1;\n        proxy_cache_bypass 1;\n        add_header Cache-Control \"no-cache, no-store, must-revalidate\";\n        add_header Pragma \"no-cache\";\n        add_header Expires \"0\";\n\n        # ------------------------------------------------------------\n        # OAuth2 Proxyのパス設定\n        # ------------------------------------------------------------\n\n        location /oauth2/ {\n            proxy_pass ${ENV_OAUTH2_PROXY_URL}/oauth2/;\n        }\n\n        location = /oauth2/auth {\n            proxy_pass ${ENV_OAUTH2_PROXY_URL}/oauth2/auth;\n            proxy_pass_request_body off;\n            proxy_set_header Content-Length \"\";\n            proxy_set_header X-Original-URL $scheme://$http_host$request_uri;\n        }\n\n        location = /oauth2/sign_in {\n            proxy_pass ${ENV_OAUTH2_PROXY_URL}/oauth2/sign_in;\n        }\n\n        location = /oauth2/callback {\n            proxy_pass ${ENV_OAUTH2_PROXY_URL}/oauth2/callback;\n        }\n\n        # ------------------------------------------------------------\n        # ログアウト設定\n        # ------------------------------------------------------------\n\n        location = /logout {\n            return 302 ${ENV_KEYCLOAK_URL}realms/${ENV_KEYCLOAK_REALM}/protocol/openid-connect/logout?client_id=${ENV_KEYCLOAK_OIDC_CLIENT_ID}&post_logout_redirect_uri=${ENV_NGINX_URL}logout/after;\n        }\n\n        location = /logout/after {\n            return 302 ${ENV_NGINX_URL}oauth2/sign_out;\n        }\n\n        # ------------------------------------------------------------\n        # アプリケーションルーティング設定\n        # ------------------------------------------------------------\n\n        location / {\n            auth_request /oauth2/auth;\n            error_page 401 = @error401;\n            proxy_pass http://app-portal:8080/;\n        }\n\n        location /chat {\n            auth_request /oauth2/auth;\n            error_page 401 = @error401;\n            proxy_pass http://app-chat-frontend:8080;\n        }\n\n        location ~ ^/chat/(_next/static/|.*\\.(png|jpg|jpeg|gif|svg|ico|css|js|woff|woff2|ttf|eot)).*$ {\n            auth_request /oauth2/auth;\n            error_page 401 = @error401;\n            proxy_pass http://app-chat-frontend:8080;\n            proxy_buffering on;\n            proxy_buffer_size 128k;\n            proxy_buffers 4 256k;\n            proxy_busy_buffers_size 256k;\n            proxy_cache_valid 200 302 1h;\n            proxy_cache_valid 404 1m;\n            add_header Cache-Control \"public, max-age=3600\";\n            proxy_redirect off;\n        }\n\n        location /admin/ {\n            auth_request /oauth2/auth;\n            error_page 401 = @error401;\n            proxy_pass http://admin-management-console:8080;\n\n            # File upload limit\n            # Increase max upload size to 1GB for handling large files via Streamlit's file_uploader\n            client_max_body_size 1G;\n        }\n\n        location /config/ {\n            auth_request /oauth2/auth;\n            error_page 401 = @error401;\n            proxy_pass http://admin-config:8080;\n        }\n\n        location /files/ {\n            auth_request /oauth2/auth;\n            error_page 401 = @error401;\n            proxy_pass http://admin-file-viewer:8080/files/;\n        }\n\n        location /evaluation_manager/ {\n          auth_request /oauth2/auth;\n          error_page 401 = @error401;\n          proxy_pass http://evaluation-manager-frontend:8080;\n        }\n        \n        location /evaluation_manager/api/ {\n          auth_request /oauth2/auth;\n          error_page 401 = @error401;\n          proxy_pass http://evaluation-manager-backend:8080/api/;\n          proxy_redirect http://evaluation-manager-backend:8080/api/ /evaluation_manager/api/;\n        }\n\n        location @error401 {\n            return 302 /oauth2/start?rd=$scheme://$http_host$request_uri;\n        }\n    }\n}\n"
+          }
+        },
+        "_order": "aZ1wq",
+        "replicas": 1,
+        "size": "xxs",
+        "environment": {
+          "mDWkUSoGtirxGLpxxYPYya": {
+            "_order": "a08p6",
+            "key": "ENV_NGINX_URL",
+            "value": "$[[APP_URL]]"
+          },
+          "sEXnYGYut5fCHJFxdvRA6h": {
+            "_order": "a16Gi",
+            "key": "ENV_KEYCLOAK_URL",
+            "value": "$[[AUTH_URL]]"
+          },
+          "rSYm1kYb7MY4nBSUxADZUa": {
+            "_order": "a225T",
+            "key": "ENV_KEYCLOAK_REALM",
+            "value": "ragops"
+          },
+          "nA1wXPYG1EXF3f1sY6BNBi": {
+            "_order": "a36Qe",
+            "key": "ENV_KEYCLOAK_OIDC_CLIENT_ID",
+            "value": "ragops-oidc"
+          },
+          "tDBHQyM2EmkHBfwF4HL9vK": {
+            "_order": "a43mg",
+            "key": "ENV_OAUTH2_PROXY_URL",
+            "value": "http://app-oauth2-proxy:8080"
+          },
+          "ug9HEWZh5ZjtYgBmyeSp9y": {
+            "_order": "a51fa",
+            "key": "ENV_SUBPATH_CONFIG",
+            "value": "\"\""
+          },
+          "4yheFUrjkMuyA62iL5ikuD": {
+            "_order": "a6AdE",
+            "key": "ENV_SUBPATH_CONFIG_FULL",
+            "value": "\"\""
+          }
+        },
+        "storage": {
+          "oSfZqeRw1TEyMBaYs4Tmo8": {
+            "_order": "a042p",
+            "path": "/tmp/mnt"
+          }
+        }
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "24mjaWjXV9DrW55ALmhKpH": {
+      "type": "sideapp",
+      "id": "24mjaWjXV9DrW55ALmhKpH",
+      "width": 261,
+      "position": {
+        "x": 204.30130028265967,
+        "y": 244.80030484888061
+      },
+      "data": {
+        "id": "management-console",
+        "name": "RAGOps管理画面",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_admin_console:1.11.0",
+        "environment": {
+          "8XqzXQMueSakDYxifdeS9k": {
+            "key": "SIGNOUT_REDIRECT_URL",
+            "value": "/logout",
+            "_id": "8XqzXQMueSakDYxifdeS9k",
+            "_order": "a025Sf"
+          },
+          "o8z4z6XiZH6H8F24HGqPtY": {
+            "key": "BASE_PATH",
+            "value": "/admin",
+            "_id": "o8z4z6XiZH6H8F24HGqPtY",
+            "_order": "a048BH"
+          },
+          "7rypjm2sjUiGKw7AkcTnNb": {
+            "key": "ALLOW_EDIT_DATA",
+            "value": "true",
+            "_id": "7rypjm2sjUiGKw7AkcTnNb",
+            "_order": "a0NSNE"
+          },
+          "b9sqT8KiZj64xbWw7ui14w": {
+            "key": "STORAGE_API_URL",
+            "value": "http://admin-storage-manager:8080",
+            "_id": "b9sqT8KiZj64xbWw7ui14w",
+            "_order": "a0RTnQ"
+          },
+          "3hVudMKd1vdxfiKs758eyU": {
+            "key": "CONFIG_WEBAPI_URL",
+            "value": "http://admin-config:8080/config",
+            "_id": "3hVudMKd1vdxfiKs758eyU",
+            "_order": "a0V8zP"
+          },
+          "sZT9TYqeEGh7UES5V8vB7d": {
+            "key": "CRYPTO_KEY",
+            "value": "$[[CONFIG_CRYPTO_KEY]]",
+            "_id": "sZT9TYqeEGh7UES5V8vB7d",
+            "_order": "a0XMNR"
+          },
+          "a2NPCoitM4bRobCk1XeVqE": {
+            "key": "AUTH_WEBAPI_URL",
+            "value": "http://auth-webapi:8080",
+            "_id": "a2NPCoitM4bRobCk1XeVqE",
+            "_order": "a0ZBlu"
+          },
+          "xeLhLjNMAaNGtVGTVPUvr1": {
+            "key": "VECTOR_WEBAPI_URL",
+            "value": "http://app-vectordb-webapi:8080",
+            "_id": "xeLhLjNMAaNGtVGTVPUvr1",
+            "_order": "a0kcXs"
+          },
+          "dRQiLUzRh3YBZYQr3Gr1Ch": {
+            "key": "FILE_MANAGER_API_URL",
+            "value": "http://admin-filemanager:8080",
+            "_id": "dRQiLUzRh3YBZYQr3Gr1Ch",
+            "_order": "a0mfTC"
+          },
+          "xhoRzLEnR4Us96468jr3bx": {
+            "key": "CHAT_BASE_URL",
+            "value": "http://app-chat-webapi:8080",
+            "_id": "xhoRzLEnR4Us96468jr3bx",
+            "_order": "a0ofq6"
+          },
+          "xsJPhddV3WAg3U6thEcb5H": {
+            "key": "LITELLM_URL",
+            "value": "http://llm-gateway-litellm:8080",
+            "_id": "xsJPhddV3WAg3U6thEcb5H",
+            "_order": "a0sKV6"
+          },
+          "a7UkdK3b6MBQwpCvrES2dj": {
+            "key": "LITELLM_MASTER_KEY",
+            "value": "${{SECRET.LITE_LLM_ADMIN_PASSWORD}}",
+            "_id": "a7UkdK3b6MBQwpCvrES2dj",
+            "_order": "a0wBJU"
+          },
+          "qNFE2HyZjXxXVwVYCQycLw": {
+            "key": "CONVERSATION_API_URL",
+            "value": "http://app-conversation-webapi:8080/api",
+            "_id": "qNFE2HyZjXxXVwVYCQycLw",
+            "_order": "a9a000"
+          }
+        },
+        "injection": {
+          "2AkRquHVmQ7SjaEoT4oqTB": {
+            "path": "/app/injection/recipes/template_recipe_01.yaml",
+            "data": "pipeline:\n  name: |-\n    マークダウン形式のテキストに変換し、改行文字で分割する\n  summary: |-\n    主な機能は、様々なファイル形式のマークダウン形式に変換し、改行文字('\\n')で分割する機能となります。\n  description: |-\n    機能詳細は、下記のようになります。\n\n    長所:\n    - マークダウン形式への変換により、構造化されたテキストとして処理できます。\n    - 改行文字による分割は、文書の自然な区切りを維持できます。\n    - シンプルな処理フローで、高速な処理が可能です。\n\n    短所:\n    - 改行文字がない長い段落は、大きなチャンクとして処理される可能性があります。\n    - チャンクオーバーラップが設定されていないため、文脈の連続性が失われる可能性があります。\n\n    コンテンツ対象について:\n    - 対象となるコンテンツ：マークダウン変換可能なテキスト情報（対応：PDF/Word/PowerPoint/Excel/HTML ）\n    - 対象外となるコンテンツ：画像、表、複雑な書式を持つ文書\n\n    処理概要:\n    1. 入力ファイルをマークダウン形式のテキストに変換します\n    2. 変換されたテキストを改行文字('\\n')で分割します\n    3. 分割されたテキストを最大1000文字のチャンクとして処理します\n\n    その他:\n    - チャンクオーバーラップは設定されていないため、分割された各セクション間の連続性は保証されません。\n    - タイトルはコンテンツに追加されない設定になっています。\n  version: \"1.0.0\"\n\n  supported_data_sources:\n    - resource_type: \"file\"\n      file_extensions: [\".md\", \".pdf\", \".docx\", \".csv\", \".pptx\", \".txt\", \".xlsx\", \".xls\"]\n\n  steps:\n    - name: \"markitdown\"\n      type: \"parsers\"\n      env_class: \"\"\n      description: \"markitdownを使ってマークダウン形式の１つのテキストに変換する\"\n      chunking_options:\n        add_title_to_content: false\n\n    - name: \"text_splitter\"\n      type: \"refiners\"\n      env_class: \"\"\n      description: \"指定した区切り文字でテキストを分割する\"\n      chunking_options:\n        separator: \"\\n\"\n        is_separator_regex: false\n        chunk_size: 1000\n        chunk_overlap: 0\n",
+            "lang": "yaml",
+            "_id": "2AkRquHVmQ7SjaEoT4oqTB",
+            "_order": "a07zR1"
+          },
+          "7z1UEdSYTSookVMQfmyFXp": {
+            "path": "/app/injection/recipes/template_recipe_02.yaml",
+            "data": "pipeline:\n  name: |-\n    マークダウン形式のテキストに変換する\n  summary: |-\n    主な機能は、様々なファイル形式のファイルをマークダウン形式に変換する機能となります。\n  description: |-\n    機能詳細は、下記のようになります。\n\n    長所:\n    - マークダウン形式への変換により、構造化されたテキストとして扱いやすくなります。\n    - 変換後のテキストは可読性が向上し、見出しや箇条書きなどの構造が明確になります。\n    - 後続の処理でマークダウンパーサーを利用する場合に適しています。\n\n    短所:\n    - 元のテキスト形式によっては、変換精度に差が出る可能性があります。\n    - 複雑な書式や特殊な記法を含むテキストでは、正確に変換されない場合があります。\n\n    コンテンツ対象について:\n    - 対象となるコンテンツ：マークダウン変換可能なテキスト情報（対応：PDF/Word/PowerPoint/Excel/HTML ）\n    - 対象外となるコンテンツ：画像、表、複雑な書式を持つ文書\n\n    処理概要:\n    1. 入力ファイルをマークダウン形式のテキストに変換します\n\n    その他:\n    - 特殊な記法や複雑な構造を持つテキストでは、手動での調整が必要になる場合があります。\n    - タイトルはコンテンツに追加されない設定になっています。\n  version: \"1.0.0\"\n\n  supported_data_sources:\n    - resource_type: \"file\"\n      file_extensions: [\".md\", \".pdf\", \".docx\", \".csv\", \".pptx\", \".txt\", \".xlsx\", \".xls\"]\n\n  steps:\n    - name: \"markitdown\"\n      type: \"parsers\"\n      env_class: \"\"\n      description: \"markitdownを使ってマークダウン形式の1つのテキストに変換する\"\n      chunking_options:\n        add_title_to_content: false\n",
+            "lang": "yaml",
+            "_id": "7z1UEdSYTSookVMQfmyFXp",
+            "_order": "a0FfeR"
+          },
+          "3odGVCuAye9kkDZgkJLv5A": {
+            "path": "/app/injection/recipes/template_recipe_by_chunk.yaml",
+            "data": "pipeline:\n  name: |-\n    PDFに含まれるテキストを1000文字単位に分割する\n  summary: |-\n    主な機能は、PDFファイルから読み込んだテキストを固定長で分割を行う機能となります。\n  description: |-\n    機能詳細は、下記のようになります。\n\n    長所:\n    - シンプルで理解しやすい設計になっており、初心者にも扱いやすいレシピ処理となります。\n    - 固定長での分割により、処理が予測可能で安定しています。\n    - オーバーラップ機能（200文字）により、分割による文脈の損失を軽減しています。\n\n    短所:\n    - 文章の意味や構造を考慮せずに機械的に分割するため、文脈理解に影響が出る可能性があります。\n\n    コンテンツ対象について:\n    - 対象となるコンテンツ　：PDFで読み込んだテキスト（utf-8、shift-jis、ascii）\n    - 対象外となるコンテンツ：PDFで読み込んだ画像、テーブル（表）、フォーム\n\n    処理概要:\n    1. PDFファイルを読み込みます\n    2. PDFファイルの全テキスト情報を一つにまとめます\n    3. 全テキスト情報を、固定した1000文字単位で分割します\n    4. 1000文字の前後にある200文字をオーバーラップします\n\n    その他:\n    - 表や画像、フォームなどの非テキスト要素は処理対象外となります。\n    - 複雑なレイアウトのPDFでは、テキスト抽出の順序が不自然になる可能性があります。\n    - 手書きや識別が難しい文字列がある場合、PDF抽出テキストが正しくない可能性があります。\n\n  version: \"1.0.0\"\n\n  supported_data_sources:\n    - resource_type: \"file\"\n      file_extensions: [\".pdf\"]\n\n  steps:\n    - name: \"pypdf\"\n      type: \"parsers\"\n      env_class: \"\"\n      description: |\n        PyPDFライブラリでPDFのページを、ひとつのテキストにまとめます。\n      chunking_options:\n        page_mode: \"single\"\n        extraction_mode: \"plain\"\n        pages_delimiter: \"\"\n        pages_per_chunk: 1\n        include_previous_page: false\n\n    - name: \"text_splitter\"\n      type: \"refiners\"\n      env_class: \"\"\n      description: |\n        チャンクサイズを固定してテキストを分割します（設定値：1000）。\n        チャンクのオーバーラップサイズを設定は有効になっています（設定値：200）。\n      chunking_options:\n        separator: \"\"\n        is_separator_regex: false\n        chunk_size: 1000\n        chunk_overlap: 200",
+            "lang": "yaml",
+            "_id": "3odGVCuAye9kkDZgkJLv5A",
+            "_order": "a0NRdS"
+          },
+          "6bNmPJGN2BZqD4BHK2kYwx": {
+            "path": "/app/injection/recipes/template_recipe_by_page.yaml",
+            "data": "pipeline:\n  name: |-\n    PDFのページ単位に分割する\n  summary: |-\n    主な機能は、PDFファイルをページ単位で分割する機能となります。\n  description: |-\n    機能詳細は、下記のようになります。\n\n    長所:\n    - ページごとの分割により、元のPDF文書の構成を自然な形で維持できます。\n    - 各ページが独立した内容を持つ文書（報告書や論文など）に特に適しています。\n    - 改行コードを取り除くことで、後続の文章処理がスムーズになります。\n\n    短所:\n    - ページをまたいでつながる文章がある場合、内容が途切れてしまう可能性があります。\n\n    コンテンツ対象について:\n    - 対象となるコンテンツ　：PDFで読み込んだテキスト（utf-8、shift-jis、ascii）\n    - 対象外となるコンテンツ：PDFで読み込んだ画像、テーブル（表）、フォーム\n\n    処理概要:\n    1. PDFファイルを読み込みます\n    2. PDFファイルをページ単位に分割します\n    3. テキストに含まれる改行コード（LF/CR/CRLF）を削除します\n\n    その他:\n    - 表や画像、フォームなどの非テキスト要素は処理対象外となります。\n    - 複雑なレイアウトのPDFでは、テキスト抽出の順序が不自然になる可能性があります。\n    - 手書きや識別が難しい文字列がある場合、PDF抽出テキストが正しくない可能性があります。\n\n  version: \"1.0.0\"\n\n  supported_data_sources:\n    - resource_type: \"file\"\n      file_extensions: [\".pdf\"]\n\n  steps:\n    - name: \"pypdf\"\n      type: \"parsers\"\n      env_class: \"\"\n      description: |\n        PyPDFライブラリでPDFのページ分割を行います。\n        分割ページ単位は１ページ単位となっています。\n        前項ページのオーバーラップ設定は無効になっています。\n      chunking_options:\n        page_mode: \"multi\"\n        extraction_mode: \"plain\"\n        pages_delimiter: \"\"\n        pages_per_chunk: 1\n        include_previous_page: false\n\n    - name: \"text_remover\"\n      type: \"refiners\"\n      env_class: \"\"\n      description: |\n        テキスト文字列にある改行コードを削除しています。\n        対象となる改行コードは、LF/CR/CRLFとなっています。\n      chunking_options:\n        mode: \"newlines\"\n        remove_target_string: null",
+            "lang": "yaml",
+            "_id": "6bNmPJGN2BZqD4BHK2kYwx",
+            "_order": "a0V9Et"
+          },
+          "aR8axcS3Ca6Pvjvv5YjAk5": {
+            "path": "/app/injection/recipes/word_recipe.yaml",
+            "data": "pipeline:\n  name: \"Word Importerの代替\"\n  summary: \"既存のRAGOPsのWord ImporterをRecipeから呼び出せるよう準備\"\n  description: \"Word Importerには、\"\n  version: \"1.0.0\"\n\n  supported_data_sources:\n    - resource_type: \"file\"\n      file_extensions: [\".docx\"]\n\n  steps:\n    - name: \"word_importer\"\n      type: \"parsers\"\n      env_class: \"\"\n      description: \"docxのライブラリーを利用し、指定のパラメータをもとにChunkingする。\"\n\n    - name: \"text_remover\"\n      type: \"refiners\"\n      env_class: \"\"\n      description: \"指定したテキストを削除する\"\n      chunking_options:\n        mode: \"custom\"\n        remove_target_string: \"ダックスフンド\"\n",
+            "lang": "yaml",
+            "_id": "aR8axcS3Ca6Pvjvv5YjAk5",
+            "_order": "a0kfn8"
+          },
+          "3aTUDh8zxSfGm2CAiFz5cx": {
+            "_order": "a1BiN",
+            "path": "/app/injection/recipes/pdf_renderer.yaml",
+            "data": "pipeline:\n  name: \"PDFをページごとに画像化し、Geminiで内容を読み取る\"\n  summary: \"PyPDFでPDF情報を読み込み、画像含むページは全体をPNG化してGeminiで解釈するサンプルレシピ\"\n  description: \"PDFファイルを入力として受け付け、テキストのみのページはテキスト抽出、画像を含むページは全体をPNG化してGeminiで解釈します。これにより、複数の小さな画像が生成されるノイズを防ぎ、ページ全体の文脈を保持したRAG用チャンクを生成します。\"\n  version: \"1.2.0\"\n\n  supported_data_sources:\n    - resource_type: \"file\"\n      file_extensions: [\".pdf\"]\n\n  steps:\n    - name: \"pypdf_with_render\"\n      type: \"parsers\"\n      env_class: \"\"\n      description: \"pypdfを利用してPDF情報を読み込む\"\n      chunking_options:\n        page_mode: \"multi\"\n        pages_delimiter: \"\"\n        pages_per_chunk: 1\n        extraction_mode: \"plain\"\n        include_previous_page: false\n\n    - name: \"image_to_text\"\n      type: \"refiners\"\n      env_class: \"OpenAISdkSettings\"\n      description: \"content typeが画像となっているChunkをGeminiでimage to textする\"\n      chunking_options:\n        model_name: \"gemini/gemini-3-flash-preview\"\n        interpretation_prompt: |\n          あなたはPDFページの画像から情報を抽出し、\n          検索や質問応答（RAG）で再利用できる形に整理・言語化するAIです。\n\n          与えられた画像は、PDFページ全体をレンダリングしたものです。\n          ページには、テキスト、図表、UI画面、マニュアル、設計図など、\n          さまざまな種類のコンテンツが含まれている可能性があります。\n\n          以下の方針に必ず従ってください。\n\n          【共通ルール】\n          1. 画像の見た目や配置についての説明（「〜が写っている」「図がある」など）は書かないでください。\n          2. 出力は、日本語で、単独でも意味が通じる内容にしてください。\n          3. 推測や補完は行わず、画像から読み取れる情報のみを使ってください。\n\n          【ページ内容に応じた処理方針】\n\n          ■ テキスト主体のページ、テーブル、一覧表（テキスト情報に価値がある場合）\n          - ページ内のテキストを可能な限り正確に抽出してください。\n          - 表や図に含まれる項目名、値、対応関係、条件を、可能な限り漏れなく抽出してください。\n          - 行や列の関係性、条件分岐、対応表の意味が分かるように文章として整理してください。\n          - 順序や対応関係が重要な場合は、それが分かる形で記述してください。\n          - 内容の要約や解釈は行わず、実際のテキストや数値をそのまま抽出してください。\n\n          ■ ビジュアル主体のページ（UI、マニュアル、設計図、ダイアグラムなど）\n          - ページ全体が何を表現しているかを簡潔に記述してください。\n          - UI画面の場合: 画面の目的、主要な機能、操作フロー、ボタンやフィールドの配置を説明してください。\n          - マニュアル・手順書の場合: 実行すべき手順、判断基準、前提条件、注意点を抽出してください。\n          - 設計図・ダイアグラムの場合: 構成要素、関係性、フロー、重要な数値や仕様を説明してください。\n          - 専門用語、略語、数値、記号がある場合は、簡潔に意味を補足してください。\n\n          【出力形式】\n          - 見出し、箇条書き、番号付きリストは使用しないでください。\n          - 「この画像では〜」「このページには〜」など、画像やページへの言及は行わないでください。\n          - 最終的な出力は、日本語の説明文のみとしてください。\n\n    - name: \"add_title_to_chunk\"\n      type: \"refiners\"\n      env_class: \"\"\n      description: \"全てのChunkの先頭にファイル名を追加する\"\n      chunking_options:\n        title_prefix: \"Title: \"\n        title_suffix: \"\\n\\n\"\n"
+          }
+        },
+        "showDescription": false,
+        "_order": "aa0Ku",
+        "replicas": 1,
+        "size": "m"
+      },
+      "parentId": "6H7USbWwdsZAFkbrJYYgeE"
+    },
+    "ucrtFTgDe3PgSofZCKrwxR": {
+      "type": "trigger",
+      "id": "ucrtFTgDe3PgSofZCKrwxR",
+      "width": 250,
+      "position": {
+        "x": 687.9951775693268,
+        "y": 243.33293799174044
+      },
+      "data": {
+        "id": "eval-trigger",
+        "name": "Evaluation Executor",
+        "showDescription": false,
+        "description": "",
+        "code": "const axios = require(\"axios\");\nconst { getEntityAsObservable } = context;\nconst { Subject, from } = require(\"rxjs\");\nconst { concatMap, tap } = require(\"rxjs/operators\");\n\nconst observable = getEntityAsObservable('evaluation-id');\n\nconst queue = [];\n\nconst processing$ = new Subject();\n\nprocessing$.pipe(\n  concatMap((evaluation_id) => {\n    console.log(`\\n🔄 Starting processing: ${evaluation_id}`);\n    console.log(`📋 Current queue: [${queue.join(', ')}]`);\n\n    return from(axios.post(`${process.env.REQUEST_URL}/${evaluation_id}/execute`))\n      .pipe(\n        tap({\n          next: (response) => {\n            if (response.status !== 204) {\n              console.warn(`⚠️ Unexpected status for ${evaluation_id}: ${response.status}`);\n            } else {\n              console.info(`✅ Finished processing: ${evaluation_id}`);\n            }\n          },\n          error: (e) => {\n            console.error(`❌ Request failed: ${evaluation_id}`, e.message);\n          },\n          complete: () => {\n            queue.shift();\n            console.log(`➡️ Next in queue: ${queue[0] ?? 'None'}`);\n          }\n        })\n      );\n  })\n).subscribe();\n\nobservable.subscribe((evaluation_id) => {\n  console.log(`📥 Queued new ID: ${evaluation_id}`);\n  queue.push(evaluation_id);\n  processing$.next(evaluation_id);\n});\n",
+        "injection": {},
+        "storage": {},
+        "environment": {
+          "wJnuy7sSUg9NTdawVuLThw": {
+            "key": "REQUEST_URL",
+            "value": "http://evaluation-manager-backend:8080/api/evaluations",
+            "_id": "wJnuy7sSUg9NTdawVuLThw",
+            "_order": "a0V4QC"
+          }
+        },
+        "defaults": {},
+        "requirements": {},
+        "_order": "ab8rn"
+      },
+      "parentId": "6fLBykVT85zBRTFVFeGzU9"
+    },
+    "p6rhhC85g9pFsEEwWHYuTB": {
+      "type": "sideapp",
+      "id": "p6rhhC85g9pFsEEwWHYuTB",
+      "width": 250,
+      "position": {
+        "x": 911.4307146884727,
+        "y": 244.40575981394443
+      },
+      "data": {
+        "id": "storage-manager",
+        "name": "Storage Manager",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/shared_storage_webapi:1.1.0",
+        "environment": {
+          "9dQZ8RfQgKtyZ9U7eKEctr": {
+            "key": "ROOT_PATH",
+            "value": "ragops",
+            "_id": "9dQZ8RfQgKtyZ9U7eKEctr",
+            "_order": "a0FdHf"
+          },
+          "54TFMT9pdtL11LB1SkULfb": {
+            "key": "SWAGGER_ENDPOINT",
+            "value": "/storage",
+            "_id": "54TFMT9pdtL11LB1SkULfb",
+            "_order": "a0V837"
+          }
+        },
+        "storage": {
+          "hi5WJ1HbY54mxo6PQbLAu4": {
+            "path": "/storage-manager",
+            "_id": "hi5WJ1HbY54mxo6PQbLAu4",
+            "_order": "a0VA2E"
+          }
+        },
+        "_order": "ac6cM",
+        "replicas": 1,
+        "size": "l"
+      },
+      "parentId": "6H7USbWwdsZAFkbrJYYgeE"
+    },
+    "oB64WhA714yUzmoRvY7tGi": {
+      "type": "sideapp",
+      "id": "oB64WhA714yUzmoRvY7tGi",
+      "width": 250,
+      "position": {
+        "x": 581.7274816846118,
+        "y": 244.8003048488806
+      },
+      "data": {
+        "id": "filemanager",
+        "name": "FileManager",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_file_manager:1.11.0",
+        "environment": {
+          "fxNsiSWZGukHrNtt6HaNPZ": {
+            "key": "STORAGE_API_URL",
+            "value": "http://admin-storage-manager:8080",
+            "_id": "fxNsiSWZGukHrNtt6HaNPZ",
+            "_order": "a0409C"
+          },
+          "tCMLFrc1YouT8G3k7e5trN": {
+            "key": "POSTGRES_HOST",
+            "value": "app-rdb",
+            "_id": "tCMLFrc1YouT8G3k7e5trN",
+            "_order": "a07ucQ"
+          },
+          "bMgWrCfkbfRYb18mN4AVJC": {
+            "key": "POSTGRES_PORT",
+            "value": "8080",
+            "_id": "bMgWrCfkbfRYb18mN4AVJC",
+            "_order": "a0FbA2"
+          },
+          "ddHE6s4HAe1TJQfmzpVFZS": {
+            "key": "POSTGRES_DB",
+            "value": "postgres",
+            "_id": "ddHE6s4HAe1TJQfmzpVFZS",
+            "_order": "a0JhPt"
+          },
+          "okFEK2jEwcDvqw5R3PAJHG": {
+            "key": "POSTGRES_USER",
+            "value": "$[[DB_USER]]",
+            "_id": "okFEK2jEwcDvqw5R3PAJHG",
+            "_order": "a0NTWQ"
+          },
+          "sqg4WC6FT9ZfbkvhpDvfEK": {
+            "key": "POSTGRES_PASSWORD",
+            "value": "$[[DB_PASSWORD]]",
+            "_id": "sqg4WC6FT9ZfbkvhpDvfEK",
+            "_order": "a0VBFs"
+          },
+          "d4hkuEgq7KSFrpcR6BzKhL": {
+            "key": "CALLBACK_CSV_PIPELINE_URL",
+            "value": "http://admin-eventsource-svc:8080/pl-csv-register",
+            "_id": "d4hkuEgq7KSFrpcR6BzKhL",
+            "_order": "a0Z8vZ"
+          },
+          "kZz8DA7LpfbkpZdeS431Tw": {
+            "key": "CALLBACK_PDF_PIPELINE_URL",
+            "value": "http://admin-eventsource-svc:8080/pl-pdf-register",
+            "_id": "kZz8DA7LpfbkpZdeS431Tw",
+            "_order": "a0cuip"
+          },
+          "uHmoUJHW4CcM4ggFCBQy5U": {
+            "key": "CALLBACK_WORD_PIPELINE_URL",
+            "value": "http://admin-eventsource-svc:8080/pl-word-register",
+            "_id": "uHmoUJHW4CcM4ggFCBQy5U",
+            "_order": "a0kc6d"
+          },
+          "xwsNF28nA2e8zpZUaiZkj5": {
+            "key": "CALLBACK_WEB_PIPELINE_URL",
+            "value": "http://admin-eventsource-svc:8080/pl-web-register",
+            "_id": "xwsNF28nA2e8zpZUaiZkj5",
+            "_order": "a0oa8g"
+          },
+          "oPUDWKZ9HjfMqj1MxgxUgd": {
+            "key": "CALLBACK_RECIPE_PIPELINE_URL",
+            "value": "http://admin-eventsource-svc:8080/pl-recipe-register",
+            "_id": "oPUDWKZ9HjfMqj1MxgxUgd",
+            "_order": "a0sM2c"
+          },
+          "oswt3WLiS_PjgwOTaWvcVA": {
+            "key": "POSTGRES_SCHEMA",
+            "value": "file_manager",
+            "_id": "oswt3WLiS_PjgwOTaWvcVA",
+            "_order": "a7a000"
+          }
+        },
+        "storage": {
+          "oFbmkDss6ZufjS9Bc8XL5Z": {
+            "path": "/app/uploads",
+            "_id": "oFbmkDss6ZufjS9Bc8XL5Z",
+            "_order": "a0V510"
+          }
+        },
+        "_order": "ad8Lq",
+        "replicas": 1,
+        "size": "xxl"
+      },
+      "parentId": "6H7USbWwdsZAFkbrJYYgeE"
+    },
+    "hMHvx6akjydwNZrAjw72XL": {
+      "type": "sideapp",
+      "id": "hMHvx6akjydwNZrAjw72XL",
+      "width": 250,
+      "position": {
+        "x": 22.853823699075974,
+        "y": 276.0780957183074
+      },
+      "data": {
+        "id": "webapi",
+        "name": "Auth WebAPI",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_auth_webapi:1.11.0",
+        "environment": {
+          "57Xz3TsrjtFWJcFSQ691yJ": {
+            "key": "ENDPOINT",
+            "value": "auth",
+            "_id": "57Xz3TsrjtFWJcFSQ691yJ",
+            "_order": "a07wcM"
+          },
+          "r1J9888Xa4Fu2j4h6fzML9": {
+            "key": "DB_HOSTNAME",
+            "value": "app-rdb",
+            "_id": "r1J9888Xa4Fu2j4h6fzML9",
+            "_order": "a0Fgv8"
+          },
+          "9cXHSrsMaCWzSinNiUU5VD": {
+            "key": "DB_PORT",
+            "value": "8080",
+            "_id": "9cXHSrsMaCWzSinNiUU5VD",
+            "_order": "a0NQTt"
+          },
+          "6zaQGvhwBZnKsV8sCxFtt6": {
+            "key": "DB_NAME",
+            "value": "postgres",
+            "_id": "6zaQGvhwBZnKsV8sCxFtt6",
+            "_order": "a0V0MT"
+          },
+          "t5fUgR6SPT4HipaCKRdnKK": {
+            "key": "DB_USER",
+            "value": "$[[DB_USER]]",
+            "_id": "t5fUgR6SPT4HipaCKRdnKK",
+            "_order": "a0cmye"
+          },
+          "17tNyrCwTaG3tKrz3u5wZK": {
+            "key": "DB_PASS",
+            "value": "$[[DB_PASSWORD]]",
+            "_id": "17tNyrCwTaG3tKrz3u5wZK",
+            "_order": "a0kVmZ"
+          },
+          "p6VpWmMHBygaudTyb8KY94": {
+            "key": "DB_SCHEMA",
+            "value": "keycloak",
+            "_id": "p6VpWmMHBygaudTyb8KY94",
+            "_order": "a0sOgX"
+          }
+        },
+        "_order": "aeAoE",
+        "replicas": 1,
+        "size": "m",
+        "showDescription": false
+      },
+      "parentId": "ggac5dWfzY2J6pY1Uv2kqu"
+    },
+    "qf96Po1oJRDhYuL2ca8MMr": {
+      "type": "sideapp",
+      "id": "qf96Po1oJRDhYuL2ca8MMr",
+      "width": 250,
+      "position": {
+        "x": 380.0770284890932,
+        "y": 167.5544154374062
+      },
+      "data": {
+        "id": "backend",
+        "name": "Evaluation Manager WebAPI",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/evaluation_manager_api:1.11.0",
+        "environment": {
+          "kEnK54KuxTeUFTY6LiicWj": {
+            "key": "ENTITY_ID",
+            "value": "evaluation-id",
+            "_id": "kEnK54KuxTeUFTY6LiicWj",
+            "_order": "a03x5S"
+          },
+          "7zkNc5xVsAqCmdVSvEcX3u": {
+            "key": "CHAT_API_URL",
+            "value": "http://app-chat-webapi:8080",
+            "_id": "7zkNc5xVsAqCmdVSvEcX3u",
+            "_order": "a07nLo"
+          },
+          "2PC2gaBcGTbHTpnyzco3nd": {
+            "key": "LLM_EVALUATION_API_URL",
+            "value": "http://evaluation-manager-llm-webapi:8080",
+            "_id": "2PC2gaBcGTbHTpnyzco3nd",
+            "_order": "a0FaKj"
+          },
+          "mjHPWafyDWDuD3dwqp4jMB": {
+            "key": "LLM_THRESHOLD",
+            "value": "0.7",
+            "_id": "mjHPWafyDWDuD3dwqp4jMB",
+            "_order": "a0JcHV"
+          },
+          "fzCtSVZVzojjgkZoqQARyM": {
+            "key": "POSTGRES_HOST",
+            "value": "evaluation-manager-rdb",
+            "_id": "fzCtSVZVzojjgkZoqQARyM",
+            "_order": "a0NYCO"
+          },
+          "mvo4J3yeJQs7MzwU8T58Vd": {
+            "key": "POSTGRES_PORT",
+            "value": "8080",
+            "_id": "mvo4J3yeJQs7MzwU8T58Vd",
+            "_order": "a0V7yj"
+          },
+          "nNEgfDpqVXwstX69xPKxUm": {
+            "key": "POSTGRES_USER",
+            "value": "$[[DB_USER]]",
+            "_id": "nNEgfDpqVXwstX69xPKxUm",
+            "_order": "a0ZChG"
+          },
+          "pAso5FPigf9osnUEk2FtLQ": {
+            "key": "POSTGRES_PASSWORD",
+            "value": "$[[DB_PASSWORD]]",
+            "_id": "pAso5FPigf9osnUEk2FtLQ",
+            "_order": "a0d4XD"
+          },
+          "8k7yWc4LUj4me4DRxJjsaW": {
+            "key": "POSTGRES_DB",
+            "value": "postgres",
+            "_id": "8k7yWc4LUj4me4DRxJjsaW",
+            "_order": "a0kh3c"
+          },
+          "tvpPn2jGTHgiX2qgTChARt": {
+            "key": "AUTH_API_URL",
+            "value": "http://auth-webapi:8080",
+            "_id": "tvpPn2jGTHgiX2qgTChARt",
+            "_order": "a0sQpd"
+          },
+          "fS2b6VfQcycRXR3VT6aiXa": {
+            "_order": "a13Wf",
+            "key": "POSTGRES_SCHEMA",
+            "value": "evaluation_manager"
+          }
+        },
+        "_order": "af4A9",
+        "replicas": 1,
+        "size": "xxl",
+        "injection": {}
+      },
+      "parentId": "6fLBykVT85zBRTFVFeGzU9"
+    },
+    "qpLHQex8dFAcdT89uJE6Gh": {
+      "type": "sideapp",
+      "id": "qpLHQex8dFAcdT89uJE6Gh",
+      "width": 250,
+      "data": {
+        "id": "chat-webapi",
+        "name": "Chat WebAPI",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_chat_web_api:1.11.0",
+        "environment": {
+          "bQTrrACPySmr7WSiRRq9VB": {
+            "key": "SEARCH_ENGINE_WEBAPI_URL",
+            "value": "http://app-search-engine:8080/api/v1",
+            "_id": "bQTrrACPySmr7WSiRRq9VB",
+            "_order": "a047ND"
+          },
+          "fAMQrhStYvXzAhCnUMXbcg": {
+            "key": "CONFIG_CENTER_API_URL",
+            "value": "http://admin-config:8080/config",
+            "_id": "fAMQrhStYvXzAhCnUMXbcg",
+            "_order": "a0V7Vt"
+          },
+          "gVWRxJxegsqfCsgZYAjCKM": {
+            "key": "FILE_VIEWER_URL",
+            "value": "/files",
+            "_id": "gVWRxJxegsqfCsgZYAjCKM",
+            "_order": "a0cvUF"
+          },
+          "r8h6XtKtkDmrGoA1KHek65": {
+            "key": "LITELLM_URL",
+            "value": "http://llm-gateway-litellm:8080",
+            "_id": "r8h6XtKtkDmrGoA1KHek65",
+            "_order": "a0offd"
+          },
+          "22nXJcz2JEafb59c5D1NEG": {
+            "key": "LITELLM_MASTER_KEY",
+            "value": "${{SECRET.LITE_LLM_ADMIN_PASSWORD}}",
+            "_id": "22nXJcz2JEafb59c5D1NEG",
+            "_order": "a0sNmE"
+          },
+          "cMbpey7MwWnN5CdJvqwSXc": {
+            "_order": "a13HZ",
+            "key": "FASTAPI_WORKER_NUM",
+            "value": "8"
+          }
+        },
+        "injection": {
+          "azcaKFmvXu8KobS79it5r7": {
+            "path": "/app/features/chat/dictionary.json",
+            "data": "{\n  \"サンプル_変換後の文字列🚀\": [\"この入力文字列をチャットに入れると左のキー文字列に変換されます\"]\n}\n",
+            "lang": "json",
+            "_id": "azcaKFmvXu8KobS79it5r7",
+            "_order": "a0V9l7"
+          }
+        },
+        "_order": "ag0bD",
+        "replicas": 3,
+        "size": "xxl"
+      },
+      "position": {
+        "x": 338.2647420427419,
+        "y": 328.7609452442369
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "4F1DpNWDzWJpY9zq7WeT3m": {
+      "type": "sideapp",
+      "id": "4F1DpNWDzWJpY9zq7WeT3m",
+      "width": 250,
+      "position": {
+        "x": 659.4819843628464,
+        "y": 389
+      },
+      "data": {
+        "id": "portal",
+        "name": "RAGOps Portal画面",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/portal:1.0.0",
+        "injection": {
+          "tV1U3WhrL41Vbizhb5NKyU": {
+            "path": "/app/injection/portal.json",
+            "data": "{\n  \"title\": \"RAGOps Portal\",\n  \"apps\": [\n\n    {\n      \"name\": \"チャットボット\",\n      \"description\": \"\",\n      \"path\": \"/chat\",\n      \"icon\": \"💬\",\n      \"allowedRoles\": [\"ragops_admin\", \"ragops_operator\", \"ragops_normal\"]\n    },\n    {\n      \"name\": \"管理画面\",\n      \"description\": \"\",\n      \"path\": \"/admin\",\n      \"icon\": \"📄\",\n      \"allowedRoles\": [\"ragops_admin\", \"ragops_operator\"]\n    },\n    {\n      \"name\": \"チャットボット管理\",\n      \"description\": \"\",\n      \"path\": \"/config\",\n      \"icon\": \"⚙️\",\n      \"allowedRoles\": [\"ragops_admin\"]\n    },\n    {\n      \"name\": \"精度評価モジュール\",\n      \"description\": \"\",\n      \"path\": \"/evaluation_manager/\",\n      \"icon\": \"📊\",\n      \"allowedRoles\": [\"ragops_admin\", \"ragops_operator\"]\n    }\n  ]\n}",
+            "_id": "tV1U3WhrL41Vbizhb5NKyU",
+            "_order": "a0V2DK"
+          }
+        },
+        "environment": {
+          "XAKgf4oTCVpORAaVxr1BqQ": {
+            "key": "LOGOUT_URL",
+            "value": "/logout",
+            "_id": "XAKgf4oTCVpORAaVxr1BqQ",
+            "_order": "a3a000"
+          }
+        },
+        "_order": "ahAYK",
+        "replicas": 1,
+        "size": "xxs"
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "hdRjEppZJVkZtyqz2BZKSJ": {
+      "type": "sideapp",
+      "id": "hdRjEppZJVkZtyqz2BZKSJ",
+      "width": 250,
+      "position": {
+        "x": 698.2960786769727,
+        "y": 372.53555142343896
+      },
+      "data": {
+        "id": "llm-webapi",
+        "name": "LLM Evaluation WebAPI",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/llm_evaluation_webapi:1.0.3",
+        "environment": {
+          "fCGp2zzinLQnYwCLttQagt": {
+            "key": "CHAT_BASE_URL",
+            "value": "http://app-chat-webapi:8080",
+            "_id": "fCGp2zzinLQnYwCLttQagt",
+            "_order": "a0V1Ge"
+          }
+        },
+        "_order": "ai5o4",
+        "replicas": 1,
+        "size": "l"
+      },
+      "parentId": "6fLBykVT85zBRTFVFeGzU9"
+    },
+    "9yY2qArnoCDnu4cjU2Hex4": {
+      "type": "sticky",
+      "id": "9yY2qArnoCDnu4cjU2Hex4",
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "OpensearchのAPIに直接リクエストしたい場合は`/opensearch` port: 8080",
+        "fill": "gray",
+        "_order": "aj2BA"
+      },
+      "position": {
+        "x": 1092.4960033016991,
+        "y": 373.3583876210835
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "75A8Y13DYA9aKsXwXEbfYs": {
+      "type": "sideapp",
+      "id": "75A8Y13DYA9aKsXwXEbfYs",
+      "data": {
+        "id": "conversation-webapi",
+        "name": "Conversation WebAPI",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_conversation_webapi:1.11.0",
+        "injection": {},
+        "environment": {
+          "dZr8rVvSfwbkwcJsqRUe3J": {
+            "key": "POSTGRES_HOST",
+            "value": "app-rdb",
+            "_id": "dZr8rVvSfwbkwcJsqRUe3J",
+            "_order": "a044dM"
+          },
+          "rWpvq48bZP2dY57r7Cwh3T": {
+            "key": "POSTGRES_PORT",
+            "value": "8080",
+            "_id": "rWpvq48bZP2dY57r7Cwh3T",
+            "_order": "a07sux"
+          },
+          "hTdweKDDzHkVUryYyxWzWR": {
+            "key": "POSTGRES_DB",
+            "value": "postgres",
+            "_id": "hTdweKDDzHkVUryYyxWzWR",
+            "_order": "a0Fin4"
+          },
+          "cox59KzjFGLFZpM8cJF76k": {
+            "key": "POSTGRES_USER",
+            "value": "$[[DB_USER]]",
+            "_id": "cox59KzjFGLFZpM8cJF76k",
+            "_order": "a0NZUC"
+          },
+          "ti9T3BWSjgBeeBG98o4noH": {
+            "key": "POSTGRES_PASSWORD",
+            "value": "$[[DB_PASSWORD]]",
+            "_id": "ti9T3BWSjgBeeBG98o4noH",
+            "_order": "a0V4Bt"
+          },
+          "6fndNWVNn9P53QNCXregbY": {
+            "key": "VECTOR_WEBAPI_URL",
+            "value": "http://app-vectordb-webapi:8080/api/v1",
+            "_id": "6fndNWVNn9P53QNCXregbY",
+            "_order": "a0Z9Nq"
+          },
+          "qXFYSHh7YPzEnTW4URRqJw": {
+            "key": "CHAT_WEBAPI_URL",
+            "value": "http://app-chat-webapi:8080",
+            "_id": "qXFYSHh7YPzEnTW4URRqJw",
+            "_order": "a0cvlM"
+          },
+          "w3dPtnbQTFsZevLfKMYxuh": {
+            "key": "DEFAULT_API_TIMEOUT_SEC",
+            "value": "120",
+            "_id": "w3dPtnbQTFsZevLfKMYxuh",
+            "_order": "a0sN1A"
+          },
+          "n2_t27vbD3pky8Nh2TP8RA": {
+            "key": "POSTGRES_SCHEMA",
+            "value": "conversation_manager",
+            "_id": "n2_t27vbD3pky8Nh2TP8RA",
+            "_order": "a6a000"
+          }
+        },
+        "_order": "ak98j",
+        "replicas": 1,
+        "size": "xl"
+      },
+      "width": 250,
+      "position": {
+        "x": 23.435428519844663,
+        "y": 430.3583876210835
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "hgq7DPRWZaoQkNNPTp2Qii": {
+      "type": "sideapp",
+      "id": "hgq7DPRWZaoQkNNPTp2Qii",
+      "width": 250,
+      "position": {
+        "x": 337.6564075958039,
+        "y": 469.2910136835608
+      },
+      "data": {
+        "id": "search-engine",
+        "name": "FAQデータの検索エンジン",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_search_engine_webapi:1.11.0",
+        "environment": {
+          "gWEdfZh2KseUDsM3ZPDZTR": {
+            "key": "VECTORDB_WEBAPI_URL",
+            "value": "http://app-vectordb-webapi:8080/api/v1",
+            "_id": "gWEdfZh2KseUDsM3ZPDZTR",
+            "_order": "a0V7iD"
+          },
+          "vn1m6shr511HDjnf9f6JkW": {
+            "key": "ROOT_PATH",
+            "value": "/${EBS_NAMESPACEID}/${EBS_WORKSPACEID}/search_webapi/",
+            "_id": "vn1m6shr511HDjnf9f6JkW",
+            "_order": "a0kcBz"
+          },
+          "4DF6E56BXdgLnZC0Bd3EXg": {
+            "key": "CHAT_BASE_URL",
+            "value": "http://app-chat-webapi:8080",
+            "_id": "4DF6E56BXdgLnZC0Bd3EXg",
+            "_order": "aCA000"
+          }
+        },
+        "_order": "alAgl",
+        "replicas": 3,
+        "size": "m"
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "xam6ejTF3pPyjR7YGtiRQY": {
+      "type": "sticky",
+      "id": "xam6ejTF3pPyjR7YGtiRQY",
+      "position": {
+        "x": -892.5753624650213,
+        "y": 862.8649692329105
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "<div>🖥️ KeyCloakの管理画面</div><div>(下側のエンドポイントURL）</div><div><br></div>🔑 認証情報（デフォルト）<div>・ユーザー名: admin</div><div>・パスワード: ragops_admin_default<br><div><br></div></div>",
+        "fill": "gray",
+        "_order": "amBSJ"
+      }
+    },
+    "sASAHtnZA1jUYxWi2iH1yE": {
+      "type": "sticky",
+      "id": "sASAHtnZA1jUYxWi2iH1yE",
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "<div><div>🖥️ CSV一括ユーザー登録画面</div><div>(下側のエンドポイントURL）</div></div><div><br></div>🔑 認証情報（デフォルト）<div>・Keycloakの管理画面と同じ</div><div>   アカウント</div>",
+        "fill": "gray",
+        "_order": "anBkS"
+      },
+      "position": {
+        "x": 9.436918789434444,
+        "y": 982.942077902497
+      }
+    },
+    "bM4dJUKQjMyxR284ingzqq": {
+      "type": "sideapp",
+      "id": "bM4dJUKQjMyxR284ingzqq",
+      "width": 250,
+      "data": {
+        "id": "opensearch",
+        "name": "データベース (Opensearch)",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/opensearch:1.1.0",
+        "injection": {
+          "5BKCEm6iaho6ym7ZrjT7WV": {
+            "path": "/usr/share/opensearch/config/opensearch.yml",
+            "data": "cluster.name: \"trial\"\nnetwork.host: 0.0.0.0\ndiscovery.type: single-node\nhttp.port: 8080\npath:\n  data: /usr/share/opensearch/data\n  logs: /usr/share/opensearch/logs",
+            "lang": "yaml",
+            "_id": "5BKCEm6iaho6ym7ZrjT7WV",
+            "_order": "a0V3oG"
+          }
+        },
+        "environment": {
+          "4qVhCJ5G35erts6eABHCqS": {
+            "key": "OPENSEARCH_JAVA_OPTS",
+            "value": "-Xms1g -Xmx1g",
+            "_id": "4qVhCJ5G35erts6eABHCqS",
+            "_order": "a0V0dx"
+          }
+        },
+        "storage": {
+          "s4Cu6afZWxfDATcamS22eU": {
+            "path": "/usr/share/opensearch/data",
+            "_id": "s4Cu6afZWxfDATcamS22eU",
+            "_order": "a0V38k"
+          }
+        },
+        "_order": "ao4jl",
+        "replicas": 1,
+        "size": "xl"
+      },
+      "position": {
+        "x": 659.4819843628464,
+        "y": 535.8740523454491
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "dutx7Kf9RpSnG1TyKrrDSg": {
+      "type": "sticky",
+      "id": "dutx7Kf9RpSnG1TyKrrDSg",
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "<p>✅ データベースを永続化する場合はSideAppのStorageに以下のパスを設定してください。</p><p><br></p><p>Opensearch</p><p>Storage:</p><p>/usr/share/opensearch/data</p><p><br></p><p>Qdrant</p><p>Storage:</p><p>/qdrant/storage</p>",
+        "fill": "gray",
+        "_order": "ap8S8"
+      },
+      "position": {
+        "x": 1092.4960033016991,
+        "y": 617.9750062840312
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "vTJcSoLAse5HtrayKgKAPp": {
+      "type": "sideapp",
+      "id": "vTJcSoLAse5HtrayKgKAPp",
+      "width": 250,
+      "position": {
+        "x": 337.6253574765392,
+        "y": 621.8740523454491
+      },
+      "data": {
+        "id": "vectordb-webapi",
+        "name": "VectorDB WebAPI",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_vector_db_webapi:1.11.0",
+        "environment": {
+          "rUGy53c81tb7XScHC5N6N6": {
+            "key": "ROOT_PATH",
+            "value": "/${EBS_NAMESPACEID}/${EBS_WORKSPACEID}/vectordb_webapi/",
+            "_id": "rUGy53c81tb7XScHC5N6N6",
+            "_order": "a043Hd"
+          },
+          "cC3qDRcqeHU9n7mY9iJn18": {
+            "key": "CONFIG_CENTER_API_URL",
+            "value": "http://admin-config:8080/config",
+            "_id": "cC3qDRcqeHU9n7mY9iJn18",
+            "_order": "a07pBO"
+          },
+          "qnZYJNUWKFkQYBTNLwxC7B": {
+            "key": "OPENSEARCH_SERVER_URL",
+            "value": "http://app-opensearch",
+            "_id": "qnZYJNUWKFkQYBTNLwxC7B",
+            "_order": "a0Fb6Y"
+          },
+          "57ZxzSdNxbRT1n9HVPBxx7": {
+            "key": "OPENSEARCH_SERVER_PORT",
+            "value": "8080",
+            "_id": "57ZxzSdNxbRT1n9HVPBxx7",
+            "_order": "a0Jd59"
+          },
+          "a3D5MrNsxwvKw9gf3HZMDJ": {
+            "key": "QDRANT_SERVER_URL",
+            "value": "http://app-qdrant",
+            "_id": "a3D5MrNsxwvKw9gf3HZMDJ",
+            "_order": "a0NXDg"
+          },
+          "22As67mMzqJBLxLh9ih1yn": {
+            "key": "QDRANT_SERVER_PORT",
+            "value": "8080",
+            "_id": "22As67mMzqJBLxLh9ih1yn",
+            "_order": "a0V6eg"
+          },
+          "6LUCTN6ehtzTkk27wge2EU": {
+            "key": "CHAT_BASE_URL",
+            "value": "http://app-chat-webapi:8080",
+            "_id": "6LUCTN6ehtzTkk27wge2EU",
+            "_order": "a0Z7eP"
+          }
+        },
+        "injection": {
+          "hfcM1rT92dFifAAUNTvqTa": {
+            "path": "/app/config/opensearch/settings.json",
+            "data": "{\n    \"index\": {\n        \"max_result_window\": 20000,\n        \"mapping\": {\n            \"total_fields\": {\n                \"limit\": 10000\n            }\n        },\n        \"knn\": true,\n        \"knn.algo_param.ef_search\": 100,\n        \"similarity\": {\n            \"default\": {\n                \"type\": \"BM25\",\n                \"k1\": 1.2,\n                \"b\": 0.75,\n                \"discount_overlaps\": \"true\"\n            }\n        }\n    },\n    \"analysis\": {\n        \"analyzer\": {\n            \"default\": {\n                \"type\": \"custom\",\n                \"tokenizer\": \"kuromoji_tokenizer\",\n                \"filter\": [\n                    \"kuromoji_part_of_speech\"\n                ]\n            }\n        }\n    }\n}",
+            "lang": "json",
+            "_id": "hfcM1rT92dFifAAUNTvqTa",
+            "_order": "a0FfIP"
+          },
+          "vGwrJ7Yk34rf3YPvgAn4de": {
+            "path": "/app/config/opensearch/search-pipeline.json",
+            "data": "{\n  \"pipeline_name\": \"hybrid-search-pipeline\",\n  \"pipeline\": {\n    \"description\": \"Hybrid検索パイプライン - RRFによる安定ランキング\",\n    \"phase_results_processors\": [\n        {\n        \"score-ranker-processor\": {\n          \"combination\": {\n            \"technique\": \"rrf\",\n            \"rank_constant\": 60\n          }\n        }\n      }\n    ]\n  }\n}",
+            "lang": "json",
+            "_id": "vGwrJ7Yk34rf3YPvgAn4de",
+            "_order": "a0VA8w"
+          }
+        },
+        "showDescription": false,
+        "_order": "aq9au",
+        "replicas": 3,
+        "size": "m"
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "73GaNgWxsmfxMRy6RbKwqu": {
+      "type": "sideapp",
+      "id": "73GaNgWxsmfxMRy6RbKwqu",
+      "width": 250,
+      "data": {
+        "id": "qdrant",
+        "name": "データベース (Qdrant)",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/qdrant:1.1.1",
+        "injection": {},
+        "environment": {
+          "4qVhCJ5G35erts6eABHCqS": {
+            "key": "QDRANT__SERVICE__HTTP_PORT",
+            "value": "8080",
+            "_id": "4qVhCJ5G35erts6eABHCqS",
+            "_order": "a0V2hd"
+          }
+        },
+        "storage": {
+          "s4Cu6afZWxfDATcamS22eU": {
+            "path": "/qdrant/storage",
+            "_id": "s4Cu6afZWxfDATcamS22eU",
+            "_order": "a0V75T"
+          }
+        },
+        "_order": "ar7N1",
+        "replicas": 1,
+        "size": "xl"
+      },
+      "position": {
+        "x": 659.4819843628464,
+        "y": 735.8740523454491
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "9Gg5VkDAq4j1yc41HdVzSe": {
+      "type": "sticky",
+      "id": "9Gg5VkDAq4j1yc41HdVzSe",
+      "position": {
+        "x": 430.54307872834556,
+        "y": 1158.1272141554264
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "■ログイン情報<div>(1) ログインID<div><div>admin<br><div><br></div><div>(2) ログインパスワード</div></div></div><div>シークレット\"LITE_LLM_ADMIN_PASSWORD\"で指定したパスワード</div></div>",
+        "fill": "gray",
+        "_order": "as9tQ"
+      }
+    },
+    "3UmGPfP9BjgqLsVe1NH8wS": {
+      "type": "endpoint",
+      "id": "3UmGPfP9BjgqLsVe1NH8wS",
+      "position": {
+        "x": 23.42935582020823,
+        "y": 40.27390680593271
+      },
+      "width": 250,
+      "data": {
+        "_order": "ax2N5",
+        "bind": "ReadWrite",
+        "port": 8080,
+        "uri": "/",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {}
+      },
+      "parentId": "ggac5dWfzY2J6pY1Uv2kqu"
+    },
+    "qWAaCq97nFdMNjpQT6Qvdk": {
+      "type": "endpoint",
+      "id": "qWAaCq97nFdMNjpQT6Qvdk",
+      "position": {
+        "x": 20.664385733143945,
+        "y": 38.434410122840234
+      },
+      "width": 250,
+      "data": {
+        "_order": "ay8gy",
+        "bind": "ReadWrite",
+        "port": 8080,
+        "uri": "/",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {
+          "upjt4kuYGfkPpeaKP3yq4y": {
+            "_order": "a03TN",
+            "ip": "52.193.151.105/32"
+          },
+          "pxaHZAZ5dngxjSBch9H4FZ": {
+            "_order": "a1698",
+            "ip": "54.249.85.6/32"
+          },
+          "oiTcXSnkMooXwztqZ3c6RT": {
+            "_order": "a28j0",
+            "ip": "57.181.113.44/32"
+          },
+          "oUANBDtGbUbujftYsQEn4p": {
+            "_order": "a3BOj",
+            "ip": "52.69.74.140/32"
+          },
+          "d9Efo9CzdaTYtX786xu2Eb": {
+            "_order": "a439V",
+            "ip": "59.158.118.206/32"
+          },
+          "dQceoL6bUSiq8zLroR98uV": {
+            "_order": "a51iL",
+            "ip": "39.110.219.182/32"
+          },
+          "x3UWq4XGT4nwGefkwv2Y3o": {
+            "_order": "a64AO",
+            "ip": "159.28.68.29/32"
+          },
+          "s267Xh7WAPNmJx5DKLDGU5": {
+            "_order": "a74Z3",
+            "ip": "207.65.184.0/23"
+          },
+          "wr8fBWhXEXKFeQrMMPyYGP": {
+            "_order": "a89nV",
+            "ip": "114.141.125.9/32"
+          },
+          "a45qx5oyJ8EDDshMV3cBdB": {
+            "_order": "a94u9",
+            "ip": "114.141.125.111/32"
+          },
+          "cGrDpHtZrJaChtNL2JjJey": {
+            "_order": "aA7xp",
+            "ip": "114.141.125.114/32"
+          },
+          "eBurnSU6ng9mpjreaqRaRi": {
+            "_order": "aB9X6",
+            "ip": "114.141.126.70/32"
+          },
+          "3f1LQnHD9QeY8WJRwC5qzo": {
+            "_order": "aC5Z4",
+            "ip": "208.127.32.102/32"
+          },
+          "iJ6fDhrTf8pADFasiDXkJY": {
+            "_order": "aD2bX",
+            "ip": "66.159.193.110/32"
+          },
+          "hxRmNHMDbaBqatYiMWMWxu": {
+            "_order": "aEAh2",
+            "ip": "66.159.193.112/32"
+          },
+          "iUDmRY8D6oiZ6HtHeuNYAo": {
+            "_order": "aF5Ph",
+            "ip": "66.159.193.14/32"
+          },
+          "2D5L77GjovaB98xPAZ6QnC": {
+            "_order": "aG7a1",
+            "ip": "165.85.1.205/32"
+          }
+        }
+      },
+      "parentId": "xcNLcPJgedPvGhsMTAnHN4"
+    },
+    "tmWQxeZ7UPFrJtoLDn4w5J": {
+      "type": "endpoint",
+      "id": "tmWQxeZ7UPFrJtoLDn4w5J",
+      "position": {
+        "x": 66.91650179326399,
+        "y": 26.048698080103804
+      },
+      "width": 250,
+      "data": {
+        "_order": "az1dg",
+        "bind": "ReadWrite",
+        "port": 8080,
+        "uri": "/",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {}
+      },
+      "parentId": "8J7UnxcXCE6WhcZnyMtvXY"
+    },
+    "bS2u4RcwbDCqAjAuexE4pC": {
+      "type": "sideapp",
+      "id": "bS2u4RcwbDCqAjAuexE4pC",
+      "width": 250,
+      "data": {
+        "id": "rdb",
+        "name": "PostgreSQL DB server",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/rdb_postgresql_17:1.2.1",
+        "injection": {},
+        "environment": {
+          "1zQpSELzVDBKQg6C6sPsKV": {
+            "key": "POSTGRES_USER",
+            "value": "$[[DB_USER]]",
+            "_id": "1zQpSELzVDBKQg6C6sPsKV",
+            "_order": "a0FesZ"
+          },
+          "nE3hYxUw6gLpNCWiRi8siu": {
+            "key": "POSTGRES_PASSWORD",
+            "value": "$[[DB_PASSWORD]]",
+            "_id": "nE3hYxUw6gLpNCWiRi8siu",
+            "_order": "a0V1C2"
+          },
+          "uPpNCXwQDJ66MzV6gEPHRU": {
+            "key": "POSTGRES_MAX_CONNECTIONS",
+            "value": "300",
+            "_id": "uPpNCXwQDJ66MzV6gEPHRU",
+            "_order": "a0keVh"
+          }
+        },
+        "storage": {
+          "nt611ybLk7QK5VPDBHeHpG": {
+            "path": "/var/lib/postgresql/data",
+            "_id": "nt611ybLk7QK5VPDBHeHpG",
+            "_order": "a0VC5R"
+          }
+        },
+        "_order": "b003yd",
+        "replicas": 1,
+        "size": "l"
+      },
+      "position": {
+        "x": 380.0770284890932,
+        "y": 60.58579475751378
+      },
+      "parentId": "6fLBykVT85zBRTFVFeGzU9"
+    }
+  },
+  "projectName": "RAGOps",
+  "projectId": "fs62NgmYQPup22V9q4Abja"
+}

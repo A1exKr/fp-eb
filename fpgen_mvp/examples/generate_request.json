@@ -1,0 +1,45 @@
+{
+  "rfp_text": "Client requests a mixed-use master plan in Ho Chi Minh City with sustainability, mobility, and phased delivery over 16 weeks. Deliverables include concept options, final master plan report, and presentation boards.",
+  "fee_input": {
+    "roles": [
+      {
+        "role": "Urban Planner",
+        "rate": 180,
+        "hours_by_phase": {
+          "Kick-off": 30,
+          "Concept Development": 80,
+          "Finalization": 40
+        }
+      },
+      {
+        "role": "Architect",
+        "rate": 200,
+        "hours_by_phase": {
+          "Kick-off": 20,
+          "Concept Development": 70,
+          "Finalization": 35
+        }
+      }
+    ],
+    "overhead_pct": 0.1,
+    "subconsultants": [
+      {
+        "name": "Local Traffic Consultant",
+        "fee": 12000,
+        "included_in_lump_sum": true
+      }
+    ],
+    "travel": {
+      "trips": 2,
+      "people_per_trip": 2,
+      "unit_cost": 6000,
+      "include_in_lump_sum": true
+    },
+    "misc_reimbursables": 3000
+  },
+  "selected_reference_ids": [],
+  "overrides": {
+    "project_name": "HCMC Mixed-Use Master Plan",
+    "client_name": "Example Client"
+  }
+}

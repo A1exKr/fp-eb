@@ -1,0 +1,93 @@
+ADOBE INDESIGN PRINTING INSTRUCTIONS FOR SERVICE PROVIDER REPORT
+
+PUBLICATION NAME: SPGA Business Park - Commercial Proposal rev.1.indd
+
+PACKAGE DATE: 2021/04/16 16:04
+Creation Date: 2021/04/16
+Modification Date: 2021/04/16
+
+CONTACT INFORMATION
+
+Company Name: 
+Contact: 
+Address: 
+
+
+
+
+
+Phone: 
+Fax: 
+Email: 
+
+SPECIAL INSTRUCTIONS AND OTHER NOTES
+
+
+
+
+
+
+External Plug-ins 0
+Non Opaque Objects :On Page1, 9
+
+FONTS
+7 Fonts Used; 0 Missing, 5 Embedded, 0 Incomplete, 0 Protected
+
+Fonts Packaged
+- Name: Arial-ItalicMT; Type: TrueType, Status: Embedded
+- Name: ArialMT; Type: TrueType, Status: Embedded
+- Name: Calibri; Type: TrueType, Status: Embedded
+- Name: CenturyGothic; Type: TrueType, Status: Embedded
+- Name: CenturyGothic; Type: OpenType TrueType, Status: OK
+- Name: CenturyGothic-Bold; Type: TrueType, Status: Embedded
+- Name: CenturyGothic-Bold; Type: OpenType TrueType, Status: OK
+
+
+COLOURS AND INKS
+4 Process Inks; 1 Spot Inks
+
+- Name and Type: Process Cyan; Angle: 71.565; Lines/Inch: 63.245
+- Name and Type: Process Magenta; Angle: 18.434; Lines/Inch: 63.245
+- Name and Type: Process Yellow; Angle: 0.000; Lines/Inch: 66.666
+- Name and Type: Process Black; Angle: 45.000; Lines/Inch: 70.710
+- Name and Type: silver; Angle: 45.000; Lines/Inch: 70.710
+
+
+LINKS AND IMAGES
+(Missing & Embedded Links Only)
+Links and Images: 29 Links Found; 0 Modified, 0 Missing 0 Inaccessible
+Images: 0 Embedded, 10 use RGB colour space
+
+
+PRINT SETTINGS
+PPD: Adobe PDF, (Adobe PDF)
+Printing To: Printer
+Number of Copies: 1
+Reader Spreads: Yes
+Even/Odd Pages: Both
+Pages: All
+Proof: No
+Tiling: None
+Scale: 100%, 100%
+Page Position: Centre
+Print Layers: Visible & Printable Layers
+Printer's Marks: None
+Bleed: 0 mm, 0 mm, 0 mm, 0 mm
+Colour: Composite CMYK
+Trapping Mode: None
+Send Image Data: Optimised Subsampling
+OPI/DCS Image Replacement: No
+Page Size: A4
+Paper Dimensions: 297.039 mm x 420.158 mm
+Orientation: Landscape
+Negative: No
+Flip Mode: Off
+
+
+FILE PACKAGE LIST
+
+1. SPGA Business Park - Commercial Proposal rev.1.indd; type: Adobe InDesign publication; size: 6064K
+2. SPGA Business Park - Commercial Proposal rev.1.idml; type: InDesign Mark-up Document; size: 204K
+3. SPGA Business Park - Commercial Proposal rev.1.pdf; type: Adobe Acrobat Document; size: 10912K
+4. GOTHIC.TTF; type: Font file; size: 134K
+5. GOTHICB.TTF; type: Font file; size: 126K

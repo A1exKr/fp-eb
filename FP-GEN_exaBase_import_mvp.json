@@ -1,0 +1,264 @@
+{
+  "schemaVersion": "5.0",
+  "canvasProperties": {
+    "authorizedIpSetting": {
+      "allowAll": true
+    },
+    "authorizedIps": {},
+    "variables": {
+      "vAppUrl": {
+        "_order": "a0000",
+        "name": "FPGEN_API_URL",
+        "value": "http://fpgen-mvp-api:8080"
+      }
+    },
+    "documents": {}
+  },
+  "edgesMap": {
+    "e1": {
+      "id": "e1",
+      "source": "nIntake",
+      "sourceHandle": "nIntake.right",
+      "target": "nParse",
+      "targetHandle": "nParse.left",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "e2": {
+      "id": "e2",
+      "source": "nParse",
+      "sourceHandle": "nParse.right",
+      "target": "nFee",
+      "targetHandle": "nFee.left",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "e3": {
+      "id": "e3",
+      "source": "nFee",
+      "sourceHandle": "nFee.right",
+      "target": "nGenerate",
+      "targetHandle": "nGenerate.left",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    }
+  },
+  "nodesMap": {
+    "wMvp": {
+      "type": "workspace",
+      "id": "wMvp",
+      "width": 1100,
+      "height": 700,
+      "data": {
+        "id": "fpgen-mvp",
+        "name": "FP-GEN MVP (OpenAI + JSON)",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0100"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "nApi": {
+      "type": "sideapp",
+      "id": "nApi",
+      "width": 280,
+      "data": {
+        "id": "fpgen-mvp-api",
+        "name": "FP-GEN MVP API Service",
+        "image": "<replace-with-your-custom-fpgen-runtime-image>",
+        "environment": {
+          "envLlmProvider": {
+            "key": "LLM_PROVIDER",
+            "value": "openai",
+            "_id": "envLlmProvider",
+            "_order": "a0000"
+          },
+          "envOpenAiKey": {
+            "key": "OPENAI_API_KEY",
+            "value": "${{SECRET.OPENAI_API_KEY}}",
+            "_id": "envOpenAiKey",
+            "_order": "a0001"
+          },
+          "envOpenAiModel": {
+            "key": "OPENAI_MODEL",
+            "value": "gpt-4.1-mini",
+            "_id": "envOpenAiModel",
+            "_order": "a0002"
+          },
+          "envDefaultCurrency": {
+            "key": "DEFAULT_CURRENCY",
+            "value": "USD",
+            "_id": "envDefaultCurrency",
+            "_order": "a0003"
+          },
+          "envOverhead": {
+            "key": "DEFAULT_OVERHEAD_PCT",
+            "value": "0.10",
+            "_id": "envOverhead",
+            "_order": "a0004"
+          },
+          "envTravel": {
+            "key": "TRAVEL_UNIT_COST_USD",
+            "value": "6000",
+            "_id": "envTravel",
+            "_order": "a0005"
+          },
+          "envStorage": {
+            "key": "FPGEN_STORAGE_DIR",
+            "value": "/app/data/proposals",
+            "_id": "envStorage",
+            "_order": "a0006"
+          },
+          "envRefs": {
+            "key": "FPGEN_REFERENCE_PROJECTS",
+            "value": "/app/data/reference_projects.json",
+            "_id": "envRefs",
+            "_order": "a0007"
+          },
+          "envInddDisabled": {
+            "key": "FPGEN_ENABLE_INDD_EXPORT",
+            "value": "false",
+            "_id": "envInddDisabled",
+            "_order": "a0008"
+          }
+        },
+        "injection": {},
+        "storage": {
+          "storageData": {
+            "path": "/app/data",
+            "_id": "storageData",
+            "_order": "a0000"
+          }
+        },
+        "_order": "a0200",
+        "replicas": 1,
+        "size": "m",
+        "showDescription": false
+      },
+      "position": {
+        "x": 40,
+        "y": 80
+      },
+      "parentId": "wMvp"
+    },
+    "nIntake": {
+      "type": "pipeline",
+      "id": "nIntake",
+      "width": 300,
+      "data": {
+        "id": "pl-intake",
+        "name": "RFP Intake",
+        "_order": "a0300"
+      },
+      "position": {
+        "x": 360,
+        "y": 80
+      },
+      "parentId": "wMvp"
+    },
+    "nParse": {
+      "type": "function",
+      "id": "nParse",
+      "width": 280,
+      "data": {
+        "id": "call-parse-endpoint",
+        "name": "POST /v1/parse",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_pdf_importer:1.11.0",
+        "computeType": "CPU",
+        "inputs": {},
+        "outputs": {},
+        "environment": {
+          "envParseUrl": {
+            "key": "PARSE_URL",
+            "value": "$[[FPGEN_API_URL]]/v1/parse",
+            "_id": "envParseUrl",
+            "_order": "a0000"
+          }
+        },
+        "injection": {},
+        "storage": {},
+        "_order": "a0310"
+      },
+      "position": {
+        "x": 40,
+        "y": 40
+      },
+      "parentId": "nIntake"
+    },
+    "nFee": {
+      "type": "pipeline",
+      "id": "nFee",
+      "width": 300,
+      "data": {
+        "id": "pl-fee",
+        "name": "Fee Calculation",
+        "_order": "a0400"
+      },
+      "position": {
+        "x": 360,
+        "y": 300
+      },
+      "parentId": "wMvp"
+    },
+    "nGenerate": {
+      "type": "function",
+      "id": "nGenerate",
+      "width": 280,
+      "data": {
+        "id": "call-generate-endpoint",
+        "name": "POST /v1/proposals/generate",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_csv_importer:1.11.0",
+        "computeType": "CPU",
+        "inputs": {},
+        "outputs": {},
+        "environment": {
+          "envGenerateUrl": {
+            "key": "GENERATE_URL",
+            "value": "$[[FPGEN_API_URL]]/v1/proposals/generate",
+            "_id": "envGenerateUrl",
+            "_order": "a0000"
+          }
+        },
+        "injection": {},
+        "storage": {},
+        "_order": "a0500"
+      },
+      "position": {
+        "x": 740,
+        "y": 300
+      },
+      "parentId": "wMvp"
+    },
+    "nSticky": {
+      "type": "sticky",
+      "id": "nSticky",
+      "position": {
+        "x": 40,
+        "y": 500
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "Wire exaBase HTTP/function blocks to FP-GEN MVP endpoints: /v1/parse, /v1/fee/calculate, /v1/proposals/generate, /v1/proposals/{id}",
+        "fill": "blue",
+        "_order": "a0600"
+      },
+      "parentId": "wMvp",
+      "width": 980
+    }
+  },
+  "projectName": "FP-GEN MVP exaBase Import",
+  "projectId": "fpgen-exabase-mvp"
+}

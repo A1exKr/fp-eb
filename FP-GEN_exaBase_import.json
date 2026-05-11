@@ -1,0 +1,2154 @@
+{
+  "schemaVersion": "5.0",
+  "canvasProperties": {
+    "authorizedIpSetting": {
+      "allowAll": true
+    },
+    "authorizedIps": {},
+    "variables": {
+      "vSzh6H4VCBUIuqcQxOx9": {
+        "_order": "a0000",
+        "name": "APP_URL",
+        "value": "https://<replace-with-fpgen-app-endpoint>/"
+      },
+      "v6UUwWotbRgflmmNjma3": {
+        "_order": "a0001",
+        "name": "AUTH_URL",
+        "value": "https://<replace-with-fpgen-auth-endpoint>/"
+      },
+      "vLWcQ2kqDgy4Rh4vT5T2": {
+        "_order": "a0002",
+        "name": "DB_USER",
+        "value": "postgres"
+      },
+      "vdJLf4h07Mo7U8VbOnVD": {
+        "_order": "a0003",
+        "name": "DB_PASSWORD",
+        "value": "postgres"
+      },
+      "vznHdh4KVY5bu1umIHjW": {
+        "_order": "a0004",
+        "name": "CONFIG_CRYPTO_KEY",
+        "value": "replace-with-secure-random-key"
+      },
+      "vxRE6eO67AYmKKBCrzYs": {
+        "_order": "a0005",
+        "name": "DEFAULT_CURRENCY",
+        "value": "USD"
+      },
+      "vgHM0f5vt0Ca7Vm7oJei": {
+        "_order": "a0006",
+        "name": "DEFAULT_OVERHEAD_PCT",
+        "value": "0.10"
+      },
+      "vljNxodNZ4OFVBPWVnZX": {
+        "_order": "a0007",
+        "name": "TRAVEL_UNIT_COST_USD",
+        "value": "6000"
+      },
+      "vfpgenapi001": {
+        "_order": "a0008",
+        "name": "FPGEN_API_URL",
+        "value": "http://fpgen-mvp-api:8080"
+      },
+      "vfpgenlitellm001": {
+        "_order": "a0009",
+        "name": "FPGEN_LITELLM_URL",
+        "value": "http://fpgen-ai-litellm:8080"
+      },
+      "vfpgenstorage001": {
+        "_order": "a000A",
+        "name": "FPGEN_STORAGE_DIR",
+        "value": "/app/data/proposals"
+      },
+      "vfpgenrefs001": {
+        "_order": "a000B",
+        "name": "FPGEN_REFERENCE_PROJECTS_PATH",
+        "value": "/app/data/reference_projects.json"
+      }
+    },
+    "documents": {}
+  },
+  "edgesMap": {
+    "gAA5PPZY0BV6wlRdevcb": {
+      "id": "gAA5PPZY0BV6wlRdevcb",
+      "source": "eqzwq767iUh99uSi9zfO",
+      "sourceHandle": "eqzwq767iUh99uSi9zfO.bottom",
+      "target": "n1vRyWIYcBtP84WyEO6w",
+      "targetHandle": "n1vRyWIYcBtP84WyEO6w.top",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gXTufQST32o8WJsuXLIh": {
+      "id": "gXTufQST32o8WJsuXLIh",
+      "source": "n1vRyWIYcBtP84WyEO6w",
+      "sourceHandle": "n1vRyWIYcBtP84WyEO6w.right",
+      "target": "nluk62ytBcWokdwtpqg7",
+      "targetHandle": "nluk62ytBcWokdwtpqg7.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gvFkSv4F8hKCl08sYmN3": {
+      "id": "gvFkSv4F8hKCl08sYmN3",
+      "source": "e9xxHq7JQeVLglQW519N",
+      "sourceHandle": "e9xxHq7JQeVLglQW519N.top",
+      "target": "nAjOJlGSlXgDxp2Y3gOc",
+      "targetHandle": "nAjOJlGSlXgDxp2Y3gOc.bottom",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "g1ycpiIRh4WIX5Eg5YEI": {
+      "id": "g1ycpiIRh4WIX5Eg5YEI",
+      "source": "nAjOJlGSlXgDxp2Y3gOc",
+      "sourceHandle": "nAjOJlGSlXgDxp2Y3gOc.left",
+      "target": "nJ933G6QcO34r5zPaImt",
+      "targetHandle": "nJ933G6QcO34r5zPaImt.right",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gCEJtovCeUf7UOaGw1qQ": {
+      "id": "gCEJtovCeUf7UOaGw1qQ",
+      "source": "nAjOJlGSlXgDxp2Y3gOc",
+      "sourceHandle": "nAjOJlGSlXgDxp2Y3gOc.bottom",
+      "target": "nY0xE6B8JmenA9fqn1aX",
+      "targetHandle": "nY0xE6B8JmenA9fqn1aX.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gLrdl1Axuf16iXItkaiP": {
+      "id": "gLrdl1Axuf16iXItkaiP",
+      "source": "nY0xE6B8JmenA9fqn1aX",
+      "sourceHandle": "nY0xE6B8JmenA9fqn1aX.right",
+      "target": "n1vRyWIYcBtP84WyEO6w",
+      "targetHandle": "n1vRyWIYcBtP84WyEO6w.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gonj7LjFhkptsgy3R6I4": {
+      "id": "gonj7LjFhkptsgy3R6I4",
+      "source": "nAjOJlGSlXgDxp2Y3gOc",
+      "sourceHandle": "nAjOJlGSlXgDxp2Y3gOc.right",
+      "target": "nHgzQayUSc2d7fZig8xH",
+      "targetHandle": "nHgzQayUSc2d7fZig8xH.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gO3og0jLyVgbkFnXcs0H": {
+      "id": "gO3og0jLyVgbkFnXcs0H",
+      "source": "nHgzQayUSc2d7fZig8xH",
+      "sourceHandle": "nHgzQayUSc2d7fZig8xH.right",
+      "target": "n1lf1sMfePmniDh2x50c",
+      "targetHandle": "n1lf1sMfePmniDh2x50c.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gaefurZP2C8ph1TniAQO": {
+      "id": "gaefurZP2C8ph1TniAQO",
+      "source": "n1lf1sMfePmniDh2x50c",
+      "sourceHandle": "n1lf1sMfePmniDh2x50c.right",
+      "target": "nuIzC1iKTqVIhknUqjbI",
+      "targetHandle": "nuIzC1iKTqVIhknUqjbI.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gfESh4zIwTBvpIrY280m": {
+      "id": "gfESh4zIwTBvpIrY280m",
+      "source": "n1lf1sMfePmniDh2x50c",
+      "sourceHandle": "n1lf1sMfePmniDh2x50c.bottom",
+      "target": "puhsX8PH2Q76c0Vl6ByS",
+      "targetHandle": "puhsX8PH2Q76c0Vl6ByS.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gBnXRd6UPOVOn1CRaa1O": {
+      "id": "gBnXRd6UPOVOn1CRaa1O",
+      "source": "puhsX8PH2Q76c0Vl6ByS",
+      "sourceHandle": "puhsX8PH2Q76c0Vl6ByS.right",
+      "target": "dHkHtJsDGNeQfoTiPQsG",
+      "targetHandle": "dHkHtJsDGNeQfoTiPQsG.left",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "g71i382TtGDdAZPUDHDQ": {
+      "id": "g71i382TtGDdAZPUDHDQ",
+      "source": "dHkHtJsDGNeQfoTiPQsG",
+      "sourceHandle": "dHkHtJsDGNeQfoTiPQsG.right",
+      "target": "p8GP7ztywpBZqAuS8809",
+      "targetHandle": "p8GP7ztywpBZqAuS8809.left",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gp0se17TQ4zkRF5W79Ly": {
+      "id": "gp0se17TQ4zkRF5W79Ly",
+      "source": "p8GP7ztywpBZqAuS8809",
+      "sourceHandle": "p8GP7ztywpBZqAuS8809.right",
+      "target": "duEZzrJZTsFxLAZmtbXR",
+      "targetHandle": "duEZzrJZTsFxLAZmtbXR.left",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gGOHOTjYm0nDAKBXOjCA": {
+      "id": "gGOHOTjYm0nDAKBXOjCA",
+      "source": "duEZzrJZTsFxLAZmtbXR",
+      "sourceHandle": "duEZzrJZTsFxLAZmtbXR.right",
+      "target": "pRUKquwiTUWnyJcEopFE",
+      "targetHandle": "pRUKquwiTUWnyJcEopFE.left",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gxW3gDZ8KhHuxI7HL8sr": {
+      "id": "gxW3gDZ8KhHuxI7HL8sr",
+      "source": "nuIzC1iKTqVIhknUqjbI",
+      "sourceHandle": "nuIzC1iKTqVIhknUqjbI.bottom",
+      "target": "pRUKquwiTUWnyJcEopFE",
+      "targetHandle": "pRUKquwiTUWnyJcEopFE.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gZSY5PjBfvcIvQCRHFEg": {
+      "id": "gZSY5PjBfvcIvQCRHFEg",
+      "source": "n1lf1sMfePmniDh2x50c",
+      "sourceHandle": "n1lf1sMfePmniDh2x50c.bottom",
+      "target": "nn2wBdjOaayJSIn3SdoR",
+      "targetHandle": "nn2wBdjOaayJSIn3SdoR.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gxdeY3dnfq0mBGVS0Hel": {
+      "id": "gxdeY3dnfq0mBGVS0Hel",
+      "source": "nn2wBdjOaayJSIn3SdoR",
+      "sourceHandle": "nn2wBdjOaayJSIn3SdoR.right",
+      "target": "pUwuht4tAcMk591oGu5j",
+      "targetHandle": "pUwuht4tAcMk591oGu5j.left",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gydKgajNwbJE1srYZwgV": {
+      "id": "gydKgajNwbJE1srYZwgV",
+      "source": "pUwuht4tAcMk591oGu5j",
+      "sourceHandle": "pUwuht4tAcMk591oGu5j.bottom",
+      "target": "d0YK7kj8vVWIwc5ra4gM",
+      "targetHandle": "d0YK7kj8vVWIwc5ra4gM.top",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "geA6cULLnZn6XNU5vfpm": {
+      "id": "geA6cULLnZn6XNU5vfpm",
+      "source": "esOv0EztZly5eopdvN4A",
+      "sourceHandle": "esOv0EztZly5eopdvN4A.top",
+      "target": "nn2wBdjOaayJSIn3SdoR",
+      "targetHandle": "nn2wBdjOaayJSIn3SdoR.bottom",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "g1BEYyfZ1YiOw2Jh3tCB": {
+      "id": "g1BEYyfZ1YiOw2Jh3tCB",
+      "source": "n1lf1sMfePmniDh2x50c",
+      "sourceHandle": "n1lf1sMfePmniDh2x50c.bottom",
+      "target": "nRvLv3Qz9M1oNL020AIp",
+      "targetHandle": "nRvLv3Qz9M1oNL020AIp.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gCUiCoaD5KD98EUiYqGV": {
+      "id": "gCUiCoaD5KD98EUiYqGV",
+      "source": "nRvLv3Qz9M1oNL020AIp",
+      "sourceHandle": "nRvLv3Qz9M1oNL020AIp.bottom",
+      "target": "nUMm237Gu7igWFP6RQnx",
+      "targetHandle": "nUMm237Gu7igWFP6RQnx.right",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gJa6YHcUzyHxJtB9T9YV": {
+      "id": "gJa6YHcUzyHxJtB9T9YV",
+      "source": "nyDochzWtbGvsZHYbHav",
+      "sourceHandle": "nyDochzWtbGvsZHYbHav.bottom",
+      "target": "nUMm237Gu7igWFP6RQnx",
+      "targetHandle": "nUMm237Gu7igWFP6RQnx.right",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gg50KYRu8qghXx9CX0eF": {
+      "id": "gg50KYRu8qghXx9CX0eF",
+      "source": "n1lf1sMfePmniDh2x50c",
+      "sourceHandle": "n1lf1sMfePmniDh2x50c.bottom",
+      "target": "nyDochzWtbGvsZHYbHav",
+      "targetHandle": "nyDochzWtbGvsZHYbHav.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gxEd2QUStZAGdAalK5o8": {
+      "id": "gxEd2QUStZAGdAalK5o8",
+      "source": "n1lf1sMfePmniDh2x50c",
+      "sourceHandle": "n1lf1sMfePmniDh2x50c.right",
+      "target": "nXKqHnTOCjGnCXtYw5PK",
+      "targetHandle": "nXKqHnTOCjGnCXtYw5PK.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gvNXuO89yJfnyLwveYN4": {
+      "id": "gvNXuO89yJfnyLwveYN4",
+      "source": "n1lf1sMfePmniDh2x50c",
+      "sourceHandle": "n1lf1sMfePmniDh2x50c.bottom",
+      "target": "n39XwWxuBPsHjfRYR1UZ",
+      "targetHandle": "n39XwWxuBPsHjfRYR1UZ.top",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "ggrmNmj3x3OLKKMyZEKc": {
+      "id": "ggrmNmj3x3OLKKMyZEKc",
+      "source": "n39XwWxuBPsHjfRYR1UZ",
+      "sourceHandle": "n39XwWxuBPsHjfRYR1UZ.right",
+      "target": "n0xWW66SeTN4OL20TNbj",
+      "targetHandle": "n0xWW66SeTN4OL20TNbj.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gMu7QYb4t3z5lm2yynOj": {
+      "id": "gMu7QYb4t3z5lm2yynOj",
+      "source": "nxk4yXX7FQJAyJYFnXdA",
+      "sourceHandle": "nxk4yXX7FQJAyJYFnXdA.top",
+      "target": "n39XwWxuBPsHjfRYR1UZ",
+      "targetHandle": "n39XwWxuBPsHjfRYR1UZ.bottom",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gF7OHehCjzuWdo5hrHFX": {
+      "id": "gF7OHehCjzuWdo5hrHFX",
+      "source": "nb8fZlxb4HemdEc32Zli",
+      "sourceHandle": "nb8fZlxb4HemdEc32Zli.right",
+      "target": "nm2GMJBUtFMiVFdu6W8O",
+      "targetHandle": "nm2GMJBUtFMiVFdu6W8O.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "glGv2EXzIStSwhxox2Nj": {
+      "id": "glGv2EXzIStSwhxox2Nj",
+      "source": "nm2GMJBUtFMiVFdu6W8O",
+      "sourceHandle": "nm2GMJBUtFMiVFdu6W8O.top",
+      "target": "npCZq6riaLxqc1CjqcL9",
+      "targetHandle": "npCZq6riaLxqc1CjqcL9.bottom",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gBEqYIp6cVQoZsJB5yoY": {
+      "id": "gBEqYIp6cVQoZsJB5yoY",
+      "source": "nRvLv3Qz9M1oNL020AIp",
+      "sourceHandle": "nRvLv3Qz9M1oNL020AIp.right",
+      "target": "n39XwWxuBPsHjfRYR1UZ",
+      "targetHandle": "n39XwWxuBPsHjfRYR1UZ.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gjQo9319dBXtu7oLehH2": {
+      "id": "gjQo9319dBXtu7oLehH2",
+      "source": "nyDochzWtbGvsZHYbHav",
+      "sourceHandle": "nyDochzWtbGvsZHYbHav.right",
+      "target": "nb8fZlxb4HemdEc32Zli",
+      "targetHandle": "nb8fZlxb4HemdEc32Zli.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gEtTOLYZaVFJCr6RHOxm": {
+      "id": "gEtTOLYZaVFJCr6RHOxm",
+      "source": "nn2wBdjOaayJSIn3SdoR",
+      "sourceHandle": "nn2wBdjOaayJSIn3SdoR.right",
+      "target": "n39XwWxuBPsHjfRYR1UZ",
+      "targetHandle": "n39XwWxuBPsHjfRYR1UZ.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gJ6RKLYqUyzkjQlMoy0V": {
+      "id": "gJ6RKLYqUyzkjQlMoy0V",
+      "source": "nUMm237Gu7igWFP6RQnx",
+      "sourceHandle": "nUMm237Gu7igWFP6RQnx.top",
+      "target": "eSwDdXCJ4PzKJTmfUy8D",
+      "targetHandle": "eSwDdXCJ4PzKJTmfUy8D.bottom",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gOCa4QN4mS9YTda7Lnz3": {
+      "id": "gOCa4QN4mS9YTda7Lnz3",
+      "source": "nJGRtOwfFIhivgqMKcvP",
+      "sourceHandle": "nJGRtOwfFIhivgqMKcvP.left",
+      "target": "nAjOJlGSlXgDxp2Y3gOc",
+      "targetHandle": "nAjOJlGSlXgDxp2Y3gOc.right",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    }
+  },
+  "nodesMap": {
+    "wbQIv7Ebgh3aOuYkmevl": {
+      "type": "workspace",
+      "id": "wbQIv7Ebgh3aOuYkmevl",
+      "width": 900,
+      "height": 650,
+      "data": {
+        "id": "fpgen-app",
+        "name": "FP-GEN User App / Proposal Portal",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0100"
+      },
+      "position": {
+        "x": -700,
+        "y": 40
+      }
+    },
+    "wxxwNK83spBJX0R7YIFz": {
+      "type": "workspace",
+      "id": "wxxwNK83spBJX0R7YIFz",
+      "width": 1120,
+      "height": 650,
+      "data": {
+        "id": "fpgen-admin",
+        "name": "FP-GEN Review, Data & Administration",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0200"
+      },
+      "position": {
+        "x": 260,
+        "y": 40
+      }
+    },
+    "wCzakD8yeT8dw0WoW6Iq": {
+      "type": "workspace",
+      "id": "wCzakD8yeT8dw0WoW6Iq",
+      "width": 600,
+      "height": 470,
+      "data": {
+        "id": "fpgen-ai",
+        "name": "AI Parsing / LLM Gateway",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0300"
+      },
+      "position": {
+        "x": -700,
+        "y": 770
+      }
+    },
+    "wjbIiDUagLgMeOvDWZc7": {
+      "type": "workspace",
+      "id": "wjbIiDUagLgMeOvDWZc7",
+      "width": 620,
+      "height": 470,
+      "data": {
+        "id": "fpgen-docgen",
+        "name": "Document Generation & Export",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0400"
+      },
+      "position": {
+        "x": -40,
+        "y": 770
+      }
+    },
+    "wtfMzKTcRVoF3BK15HD2": {
+      "type": "workspace",
+      "id": "wtfMzKTcRVoF3BK15HD2",
+      "width": 420,
+      "height": 470,
+      "data": {
+        "id": "fpgen-auth",
+        "name": "Authentication",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0500"
+      },
+      "position": {
+        "x": 620,
+        "y": 770
+      }
+    },
+    "wtvAeJp7E6BieKNkB9Bf": {
+      "type": "workspace",
+      "id": "wtvAeJp7E6BieKNkB9Bf",
+      "width": 720,
+      "height": 470,
+      "data": {
+        "id": "fpgen-data",
+        "name": "Knowledge, Vector Search & Files",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0600"
+      },
+      "position": {
+        "x": 1100,
+        "y": 770
+      }
+    },
+    "tQmBYpDLuXqeFZrsuzjX": {
+      "type": "sticky",
+      "id": "tQmBYpDLuXqeFZrsuzjX",
+      "position": {
+        "x": -920,
+        "y": -180
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "FP-GEN exaBase canvas v0.1<br><br>Purpose: RFP upload → AI extraction → review/finalize → fee calculation → proposal export.",
+        "fill": "blue",
+        "_order": "a0010"
+      },
+      "width": 420
+    },
+    "tRbp5rWzrnOCWHEhAX9X": {
+      "type": "sticky",
+      "id": "tRbp5rWzrnOCWHEhAX9X",
+      "position": {
+        "x": -920,
+        "y": 40
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "Required secrets<br>• OPENAI_API_KEY<br>• LITE_LLM_ADMIN_PASSWORD<br><br>Required variables<br>• APP_URL<br>• AUTH_URL<br>• DB_USER / DB_PASSWORD<br>• CONFIG_CRYPTO_KEY<br>• DEFAULT_CURRENCY<br>• DEFAULT_OVERHEAD_PCT",
+        "fill": "pink",
+        "_order": "a0020"
+      },
+      "width": 430
+    },
+    "tGFWAwCDNuvj86Hc81na": {
+      "type": "sticky",
+      "id": "tGFWAwCDNuvj86Hc81na",
+      "position": {
+        "x": 1390,
+        "y": 40
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "Default proposal sections<br>1 Cover Letter<br>2 Project Understanding<br>3 Methodology<br>4 Scope & Deliverables<br>5 Schedule<br>6 Team Structure<br>7 Financial Proposal<br>8 Relevant Experience<br>9 Assumptions & Exclusions",
+        "fill": "gray",
+        "_order": "a0030"
+      },
+      "width": 390
+    },
+    "e9xxHq7JQeVLglQW519N": {
+      "type": "endpoint",
+      "id": "e9xxHq7JQeVLglQW519N",
+      "width": 250,
+      "position": {
+        "x": 565,
+        "y": 520
+      },
+      "data": {
+        "bind": "ReadWrite",
+        "port": 8080,
+        "uri": "/",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0110"
+      },
+      "parentId": "wbQIv7Ebgh3aOuYkmevl"
+    },
+    "eqzwq767iUh99uSi9zfO": {
+      "type": "endpoint",
+      "id": "eqzwq767iUh99uSi9zfO",
+      "width": 250,
+      "position": {
+        "x": 80,
+        "y": 30
+      },
+      "data": {
+        "bind": "ReadWrite",
+        "port": 8080,
+        "uri": "/",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0510"
+      },
+      "parentId": "wtfMzKTcRVoF3BK15HD2"
+    },
+    "eSwDdXCJ4PzKJTmfUy8D": {
+      "type": "endpoint",
+      "id": "eSwDdXCJ4PzKJTmfUy8D",
+      "width": 250,
+      "position": {
+        "x": 300,
+        "y": 350
+      },
+      "data": {
+        "bind": "ReadWrite",
+        "port": 8080,
+        "uri": "/",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0310"
+      },
+      "parentId": "wCzakD8yeT8dw0WoW6Iq"
+    },
+    "esOv0EztZly5eopdvN4A": {
+      "type": "endpoint",
+      "id": "esOv0EztZly5eopdvN4A",
+      "width": 250,
+      "position": {
+        "x": 350,
+        "y": 350
+      },
+      "data": {
+        "bind": "ReadWrite",
+        "port": 8080,
+        "uri": "/exports",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0410"
+      },
+      "parentId": "wjbIiDUagLgMeOvDWZc7"
+    },
+    "nJGRtOwfFIhivgqMKcvP": {
+      "type": "sideapp",
+      "id": "nJGRtOwfFIhivgqMKcvP",
+      "width": 250,
+      "data": {
+        "id": "rdb",
+        "name": "PostgreSQL DB server",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/rdb_postgresql_17:1.2.1",
+        "environment": {
+          "eLvvxI2IbRSpy1Yv8FGa": {
+            "key": "POSTGRES_USER",
+            "value": "$[[DB_USER]]",
+            "_id": "eLvvxI2IbRSpy1Yv8FGa",
+            "_order": "a0000"
+          },
+          "eJv2hyRddgNHTgEpBAYf": {
+            "key": "POSTGRES_PASSWORD",
+            "value": "$[[DB_PASSWORD]]",
+            "_id": "eJv2hyRddgNHTgEpBAYf",
+            "_order": "a0001"
+          },
+          "eHFBPNMb86nptHcoCHLb": {
+            "key": "POSTGRES_MAX_CONNECTIONS",
+            "value": "300",
+            "_id": "eHFBPNMb86nptHcoCHLb",
+            "_order": "a0002"
+          }
+        },
+        "injection": {
+          "jjDvzAS3gb8XV6EBoZjH": {
+            "path": "/docker-entrypoint-initdb.d/initial_fpgen.sql",
+            "data": "CREATE SCHEMA IF NOT EXISTS fpgen;\nCREATE SCHEMA IF NOT EXISTS keycloak;\nCREATE SCHEMA IF NOT EXISTS litellm;\nCREATE SCHEMA IF NOT EXISTS file_manager;\nCREATE SCHEMA IF NOT EXISTS proposal_manager;\nCREATE SCHEMA IF NOT EXISTS config_manager;",
+            "_id": "jjDvzAS3gb8XV6EBoZjH",
+            "_order": "a0000"
+          },
+          "jH1jV6gJVHMMBI6v75yo": {
+            "path": "/docker-entrypoint-always-initdb.d/ensure_schema.sql",
+            "data": "CREATE SCHEMA IF NOT EXISTS fpgen;\nCREATE SCHEMA IF NOT EXISTS keycloak;\nCREATE SCHEMA IF NOT EXISTS litellm;",
+            "_id": "jH1jV6gJVHMMBI6v75yo",
+            "_order": "a0001"
+          }
+        },
+        "storage": {
+          "s60pmG0mPF4WURAraM8S": {
+            "path": "/var/lib/postgresql/data",
+            "_id": "s60pmG0mPF4WURAraM8S",
+            "_order": "a0000"
+          }
+        },
+        "_order": "a0120",
+        "replicas": 1,
+        "size": "m",
+        "showDescription": false
+      },
+      "position": {
+        "x": 560,
+        "y": 70
+      },
+      "parentId": "wbQIv7Ebgh3aOuYkmevl"
+    },
+    "nAjOJlGSlXgDxp2Y3gOc": {
+      "type": "sideapp",
+      "id": "nAjOJlGSlXgDxp2Y3gOc",
+      "width": 250,
+      "data": {
+        "id": "nginx",
+        "name": "FP-GEN Reverse Proxy",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/nginx_v1_29:1.0.2",
+        "environment": {
+          "ePJaQaHrPDScgs81rTbr": {
+            "key": "ENV_APP_URL",
+            "value": "$[[APP_URL]]",
+            "_id": "ePJaQaHrPDScgs81rTbr",
+            "_order": "a0000"
+          },
+          "eEt9Y7o9u1B6FR0HfeeK": {
+            "key": "ENV_AUTH_URL",
+            "value": "$[[AUTH_URL]]",
+            "_id": "eEt9Y7o9u1B6FR0HfeeK",
+            "_order": "a0001"
+          },
+          "e6P5BYlsL00d76RwXp9U": {
+            "key": "ENV_KEYCLOAK_REALM",
+            "value": "fpgen",
+            "_id": "e6P5BYlsL00d76RwXp9U",
+            "_order": "a0002"
+          },
+          "eLyLcvxl9fV2cbex4K0r": {
+            "key": "ENV_KEYCLOAK_OIDC_CLIENT_ID",
+            "value": "fpgen-oidc",
+            "_id": "eLyLcvxl9fV2cbex4K0r",
+            "_order": "a0003"
+          },
+          "eDdjNJWISmTemuyOhJ2k": {
+            "key": "ENV_OAUTH2_PROXY_URL",
+            "value": "http://fpgen-app-oauth2-proxy:8080",
+            "_id": "eDdjNJWISmTemuyOhJ2k",
+            "_order": "a0004"
+          },
+          "eFPGENAPIURL": {
+            "key": "ENV_FPGEN_API_URL",
+            "value": "$[[FPGEN_API_URL]]",
+            "_id": "eFPGENAPIURL",
+            "_order": "a0005"
+          }
+        },
+        "injection": {
+          "jQV6hgFEADDpsfAAOb4F": {
+            "path": "/app/template.conf",
+            "data": "user nginx;\nworker_processes auto;\nevents { worker_connections 1024; }\nhttp {\n  include /etc/nginx/mime.types;\n  default_type application/octet-stream;\n  client_max_body_size 1G;\n  keepalive_timeout 180;\n  proxy_connect_timeout 180s;\n  proxy_send_timeout 180s;\n  proxy_read_timeout 180s;\n\n  server {\n    listen 8080;\n    server_name localhost;\n    port_in_redirect off;\n    absolute_redirect off;\n\n    auth_request_set $auth_user $upstream_http_x_auth_request_user;\n    auth_request_set $auth_email $upstream_http_x_auth_request_email;\n    auth_request_set $groups $upstream_http_x_auth_request_groups;\n    auth_request_set $access_token $upstream_http_x_auth_request_access_token;\n    proxy_set_header X-Forwarded-User $auth_user;\n    proxy_set_header X-Forwarded-Email $auth_email;\n    proxy_set_header X-Forwarded-groups $groups;\n    proxy_set_header X-Forwarded-Access-Token $access_token;\n    proxy_set_header Host $http_host;\n    proxy_set_header X-Real-IP $remote_addr;\n    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;\n    proxy_http_version 1.1;\n    proxy_set_header Upgrade $http_upgrade;\n    proxy_set_header Connection \"upgrade\";\n\n    location /oauth2/ { proxy_pass ${ENV_OAUTH2_PROXY_URL}/oauth2/; }\n    location = /oauth2/auth { proxy_pass ${ENV_OAUTH2_PROXY_URL}/oauth2/auth; proxy_pass_request_body off; proxy_set_header Content-Length \"\"; proxy_set_header X-Original-URL $scheme://$http_host$request_uri; }\n    location = /oauth2/callback { proxy_pass ${ENV_OAUTH2_PROXY_URL}/oauth2/callback; }\n    location = /logout { return 302 ${ENV_AUTH_URL}realms/${ENV_KEYCLOAK_REALM}/protocol/openid-connect/logout?client_id=${ENV_KEYCLOAK_OIDC_CLIENT_ID}&post_logout_redirect_uri=${ENV_APP_URL}logout/after; }\n    location = /logout/after { return 302 ${ENV_APP_URL}oauth2/sign_out; }\n\n    location / { auth_request /oauth2/auth; error_page 401 = @error401; proxy_pass http://fpgen-app-portal:8080/; }\n    location /review/ { auth_request /oauth2/auth; error_page 401 = @error401; proxy_pass http://fpgen-admin-review-ui:8080/; }\n    location /api/ { auth_request /oauth2/auth; error_page 401 = @error401; proxy_pass ${ENV_FPGEN_API_URL}/; }\n    location /files/ { auth_request /oauth2/auth; error_page 401 = @error401; proxy_pass http://fpgen-data-file-viewer:8080/files/; }\n    location /exports/ { auth_request /oauth2/auth; error_page 401 = @error401; proxy_pass ${ENV_FPGEN_API_URL}/v1/proposals/; }\n    location @error401 { return 302 /oauth2/start?rd=$scheme://$http_host$request_uri; }\n  }\n}\n",
+            "_id": "jQV6hgFEADDpsfAAOb4F",
+            "_order": "a0000"
+          }
+        },
+        "storage": {
+          "sbbOFDZAKCfKpAzBwJIT": {
+            "path": "/tmp/mnt",
+            "_id": "sbbOFDZAKCfKpAzBwJIT",
+            "_order": "a0000"
+          }
+        },
+        "_order": "a0130",
+        "replicas": 1,
+        "size": "xxs",
+        "showDescription": false
+      },
+      "position": {
+        "x": 250,
+        "y": 70
+      },
+      "parentId": "wbQIv7Ebgh3aOuYkmevl"
+    },
+    "nY0xE6B8JmenA9fqn1aX": {
+      "type": "sideapp",
+      "id": "nY0xE6B8JmenA9fqn1aX",
+      "width": 250,
+      "data": {
+        "id": "oauth2-proxy",
+        "name": "OIDC Authentication Proxy",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/oauth2_proxy:1.1.3",
+        "environment": {
+          "ewTAXXL08yfEoABKiDUC": {
+            "key": "KEYCLOAK_URL",
+            "value": "$[[AUTH_URL]]",
+            "_id": "ewTAXXL08yfEoABKiDUC",
+            "_order": "a0000"
+          },
+          "eUfluPiu0V7yyr0Ww1ng": {
+            "key": "KEYCLOAK_REALM",
+            "value": "fpgen",
+            "_id": "eUfluPiu0V7yyr0Ww1ng",
+            "_order": "a0001"
+          },
+          "eR6wYZqjdYBLCFqbu39O": {
+            "key": "KEYCLOAK_INTERNAL_URL",
+            "value": "http://fpgen-auth-keycloak:8080",
+            "_id": "eR6wYZqjdYBLCFqbu39O",
+            "_order": "a0002"
+          },
+          "eeiY3Ty3Z3KC1VBWGkFI": {
+            "key": "REDIRECT_BASE_URL",
+            "value": "$[[APP_URL]]",
+            "_id": "eeiY3Ty3Z3KC1VBWGkFI",
+            "_order": "a0003"
+          },
+          "eYjTV0uxyVpHfHdmWtxs": {
+            "key": "KEYCLOAK_OIDC_CLIENT_ID",
+            "value": "fpgen-oidc",
+            "_id": "eYjTV0uxyVpHfHdmWtxs",
+            "_order": "a0004"
+          },
+          "eeNuOKkSjhXNKFTu9K8K": {
+            "key": "KEYCLOAK_OIDC_CLIENT_SECRET",
+            "value": "fpgen-secret",
+            "_id": "eeNuOKkSjhXNKFTu9K8K",
+            "_order": "a0005"
+          },
+          "eJF4L38Z52zWUjWJR5h3": {
+            "key": "COOKIE_EXPIRE",
+            "value": "24h",
+            "_id": "eJF4L38Z52zWUjWJR5h3",
+            "_order": "a0006"
+          }
+        },
+        "injection": {},
+        "storage": {},
+        "_order": "a0140",
+        "replicas": 1,
+        "size": "s",
+        "showDescription": false
+      },
+      "position": {
+        "x": 250,
+        "y": 300
+      },
+      "parentId": "wbQIv7Ebgh3aOuYkmevl"
+    },
+    "nJ933G6QcO34r5zPaImt": {
+      "type": "sideapp",
+      "id": "nJ933G6QcO34r5zPaImt",
+      "width": 250,
+      "data": {
+        "id": "portal",
+        "name": "FP-GEN Proposal Portal",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/portal:1.0.0",
+        "environment": {
+          "eCREGhrPJfkNweCxqk6a": {
+            "key": "APP_API_URL",
+            "value": "$[[FPGEN_API_URL]]",
+            "_id": "eCREGhrPJfkNweCxqk6a",
+            "_order": "a0000"
+          }
+        },
+        "injection": {
+          "jsCpAs37ZugjHD3VKFdU": {
+            "path": "/app/injection/config.yaml",
+            "data": "envs:\n  system_settings:\n    APP_NAME: \"FP-GEN\"\n    API_BASE_URL: \"$[[FPGEN_API_URL]]\"\n    REVIEW_URL: \"/review/\"\n    EXPORT_URL: \"/exports/\"\n    LOGOUT_REDIRECT_URL: \"/logout\"\n  ui_settings:\n    HEADER_TITLE: \"FP-GEN Proposal Generator\"\n    WELCOME_MESSAGE: |\n      Upload an RFP, review extracted proposal data, calculate fees, and export a proposal package.\n",
+            "_id": "jsCpAs37ZugjHD3VKFdU",
+            "_order": "a0000",
+            "lang": "yaml"
+          }
+        },
+        "storage": {},
+        "_order": "a0150",
+        "replicas": 2,
+        "size": "xl",
+        "showDescription": false
+      },
+      "position": {
+        "x": 20,
+        "y": 170
+      },
+      "parentId": "wbQIv7Ebgh3aOuYkmevl"
+    },
+    "n1vRyWIYcBtP84WyEO6w": {
+      "type": "sideapp",
+      "id": "n1vRyWIYcBtP84WyEO6w",
+      "width": 250,
+      "data": {
+        "id": "keycloak",
+        "name": "Identity Provider",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/keycloak:1.0.1",
+        "environment": {
+          "eFPjVFb1Rrydvyu4kg0n": {
+            "key": "KC_HOSTNAME",
+            "value": "$[[AUTH_URL]]",
+            "_id": "eFPjVFb1Rrydvyu4kg0n",
+            "_order": "a0000"
+          },
+          "ea0IyQa4HYTN4Y9avBKG": {
+            "key": "KEYCLOAK_REALM",
+            "value": "fpgen",
+            "_id": "ea0IyQa4HYTN4Y9avBKG",
+            "_order": "a0001"
+          },
+          "eFjG5uh1Nph6TamqdHAV": {
+            "key": "KC_DB",
+            "value": "postgres",
+            "_id": "eFjG5uh1Nph6TamqdHAV",
+            "_order": "a0002"
+          },
+          "eZAXPSqkf7nRvy3y2yl9": {
+            "key": "KC_DB_URL",
+            "value": "jdbc:postgresql://fpgen-app-rdb:8080/postgres",
+            "_id": "eZAXPSqkf7nRvy3y2yl9",
+            "_order": "a0003"
+          },
+          "eN2DRFa1b58OZp8r3LZL": {
+            "key": "KC_DB_USERNAME",
+            "value": "$[[DB_USER]]",
+            "_id": "eN2DRFa1b58OZp8r3LZL",
+            "_order": "a0004"
+          },
+          "evpxAzU6zfHxLXN03mKO": {
+            "key": "KC_DB_PASSWORD",
+            "value": "$[[DB_PASSWORD]]",
+            "_id": "evpxAzU6zfHxLXN03mKO",
+            "_order": "a0005"
+          },
+          "eNqBW9Wi4UT4MckoSLl0": {
+            "key": "KC_DB_SCHEMA",
+            "value": "keycloak",
+            "_id": "eNqBW9Wi4UT4MckoSLl0",
+            "_order": "a0006"
+          },
+          "exMhQsRxnqJOTSvZ0IXp": {
+            "key": "KC_PROXY_HEADERS",
+            "value": "xforwarded",
+            "_id": "exMhQsRxnqJOTSvZ0IXp",
+            "_order": "a0007"
+          },
+          "eADB2br4mmpqkV5xSyic": {
+            "key": "KC_HTTP_ENABLED",
+            "value": "true",
+            "_id": "eADB2br4mmpqkV5xSyic",
+            "_order": "a0008"
+          },
+          "eSM40odL7ZMFmhA6BRKT": {
+            "key": "KC_BOOTSTRAP_ADMIN_USERNAME",
+            "value": "admin",
+            "_id": "eSM40odL7ZMFmhA6BRKT",
+            "_order": "a0009"
+          },
+          "e7lwmSvSld4hniP88ywv": {
+            "key": "KC_BOOTSTRAP_ADMIN_PASSWORD",
+            "value": "fpgen_admin_default",
+            "_id": "e7lwmSvSld4hniP88ywv",
+            "_order": "a0010"
+          }
+        },
+        "injection": {
+          "juoTkCc2rv22ouY9UwKp": {
+            "path": "/opt/keycloak/data/import/fpgen-realm.json",
+            "data": "{\n  \"realm\": \"fpgen\",\n  \"displayName\": \"FP-GEN\",\n  \"enabled\": true,\n  \"loginWithEmailAllowed\": true,\n  \"registrationAllowed\": false,\n  \"resetPasswordAllowed\": false,\n  \"sslRequired\": \"none\",\n  \"ssoSessionIdleTimeout\": 86400,\n  \"ssoSessionMaxLifespan\": 86400,\n  \"roles\": {\"realm\": [\n    {\"name\": \"fpgen_admin\", \"description\": \"FP-GEN Administrator\"},\n    {\"name\": \"fpgen_proposal_manager\", \"description\": \"Proposal Manager\"},\n    {\"name\": \"fpgen_reviewer\", \"description\": \"Proposal Reviewer\"},\n    {\"name\": \"fpgen_viewer\", \"description\": \"Read-only viewer\"}\n  ]},\n  \"groups\": [{\"name\":\"Proposal Managers\"},{\"name\":\"Reviewers\"},{\"name\":\"Finance\"}],\n  \"users\": [{\n    \"username\": \"default_admin\",\n    \"enabled\": true,\n    \"firstName\": \"FP-GEN\",\n    \"lastName\": \"Admin\",\n    \"email\": \"fpgen_admin@example.com\",\n    \"emailVerified\": true,\n    \"credentials\": [{\"type\":\"password\",\"value\":\"testpass\",\"temporary\":false}],\n    \"requiredActions\": [],\n    \"realmRoles\": [\"fpgen_admin\"],\n    \"groups\": [\"/Proposal Managers\",\"/Reviewers\",\"/Finance\"]\n  }],\n  \"clients\": [{\n    \"clientId\": \"fpgen-oidc\",\n    \"name\": \"FP-GEN OIDC Client\",\n    \"enabled\": true,\n    \"protocol\": \"openid-connect\",\n    \"clientAuthenticatorType\": \"client-secret\",\n    \"secret\": \"fpgen-secret\",\n    \"redirectUris\": [\"http://*\", \"https://*\"],\n    \"webOrigins\": [\"/*\"],\n    \"standardFlowEnabled\": true,\n    \"frontchannelLogout\": true\n  }]\n}\n",
+            "_id": "juoTkCc2rv22ouY9UwKp",
+            "_order": "a0000",
+            "lang": "json"
+          }
+        },
+        "storage": {},
+        "_order": "a0520",
+        "replicas": 1,
+        "size": "xxl",
+        "showDescription": false
+      },
+      "position": {
+        "x": 70,
+        "y": 130
+      },
+      "parentId": "wtfMzKTcRVoF3BK15HD2"
+    },
+    "nluk62ytBcWokdwtpqg7": {
+      "type": "sideapp",
+      "id": "nluk62ytBcWokdwtpqg7",
+      "width": 250,
+      "data": {
+        "id": "auth-webapi",
+        "name": "Auth WebAPI",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_auth_webapi:1.11.0",
+        "environment": {
+          "eNezQDBGxCQkX0R8qx1Y": {
+            "key": "POSTGRES_HOST",
+            "value": "fpgen-app-rdb",
+            "_id": "eNezQDBGxCQkX0R8qx1Y",
+            "_order": "a0000"
+          },
+          "eBGpqDDDHc7ToIMH6xLS": {
+            "key": "POSTGRES_PORT",
+            "value": "8080",
+            "_id": "eBGpqDDDHc7ToIMH6xLS",
+            "_order": "a0001"
+          },
+          "e121JohKsOPVA82hAnCe": {
+            "key": "POSTGRES_DB",
+            "value": "postgres",
+            "_id": "e121JohKsOPVA82hAnCe",
+            "_order": "a0002"
+          },
+          "ecsHSAkTtIvlxFVHBESi": {
+            "key": "POSTGRES_SCHEMA",
+            "value": "keycloak",
+            "_id": "ecsHSAkTtIvlxFVHBESi",
+            "_order": "a0003"
+          }
+        },
+        "injection": {},
+        "storage": {},
+        "_order": "a0530",
+        "replicas": 1,
+        "size": "s",
+        "showDescription": false
+      },
+      "position": {
+        "x": 70,
+        "y": 310
+      },
+      "parentId": "wtfMzKTcRVoF3BK15HD2"
+    },
+    "nUMm237Gu7igWFP6RQnx": {
+      "type": "sideapp",
+      "id": "nUMm237Gu7igWFP6RQnx",
+      "width": 250,
+      "data": {
+        "id": "litellm",
+        "name": "LiteLLM Gateway",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/llm_gateway_litellm:1.1.1",
+        "environment": {
+          "ewDkDW3AJlyw37WBomSX": {
+            "key": "LITELLM_MASTER_KEY",
+            "value": "${{SECRET.LITE_LLM_ADMIN_PASSWORD}}",
+            "_id": "ewDkDW3AJlyw37WBomSX",
+            "_order": "a0000"
+          },
+          "eBia6nuSvHtMgZvPodvL": {
+            "key": "DATABASE_URL",
+            "value": "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@fpgen-app-rdb:8080/postgres?schema=litellm",
+            "_id": "eBia6nuSvHtMgZvPodvL",
+            "_order": "a0001"
+          },
+          "elcLEVD1bbPrxoFxIINV": {
+            "key": "POSTGRES_USER",
+            "value": "$[[DB_USER]]",
+            "_id": "elcLEVD1bbPrxoFxIINV",
+            "_order": "a0002"
+          },
+          "eVwSqJ11xEHHdKCzxB7q": {
+            "key": "POSTGRES_PASSWORD",
+            "value": "$[[DB_PASSWORD]]",
+            "_id": "eVwSqJ11xEHHdKCzxB7q",
+            "_order": "a0003"
+          },
+          "e0yqZiXGmn9Iyos0d3gK": {
+            "key": "STORE_MODEL_IN_DB",
+            "value": "True",
+            "_id": "e0yqZiXGmn9Iyos0d3gK",
+            "_order": "a0004"
+          },
+          "ePgMtZRPDjwnruSMuz3i": {
+            "key": "OPENAI_API_KEY",
+            "value": "${{SECRET.OPENAI_API_KEY}}",
+            "_id": "ePgMtZRPDjwnruSMuz3i",
+            "_order": "a0005"
+          }
+        },
+        "injection": {
+          "j0WzZfNfv5cNJE33aKjT": {
+            "path": "/app/config.yaml",
+            "data": "model_list: []",
+            "_id": "j0WzZfNfv5cNJE33aKjT",
+            "_order": "a0000",
+            "lang": "yaml"
+          }
+        },
+        "storage": {},
+        "_order": "a0320",
+        "replicas": 1,
+        "size": "xxxl",
+        "showDescription": false
+      },
+      "position": {
+        "x": 60,
+        "y": 70
+      },
+      "parentId": "wCzakD8yeT8dw0WoW6Iq"
+    },
+    "nRvLv3Qz9M1oNL020AIp": {
+      "type": "sideapp",
+      "id": "nRvLv3Qz9M1oNL020AIp",
+      "width": 250,
+      "data": {
+        "id": "rfp-parser",
+        "name": "Legacy RFP Parser Reference",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_chat_web_api:1.11.0",
+        "environment": {
+          "eg0QAXCC3j096LDUp1UW": {
+            "key": "LITELLM_URL",
+            "value": "http://fpgen-ai-litellm:8080",
+            "_id": "eg0QAXCC3j096LDUp1UW",
+            "_order": "a0000"
+          },
+          "eMafNDjvcGbuJ50Vcjcj": {
+            "key": "LITELLM_MASTER_KEY",
+            "value": "${{SECRET.LITE_LLM_ADMIN_PASSWORD}}",
+            "_id": "eMafNDjvcGbuJ50Vcjcj",
+            "_order": "a0001"
+          },
+          "e86fTdfQFAFVSRzo7XK4": {
+            "key": "PARSER_SCHEMA",
+            "value": "fpgen_rfp_analysis_v1",
+            "_id": "e86fTdfQFAFVSRzo7XK4",
+            "_order": "a0002"
+          },
+          "eT6wuf5jWw7WoAlmTubJ": {
+            "key": "MAX_UPLOAD_MB",
+            "value": "100",
+            "_id": "eT6wuf5jWw7WoAlmTubJ",
+            "_order": "a0003"
+          }
+        },
+        "injection": {
+          "jr4kVkhBrY6533gfF1Q1": {
+            "path": "/app/schemas/rfp_analysis.schema.json",
+            "data": "{\n  \"project\": {\"name\":\"\", \"location\":\"\", \"type\":\"\", \"siteArea\":\"\"},\n  \"client\": {\"name\":\"\", \"contact\":\"\"},\n  \"understanding\": {},\n  \"methodology\": {},\n  \"scope\": {\"tasks\": [], \"deliverables\": []},\n  \"schedule\": {\"totalWeeks\": 0, \"milestones\": []},\n  \"team\": {},\n  \"fee\": {\"currency\": \"USD\", \"rates\": {}, \"effortByPhase\": {}, \"travel\": {}, \"subconsultants\": []},\n  \"experience\": [],\n  \"assumptions\": {}\n}\n",
+            "_id": "jr4kVkhBrY6533gfF1Q1",
+            "_order": "a0000",
+            "lang": "json"
+          }
+        },
+        "storage": {},
+        "_order": "a0330",
+        "replicas": 1,
+        "size": "m",
+        "showDescription": false
+      },
+      "position": {
+        "x": 330,
+        "y": 70
+      },
+      "parentId": "wCzakD8yeT8dw0WoW6Iq"
+    },
+    "nyDochzWtbGvsZHYbHav": {
+      "type": "sideapp",
+      "id": "nyDochzWtbGvsZHYbHav",
+      "width": 250,
+      "data": {
+        "id": "section-synthesis",
+        "name": "Legacy Section Synthesis Reference",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_chat_web_api:1.11.0",
+        "environment": {
+          "eJ1FXRAzlR6QJmKRQKgR": {
+            "key": "LITELLM_URL",
+            "value": "http://fpgen-ai-litellm:8080",
+            "_id": "eJ1FXRAzlR6QJmKRQKgR",
+            "_order": "a0000"
+          },
+          "eC76epOy9rD2ls3VuZW3": {
+            "key": "LITELLM_MASTER_KEY",
+            "value": "${{SECRET.LITE_LLM_ADMIN_PASSWORD}}",
+            "_id": "eC76epOy9rD2ls3VuZW3",
+            "_order": "a0001"
+          },
+          "e11X1TiwdmAdaGEQR0Zz": {
+            "key": "DEFAULT_SECTIONS",
+            "value": "cover_letter,project_understanding,methodology,scope_deliverables,schedule,team,financial,relevant_experience,assumptions_exclusions",
+            "_id": "e11X1TiwdmAdaGEQR0Zz",
+            "_order": "a0002"
+          }
+        },
+        "injection": {},
+        "storage": {},
+        "_order": "a0340",
+        "replicas": 1,
+        "size": "m",
+        "showDescription": false
+      },
+      "position": {
+        "x": 330,
+        "y": 260
+      },
+      "parentId": "wCzakD8yeT8dw0WoW6Iq"
+    },
+    "nHgzQayUSc2d7fZig8xH": {
+      "type": "sideapp",
+      "id": "nHgzQayUSc2d7fZig8xH",
+      "width": 250,
+      "data": {
+        "id": "review-ui",
+        "name": "Review & Finalize UI",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_admin_console:1.11.0",
+        "environment": {
+          "e5kV6n7nbqEfumxt94cS": {
+            "key": "API_BASE_URL",
+            "value": "$[[FPGEN_API_URL]]",
+            "_id": "e5kV6n7nbqEfumxt94cS",
+            "_order": "a0000"
+          }
+        },
+        "injection": {
+          "joyYlrEyym4P28EGDoym": {
+            "path": "/app/dist/config.json",
+            "data": "{\n  \"backendUrl\": \"/api\",\n  \"logoutRedirectUrl\": \"/logout\",\n  \"sections\": [\"cover_letter\", \"project_understanding\", \"methodology\", \"scope_deliverables\", \"schedule\", \"team\", \"financial\", \"relevant_experience\", \"assumptions_exclusions\"]\n}\n",
+            "_id": "joyYlrEyym4P28EGDoym",
+            "_order": "a0000",
+            "lang": "json"
+          }
+        },
+        "storage": {},
+        "_order": "a0210",
+        "replicas": 2,
+        "size": "xl",
+        "showDescription": false
+      },
+      "position": {
+        "x": 40,
+        "y": 80
+      },
+      "parentId": "wxxwNK83spBJX0R7YIFz"
+    },
+    "n1lf1sMfePmniDh2x50c": {
+      "type": "sideapp",
+      "id": "n1lf1sMfePmniDh2x50c",
+      "width": 250,
+      "data": {
+        "id": "api",
+        "name": "FP-GEN MVP Runtime (Single Internal Service)",
+        "image": "<replace-with-your-custom-fpgen-runtime-image>",
+        "environment": {
+          "e5W4qfoSiYbzMjVLEm7b": {
+            "key": "LLM_PROVIDER",
+            "value": "openai",
+            "_id": "e5W4qfoSiYbzMjVLEm7b",
+            "_order": "a0000"
+          },
+          "enOpenAiKeyFpgen": {
+            "key": "OPENAI_API_KEY",
+            "value": "${{SECRET.OPENAI_API_KEY}}",
+            "_id": "enOpenAiKeyFpgen",
+            "_order": "a0001"
+          },
+          "enOpenAiModelFpgen": {
+            "key": "OPENAI_MODEL",
+            "value": "gpt-4.1-mini",
+            "_id": "enOpenAiModelFpgen",
+            "_order": "a0002"
+          },
+          "enDisableInddFpgen": {
+            "key": "FPGEN_ENABLE_INDD_EXPORT",
+            "value": "false",
+            "_id": "enDisableInddFpgen",
+            "_order": "a0003"
+          },
+          "enIVbCLCg7jjC1jFUL8z": {
+            "key": "LITELLM_URL",
+            "value": "$[[FPGEN_LITELLM_URL]]",
+            "_id": "enIVbCLCg7jjC1jFUL8z",
+            "_order": "a0004"
+          },
+          "enLiteKeyFpgen": {
+            "key": "LITELLM_MASTER_KEY",
+            "value": "${{SECRET.LITE_LLM_ADMIN_PASSWORD}}",
+            "_id": "enLiteKeyFpgen",
+            "_order": "a0005"
+          },
+          "elXd4kHyHhae0WPZnD3f": {
+            "key": "DEFAULT_CURRENCY",
+            "value": "$[[DEFAULT_CURRENCY]]",
+            "_id": "elXd4kHyHhae0WPZnD3f",
+            "_order": "a0006"
+          },
+          "edak8n6IFiumD4SmeLLR": {
+            "key": "DEFAULT_OVERHEAD_PCT",
+            "value": "$[[DEFAULT_OVERHEAD_PCT]]",
+            "_id": "edak8n6IFiumD4SmeLLR",
+            "_order": "a0007"
+          },
+          "ejgBLwZoOb72PXHIjuEq": {
+            "key": "RFP_PARSER_URL",
+            "value": "$[[FPGEN_API_URL]]/v1/parse",
+            "_id": "ejgBLwZoOb72PXHIjuEq",
+            "_order": "a0008"
+          },
+          "e9XCj86fiYrH3HGJbitR": {
+            "key": "SECTION_SYNTHESIS_URL",
+            "value": "$[[FPGEN_API_URL]]/v1/proposals/generate",
+            "_id": "e9XCj86fiYrH3HGJbitR",
+            "_order": "a0009"
+          },
+          "euhjokfMtzcTtX563H6r": {
+            "key": "FEE_ENGINE_URL",
+            "value": "$[[FPGEN_API_URL]]/v1/fee/calculate",
+            "_id": "euhjokfMtzcTtX563H6r",
+            "_order": "a000A"
+          },
+          "eByGLEYwum1PnWztus44": {
+            "key": "DOCGEN_URL",
+            "value": "$[[FPGEN_API_URL]]/v1/proposals/generate",
+            "_id": "eByGLEYwum1PnWztus44",
+            "_order": "a000B"
+          },
+          "e98ul0ZnNqFimSpeScOy": {
+            "key": "FILEMANAGER_WEBAPI_URL",
+            "value": "http://fpgen-data-filemanager:8080",
+            "_id": "e98ul0ZnNqFimSpeScOy",
+            "_order": "a000C"
+          },
+          "eKi0WZ4OiwSmEq6oX08N": {
+            "key": "CRYPTO_KEY",
+            "value": "$[[CONFIG_CRYPTO_KEY]]",
+            "_id": "eKi0WZ4OiwSmEq6oX08N",
+            "_order": "a000D"
+          },
+          "eFpGenTravel001": {
+            "key": "TRAVEL_UNIT_COST_USD",
+            "value": "$[[TRAVEL_UNIT_COST_USD]]",
+            "_id": "eFpGenTravel001",
+            "_order": "a000E"
+          },
+          "eFpGenStorage001": {
+            "key": "FPGEN_STORAGE_DIR",
+            "value": "$[[FPGEN_STORAGE_DIR]]",
+            "_id": "eFpGenStorage001",
+            "_order": "a000F"
+          },
+          "eFpGenRefs001": {
+            "key": "FPGEN_REFERENCE_PROJECTS",
+            "value": "$[[FPGEN_REFERENCE_PROJECTS_PATH]]",
+            "_id": "eFpGenRefs001",
+            "_order": "a0010"
+          }
+        },
+        "injection": {},
+        "storage": {
+          "sFpGenRuntime001": {
+            "path": "/app/data/proposals",
+            "_id": "sFpGenRuntime001",
+            "_order": "a0000"
+          },
+          "sFpGenRuntime002": {
+            "path": "/app/data",
+            "_id": "sFpGenRuntime002",
+            "_order": "a0001"
+          }
+        },
+        "_order": "a0220",
+        "replicas": 2,
+        "size": "m",
+        "showDescription": false
+      },
+      "position": {
+        "x": 350,
+        "y": 80
+      },
+      "parentId": "wxxwNK83spBJX0R7YIFz"
+    },
+    "nuIzC1iKTqVIhknUqjbI": {
+      "type": "sideapp",
+      "id": "nuIzC1iKTqVIhknUqjbI",
+      "width": 250,
+      "data": {
+        "id": "fee-engine",
+        "name": "Legacy Fee Engine Reference",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_chat_web_api:1.11.0",
+        "environment": {
+          "eeSdMIxPjq2sCAp7chtk": {
+            "key": "DEFAULT_CURRENCY",
+            "value": "$[[DEFAULT_CURRENCY]]",
+            "_id": "eeSdMIxPjq2sCAp7chtk",
+            "_order": "a0000"
+          },
+          "eBa0UnDiJLQ5V4lNbTcq": {
+            "key": "DEFAULT_OVERHEAD_PCT",
+            "value": "$[[DEFAULT_OVERHEAD_PCT]]",
+            "_id": "eBa0UnDiJLQ5V4lNbTcq",
+            "_order": "a0001"
+          },
+          "eIFKeKb77wzrG8BMIQCS": {
+            "key": "RATE_TABLE_SOURCE",
+            "value": "fpgen.rates",
+            "_id": "eIFKeKb77wzrG8BMIQCS",
+            "_order": "a0002"
+          },
+          "e55OuhtXFm3rVhpHrHen": {
+            "key": "TRAVEL_UNIT_COST_USD",
+            "value": "6000",
+            "_id": "e55OuhtXFm3rVhpHrHen",
+            "_order": "a0003"
+          }
+        },
+        "injection": {
+          "jHUW1QqeC3AMnbmN9f0U": {
+            "path": "/app/config/fee_rules.yaml",
+            "data": "fee_rules:\n  labor: \"sum(role_hours * role_rate)\"\n  overhead: \"labor_subtotal * overhead_pct\"\n  travel: \"trips * people_per_trip * unit_cost\"\n  total: \"labor + overhead + subconsultants + reimbursables\"\n  default_phases:\n    - Pre-Concept\n    - Concept Design\n    - Schematic Design\n",
+            "_id": "jHUW1QqeC3AMnbmN9f0U",
+            "_order": "a0000",
+            "lang": "yaml"
+          }
+        },
+        "storage": {},
+        "_order": "a0230",
+        "replicas": 1,
+        "size": "s",
+        "showDescription": false
+      },
+      "position": {
+        "x": 650,
+        "y": 80
+      },
+      "parentId": "wxxwNK83spBJX0R7YIFz"
+    },
+    "nXKqHnTOCjGnCXtYw5PK": {
+      "type": "sideapp",
+      "id": "nXKqHnTOCjGnCXtYw5PK",
+      "width": 250,
+      "data": {
+        "id": "config",
+        "name": "FP-GEN Config Center",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_config_center:1.11.0",
+        "environment": {
+          "eGBnN1uJium6Upw0OHOh": {
+            "key": "BASE_PATH",
+            "value": "/config",
+            "_id": "eGBnN1uJium6Upw0OHOh",
+            "_order": "a0000"
+          },
+          "e60Rn34OpX6AHARpJNw6": {
+            "key": "POSTGRES_HOST",
+            "value": "fpgen-app-rdb",
+            "_id": "e60Rn34OpX6AHARpJNw6",
+            "_order": "a0001"
+          },
+          "ec1fxbLozMfOagD8YJmh": {
+            "key": "POSTGRES_PORT",
+            "value": "8080",
+            "_id": "ec1fxbLozMfOagD8YJmh",
+            "_order": "a0002"
+          },
+          "eA6soL3hFlSMHnDa3nZy": {
+            "key": "POSTGRES_DB",
+            "value": "postgres",
+            "_id": "eA6soL3hFlSMHnDa3nZy",
+            "_order": "a0003"
+          },
+          "eUzBdV0pxqRntZp9BXJB": {
+            "key": "POSTGRES_SCHEMA",
+            "value": "config_manager",
+            "_id": "eUzBdV0pxqRntZp9BXJB",
+            "_order": "a0004"
+          },
+          "e3ALHe4OFAIgs1n73FBJ": {
+            "key": "POSTGRES_USER",
+            "value": "$[[DB_USER]]",
+            "_id": "e3ALHe4OFAIgs1n73FBJ",
+            "_order": "a0005"
+          },
+          "e2Q2qqx16SEQFcMVGJPN": {
+            "key": "POSTGRES_PASSWORD",
+            "value": "$[[DB_PASSWORD]]",
+            "_id": "e2Q2qqx16SEQFcMVGJPN",
+            "_order": "a0006"
+          },
+          "eRbHsFrjsbIqKPMEyEAE": {
+            "key": "CRYPTO_KEY",
+            "value": "$[[CONFIG_CRYPTO_KEY]]",
+            "_id": "eRbHsFrjsbIqKPMEyEAE",
+            "_order": "a0007"
+          }
+        },
+        "injection": {},
+        "storage": {
+          "saBTi1ZPHV2c96AirFie": {
+            "path": "/app/storage",
+            "_id": "saBTi1ZPHV2c96AirFie",
+            "_order": "a0000"
+          }
+        },
+        "_order": "a0240",
+        "replicas": 1,
+        "size": "m",
+        "showDescription": false
+      },
+      "position": {
+        "x": 930,
+        "y": 80
+      },
+      "parentId": "wxxwNK83spBJX0R7YIFz"
+    },
+    "puhsX8PH2Q76c0Vl6ByS": {
+      "type": "pipeline",
+      "id": "puhsX8PH2Q76c0Vl6ByS",
+      "width": 350,
+      "data": {
+        "id": "pl-rfp-analysis",
+        "name": "RFP Upload & AI Extraction",
+        "_order": "a0250"
+      },
+      "position": {
+        "x": 40,
+        "y": 420
+      },
+      "parentId": "wxxwNK83spBJX0R7YIFz"
+    },
+    "p8GP7ztywpBZqAuS8809": {
+      "type": "pipeline",
+      "id": "p8GP7ztywpBZqAuS8809",
+      "width": 350,
+      "data": {
+        "id": "pl-review-model",
+        "name": "Canonical Review Model Mapping",
+        "_order": "a0260"
+      },
+      "position": {
+        "x": 410,
+        "y": 420
+      },
+      "parentId": "wxxwNK83spBJX0R7YIFz"
+    },
+    "pRUKquwiTUWnyJcEopFE": {
+      "type": "pipeline",
+      "id": "pRUKquwiTUWnyJcEopFE",
+      "width": 350,
+      "data": {
+        "id": "pl-fee-calculation",
+        "name": "Fee Calculation",
+        "_order": "a0270"
+      },
+      "position": {
+        "x": 780,
+        "y": 420
+      },
+      "parentId": "wxxwNK83spBJX0R7YIFz"
+    },
+    "f24sbEbKYZwCSmfAPMK1": {
+      "type": "function",
+      "id": "f24sbEbKYZwCSmfAPMK1",
+      "width": 290,
+      "data": {
+        "id": "parse-rfp",
+        "name": "Parse RFP to AI JSON",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_pdf_importer:1.11.0",
+        "computeType": "CPU",
+        "inputs": {},
+        "outputs": {},
+        "environment": {
+          "eFCAUpFAm4QOfEes0Fre": {
+            "key": "RFP_PARSER_URL",
+            "value": "$[[FPGEN_API_URL]]/v1/parse",
+            "_id": "eFCAUpFAm4QOfEes0Fre",
+            "_order": "a0000"
+          },
+          "eN5Uvp5YLQeVQOyIqi9L": {
+            "key": "FILEMANAGER_WEBAPI_URL",
+            "value": "http://fpgen-data-filemanager:8080",
+            "_id": "eN5Uvp5YLQeVQOyIqi9L",
+            "_order": "a0001"
+          }
+        },
+        "injection": {},
+        "storage": {},
+        "_order": "a0251"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "parentId": "puhsX8PH2Q76c0Vl6ByS"
+    },
+    "fxN0oPDChDbtnPnr2s3c": {
+      "type": "function",
+      "id": "fxN0oPDChDbtnPnr2s3c",
+      "width": 290,
+      "data": {
+        "id": "map-review-model",
+        "name": "Map AI JSON to Review Model",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_recipe_importer:1.11.0",
+        "computeType": "CPU",
+        "inputs": {},
+        "outputs": {},
+        "environment": {
+          "e3WroiQyg3HvWX8tHmNt": {
+            "key": "DEFAULT_TOTAL_WEEKS",
+            "value": "44",
+            "_id": "e3WroiQyg3HvWX8tHmNt",
+            "_order": "a0000"
+          },
+          "eiLL0GBIETYGUh96m5IZ": {
+            "key": "DEFAULT_SECTIONS",
+            "value": "9",
+            "_id": "eiLL0GBIETYGUh96m5IZ",
+            "_order": "a0001"
+          }
+        },
+        "injection": {},
+        "storage": {},
+        "_order": "a0261"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "parentId": "p8GP7ztywpBZqAuS8809"
+    },
+    "fhqukDeEN5UDswZwCq8k": {
+      "type": "function",
+      "id": "fhqukDeEN5UDswZwCq8k",
+      "width": 290,
+      "data": {
+        "id": "compute-fee",
+        "name": "Compute Labor, OH&P, Subs and Travel",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_csv_importer:1.11.0",
+        "computeType": "CPU",
+        "inputs": {},
+        "outputs": {},
+        "environment": {
+          "eSaoJSGurj5u4k95Zl2J": {
+            "key": "FEE_ENGINE_URL",
+            "value": "$[[FPGEN_API_URL]]/v1/fee/calculate",
+            "_id": "eSaoJSGurj5u4k95Zl2J",
+            "_order": "a0000"
+          }
+        },
+        "injection": {},
+        "storage": {},
+        "_order": "a0271"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "parentId": "pRUKquwiTUWnyJcEopFE"
+    },
+    "nn2wBdjOaayJSIn3SdoR": {
+      "type": "sideapp",
+      "id": "nn2wBdjOaayJSIn3SdoR",
+      "width": 250,
+      "data": {
+        "id": "export-service",
+        "name": "Legacy Export Service Reference",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_chat_web_api:1.11.0",
+        "environment": {
+          "eEZ3P198ASf8IqYaVZZt": {
+            "key": "POSTGRES_HOST",
+            "value": "fpgen-app-rdb",
+            "_id": "eEZ3P198ASf8IqYaVZZt",
+            "_order": "a0000"
+          },
+          "eAA39TE5SyLxMXENexwz": {
+            "key": "POSTGRES_SCHEMA",
+            "value": "fpgen",
+            "_id": "eAA39TE5SyLxMXENexwz",
+            "_order": "a0001"
+          },
+          "eirRdXLJUg1tYf21Qdtk": {
+            "key": "FILEMANAGER_WEBAPI_URL",
+            "value": "http://fpgen-data-filemanager:8080",
+            "_id": "eirRdXLJUg1tYf21Qdtk",
+            "_order": "a0002"
+          },
+          "eyF23ag8u0rhniekIYTI": {
+            "key": "TEMPLATE_LIBRARY_PATH",
+            "value": "/templates",
+            "_id": "eyF23ag8u0rhniekIYTI",
+            "_order": "a0003"
+          },
+          "eWHbOK01gBjGTxNsBUl3": {
+            "key": "EXPORT_PATH",
+            "value": "/exports",
+            "_id": "eWHbOK01gBjGTxNsBUl3",
+            "_order": "a0004"
+          }
+        },
+        "injection": {
+          "jARMKx8H1vkEgdcAbyNc": {
+            "path": "/app/templates/section_manifest.json",
+            "data": "{\n  \"sections\": [\n    \"cover_letter\",\n    \"project_understanding\",\n    \"methodology\",\n    \"scope_deliverables\",\n    \"schedule\",\n    \"team\",\n    \"financial\",\n    \"relevant_experience\",\n    \"assumptions_exclusions\"\n  ],\n  \"supportedOutputs\": [\"docx\", \"pptx\", \"pdf\"]\n}\n",
+            "_id": "jARMKx8H1vkEgdcAbyNc",
+            "_order": "a0000",
+            "lang": "json"
+          }
+        },
+        "storage": {
+          "s79pthD7ng4Q2NyxzIwq": {
+            "path": "/templates",
+            "_id": "s79pthD7ng4Q2NyxzIwq",
+            "_order": "a0000"
+          },
+          "smmOI27XGjOGgNWg6H82": {
+            "path": "/exports",
+            "_id": "smmOI27XGjOGgNWg6H82",
+            "_order": "a0001"
+          }
+        },
+        "_order": "a0415",
+        "replicas": 1,
+        "size": "m",
+        "showDescription": false
+      },
+      "position": {
+        "x": 60,
+        "y": 90
+      },
+      "parentId": "wjbIiDUagLgMeOvDWZc7"
+    },
+    "pUwuht4tAcMk591oGu5j": {
+      "type": "pipeline",
+      "id": "pUwuht4tAcMk591oGu5j",
+      "width": 350,
+      "data": {
+        "id": "pl-export-proposal",
+        "name": "Generate DOCX/PPTX/PDF Package",
+        "_order": "a0420"
+      },
+      "position": {
+        "x": 330,
+        "y": 90
+      },
+      "parentId": "wjbIiDUagLgMeOvDWZc7"
+    },
+    "facjnj2PrkexSoghBEg5": {
+      "type": "function",
+      "id": "facjnj2PrkexSoghBEg5",
+      "width": 290,
+      "data": {
+        "id": "export-proposal",
+        "name": "Build final proposal documents",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_word_importer:1.11.0",
+        "computeType": "CPU",
+        "inputs": {},
+        "outputs": {},
+        "environment": {
+          "e4B5mtMTcEbzfEB8GBLw": {
+            "key": "EXPORT_SERVICE_URL",
+            "value": "$[[FPGEN_API_URL]]/v1/proposals/generate",
+            "_id": "e4B5mtMTcEbzfEB8GBLw",
+            "_order": "a0000"
+          }
+        },
+        "injection": {},
+        "storage": {},
+        "_order": "a0421"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "parentId": "pUwuht4tAcMk591oGu5j"
+    },
+    "n39XwWxuBPsHjfRYR1UZ": {
+      "type": "sideapp",
+      "id": "n39XwWxuBPsHjfRYR1UZ",
+      "width": 250,
+      "data": {
+        "id": "filemanager",
+        "name": "File Manager",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_file_manager:1.11.0",
+        "environment": {
+          "e7NWneBBCxj8E94tZe9Y": {
+            "key": "POSTGRES_HOST",
+            "value": "fpgen-app-rdb",
+            "_id": "e7NWneBBCxj8E94tZe9Y",
+            "_order": "a0000"
+          },
+          "eiA80zXh0y47XFurdjaf": {
+            "key": "POSTGRES_SCHEMA",
+            "value": "file_manager",
+            "_id": "eiA80zXh0y47XFurdjaf",
+            "_order": "a0001"
+          },
+          "eMtPy47ooxRgBCMqr6Eh": {
+            "key": "STORAGE_API_URL",
+            "value": "http://fpgen-data-storage-manager:8080",
+            "_id": "eMtPy47ooxRgBCMqr6Eh",
+            "_order": "a0002"
+          }
+        },
+        "injection": {},
+        "storage": {
+          "s85nOykS3Hc3HJAGf4iz": {
+            "path": "/app/storage",
+            "_id": "s85nOykS3Hc3HJAGf4iz",
+            "_order": "a0000"
+          }
+        },
+        "_order": "a0610",
+        "replicas": 1,
+        "size": "m",
+        "showDescription": false
+      },
+      "position": {
+        "x": 40,
+        "y": 80
+      },
+      "parentId": "wtvAeJp7E6BieKNkB9Bf"
+    },
+    "n0xWW66SeTN4OL20TNbj": {
+      "type": "sideapp",
+      "id": "n0xWW66SeTN4OL20TNbj",
+      "width": 250,
+      "data": {
+        "id": "storage-manager",
+        "name": "Storage Manager",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/shared_storage_webapi:1.1.0",
+        "environment": {
+          "eKFQNwiyqaXgNJOeU4hR": {
+            "key": "POSTGRES_HOST",
+            "value": "fpgen-app-rdb",
+            "_id": "eKFQNwiyqaXgNJOeU4hR",
+            "_order": "a0000"
+          },
+          "esxIZbGCJJg2fLpq8pQA": {
+            "key": "POSTGRES_SCHEMA",
+            "value": "file_manager",
+            "_id": "esxIZbGCJJg2fLpq8pQA",
+            "_order": "a0001"
+          }
+        },
+        "injection": {},
+        "storage": {
+          "snQUVJBXDU0wiSyeIXHC": {
+            "path": "/app/storage",
+            "_id": "snQUVJBXDU0wiSyeIXHC",
+            "_order": "a0000"
+          }
+        },
+        "_order": "a0620",
+        "replicas": 1,
+        "size": "m",
+        "showDescription": false
+      },
+      "position": {
+        "x": 330,
+        "y": 80
+      },
+      "parentId": "wtvAeJp7E6BieKNkB9Bf"
+    },
+    "nxk4yXX7FQJAyJYFnXdA": {
+      "type": "sideapp",
+      "id": "nxk4yXX7FQJAyJYFnXdA",
+      "width": 250,
+      "data": {
+        "id": "file-viewer",
+        "name": "File Viewer",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_file_viewer:1.11.0",
+        "environment": {
+          "eqaJZ45IUa7HXHBmUsBa": {
+            "key": "FILE_MANAGER_API_URL",
+            "value": "http://fpgen-data-filemanager:8080",
+            "_id": "eqaJZ45IUa7HXHBmUsBa",
+            "_order": "a0000"
+          },
+          "eyEzehEl0jgZRxLuSmpX": {
+            "key": "BASE_PATH",
+            "value": "/files",
+            "_id": "eyEzehEl0jgZRxLuSmpX",
+            "_order": "a0001"
+          },
+          "e0wlnQPeJtQGHEzSO9Nl": {
+            "key": "STORAGE_API_URL",
+            "value": "http://fpgen-data-storage-manager:8080",
+            "_id": "e0wlnQPeJtQGHEzSO9Nl",
+            "_order": "a0002"
+          }
+        },
+        "injection": {},
+        "storage": {},
+        "_order": "a0630",
+        "replicas": 1,
+        "size": "s",
+        "showDescription": false
+      },
+      "position": {
+        "x": 40,
+        "y": 280
+      },
+      "parentId": "wtvAeJp7E6BieKNkB9Bf"
+    },
+    "npCZq6riaLxqc1CjqcL9": {
+      "type": "sideapp",
+      "id": "npCZq6riaLxqc1CjqcL9",
+      "width": 250,
+      "data": {
+        "id": "qdrant",
+        "name": "Vector DB (Qdrant)",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/qdrant:1.1.1",
+        "environment": {},
+        "injection": {},
+        "storage": {
+          "ssMeQW6hgaphF1pk0HMz": {
+            "path": "/qdrant/storage",
+            "_id": "ssMeQW6hgaphF1pk0HMz",
+            "_order": "a0000"
+          }
+        },
+        "_order": "a0640",
+        "replicas": 1,
+        "size": "m",
+        "showDescription": false
+      },
+      "position": {
+        "x": 330,
+        "y": 280
+      },
+      "parentId": "wtvAeJp7E6BieKNkB9Bf"
+    },
+    "nb8fZlxb4HemdEc32Zli": {
+      "type": "sideapp",
+      "id": "nb8fZlxb4HemdEc32Zli",
+      "width": 250,
+      "data": {
+        "id": "search-engine",
+        "name": "Relevant Experience Search",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_search_engine_webapi:1.11.0",
+        "environment": {
+          "ejkECUAWISJxMij0B5mC": {
+            "key": "VECTORDB_WEBAPI_URL",
+            "value": "http://fpgen-data-vectordb-webapi:8080",
+            "_id": "ejkECUAWISJxMij0B5mC",
+            "_order": "a0000"
+          },
+          "ec2O2dg5V6aosUTToR5y": {
+            "key": "PROJECT_PROFILE_INDEX",
+            "value": "fpgen_project_profiles",
+            "_id": "ec2O2dg5V6aosUTToR5y",
+            "_order": "a0001"
+          },
+          "eCq3pRjDPcv7VZlME0fm": {
+            "key": "RFP_INDEX",
+            "value": "fpgen_rfp_history",
+            "_id": "eCq3pRjDPcv7VZlME0fm",
+            "_order": "a0002"
+          }
+        },
+        "injection": {},
+        "storage": {},
+        "_order": "a0650",
+        "replicas": 1,
+        "size": "m",
+        "showDescription": false
+      },
+      "position": {
+        "x": 570,
+        "y": 180
+      },
+      "parentId": "wtvAeJp7E6BieKNkB9Bf"
+    },
+    "nm2GMJBUtFMiVFdu6W8O": {
+      "type": "sideapp",
+      "id": "nm2GMJBUtFMiVFdu6W8O",
+      "width": 250,
+      "data": {
+        "id": "vectordb-webapi",
+        "name": "VectorDB WebAPI",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_vector_db_webapi:1.11.0",
+        "environment": {
+          "eBeGlB4wQRzVKxLLRGuH": {
+            "key": "QDRANT_URL",
+            "value": "http://fpgen-data-qdrant:8080",
+            "_id": "eBeGlB4wQRzVKxLLRGuH",
+            "_order": "a0000"
+          },
+          "ebGCOGQLqNlvQ5rIBFEA": {
+            "key": "FILEMANAGER_WEBAPI_URL",
+            "value": "http://fpgen-data-filemanager:8080",
+            "_id": "ebGCOGQLqNlvQ5rIBFEA",
+            "_order": "a0001"
+          }
+        },
+        "injection": {},
+        "storage": {},
+        "_order": "a0660",
+        "replicas": 1,
+        "size": "m",
+        "showDescription": false
+      },
+      "position": {
+        "x": 570,
+        "y": 360
+      },
+      "parentId": "wtvAeJp7E6BieKNkB9Bf"
+    },
+    "dHkHtJsDGNeQfoTiPQsG": {
+      "type": "entity",
+      "id": "dHkHtJsDGNeQfoTiPQsG",
+      "width": 200,
+      "position": {
+        "x": 260,
+        "y": 315
+      },
+      "data": {
+        "id": "rfp-analysis-json",
+        "name": "AI RFP analysis JSON",
+        "showDescription": false,
+        "description": "",
+        "expires": 60000,
+        "interval": 1000,
+        "type": "io.ebstudio.core.entity.data",
+        "_order": "a0280"
+      },
+      "parentId": "wxxwNK83spBJX0R7YIFz"
+    },
+    "duEZzrJZTsFxLAZmtbXR": {
+      "type": "entity",
+      "id": "duEZzrJZTsFxLAZmtbXR",
+      "width": 200,
+      "position": {
+        "x": 570,
+        "y": 315
+      },
+      "data": {
+        "id": "review-model",
+        "name": "Canonical review/finalize model",
+        "showDescription": false,
+        "description": "",
+        "expires": 60000,
+        "interval": 1000,
+        "type": "io.ebstudio.core.entity.data",
+        "_order": "a0290"
+      },
+      "parentId": "wxxwNK83spBJX0R7YIFz"
+    },
+    "d0YK7kj8vVWIwc5ra4gM": {
+      "type": "entity",
+      "id": "d0YK7kj8vVWIwc5ra4gM",
+      "width": 200,
+      "position": {
+        "x": 300,
+        "y": 300
+      },
+      "data": {
+        "id": "proposal-package",
+        "name": "Generated proposal package",
+        "showDescription": false,
+        "description": "",
+        "expires": 60000,
+        "interval": 1000,
+        "type": "io.ebstudio.core.entity.data",
+        "_order": "a0430"
+      },
+      "parentId": "wjbIiDUagLgMeOvDWZc7"
+    },
+    "tJyZadvyezIL8Oor9cis": {
+      "type": "sticky",
+      "id": "tJyZadvyezIL8Oor9cis",
+      "position": {
+        "x": 690,
+        "y": 285
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "Review model payload mirrors the VBA handoff:<br>metadata, sections, schedule, team, financial, experience.<br><br>MVP runtime note: use the single internal service \"api\" for parse, fee, and proposal generation. Legacy parser/fee/export nodes are retained as reference only.<br><br>Before deploy: replace the api node image with your custom container built from fpgen_mvp/Dockerfile.",
+        "fill": "blue",
+        "_order": "a02a0"
+      },
+      "parentId": "wxxwNK83spBJX0R7YIFz",
+      "width": 360
+    },
+    "tNYyRs8r4pYazNQXJ2Bk": {
+      "type": "sticky",
+      "id": "tNYyRs8r4pYazNQXJ2Bk",
+      "position": {
+        "x": 290,
+        "y": 285
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "Outputs are intended to match FP-GEN proposal structure:<br>Cover Letter, Understanding, Methodology, Scope, Schedule, Team, Financial, Experience.",
+        "fill": "gray",
+        "_order": "a0440"
+      },
+      "parentId": "wjbIiDUagLgMeOvDWZc7",
+      "width": 360
+    },
+    "thK9TFpsJyUNvYD8x9FN": {
+      "type": "sticky",
+      "id": "thK9TFpsJyUNvYD8x9FN",
+      "position": {
+        "x": 30,
+        "y": 470
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "RFP/project profile knowledge can store prior proposals, CVs, schedules, deliverables, fee rates, and relevant experience.",
+        "fill": "gray",
+        "_order": "a0670"
+      },
+      "parentId": "wtvAeJp7E6BieKNkB9Bf",
+      "width": 520
+    }
+  },
+  "projectName": "FP-GEN exaBase Import",
+  "projectId": "fpgen-exabase-v0-1"
+}

@@ -1,0 +1,12 @@
+tmpclaude-*
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+fpgen_mvp/.venv/
+fpgen_mvp/data/proposals/
+fpgen_mvp/data/exports/
+
+.env
