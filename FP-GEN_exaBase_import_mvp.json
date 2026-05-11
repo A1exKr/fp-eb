@@ -77,7 +77,7 @@
       "data": {
         "id": "fpgen-mvp-api",
         "name": "FP-GEN MVP API Service",
-        "image": "<replace-with-your-custom-fpgen-runtime-image>",
+        "image": "ghcr.io/verv0lk/fpgen-mvp-api:latest",
         "environment": {
           "envLlmProvider": {
             "key": "LLM_PROVIDER",
