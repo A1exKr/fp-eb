@@ -1,0 +1,72 @@
+[
+  {
+    "id": "p-001",
+    "name": "Wataru Tanaka",
+    "title": "Senior Executive Officer",
+    "roles": ["Principal"],
+    "cv_asset_id": "cv-principal"
+  },
+  {
+    "id": "p-002",
+    "name": "Kenji Yamamoto",
+    "title": "Associate Director, Urban Design",
+    "roles": ["Project Manager", "Urban Designer"],
+    "cv_asset_id": "cv-pm"
+  },
+  {
+    "id": "p-003",
+    "name": "Aiko Suzuki",
+    "title": "Senior Architect",
+    "roles": ["Architect"],
+    "cv_asset_id": "cv-architect"
+  },
+  {
+    "id": "p-004",
+    "name": "Marcus Chen",
+    "title": "Senior Urban Planner",
+    "roles": ["Urban Planner", "Urban Designer"],
+    "cv_asset_id": "cv-urban-planner"
+  },
+  {
+    "id": "p-005",
+    "name": "Priya Nair",
+    "title": "Landscape Architect",
+    "roles": ["Landscape Architect"],
+    "cv_asset_id": "cv-landscape"
+  },
+  {
+    "id": "p-006",
+    "name": "Ahmed Al-Rashid",
+    "title": "Transportation Planner",
+    "roles": ["Transportation Planner"],
+    "cv_asset_id": "cv-transport"
+  },
+  {
+    "id": "p-007",
+    "name": "Sophie Dubois",
+    "title": "Interior Design Lead",
+    "roles": ["Interior Designer"],
+    "cv_asset_id": "cv-interior"
+  },
+  {
+    "id": "p-008",
+    "name": "Hiroshi Kato",
+    "title": "Structural Engineer",
+    "roles": ["Structural Engineer"],
+    "cv_asset_id": "cv-structural"
+  },
+  {
+    "id": "p-009",
+    "name": "Mei Lin",
+    "title": "MEP Engineer",
+    "roles": ["MEP Engineer"],
+    "cv_asset_id": "cv-mep"
+  },
+  {
+    "id": "p-010",
+    "name": "Carlos Rivera",
+    "title": "Environmental Consultant",
+    "roles": ["Environmental Consultant"],
+    "cv_asset_id": "cv-environmental"
+  }
+]

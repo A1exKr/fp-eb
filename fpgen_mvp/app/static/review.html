@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Proposal Review — FP-GEN</title>
+  <style>
+    :root{--accent:#1565c0;--dark:#1f2a30;--bg:#f2f3ef;--ink:#11161a;--soft:#ece6e0;--muted:#66707a;--line:#d8dcd8;--panel:#fff;--r:8px;--font:"Century Gothic","Avenir Next","Helvetica Neue",sans-serif}
+    *,*::before,*::after{box-sizing:border-box}
+    body{margin:0;font-family:var(--font);background:#e8edf5;color:var(--ink)}
+    button,input,textarea{font:inherit}
+    /* Top bar */
+    .topbar{position:sticky;top:0;z-index:100;background:var(--dark);border-top:4px solid var(--accent);color:#fff;padding:0 28px;display:flex;align-items:center;gap:12px;min-height:54px;flex-wrap:wrap}
+    .tb-brand{font-size:20px;font-weight:700;letter-spacing:-.03em;text-transform:uppercase;margin-right:6px}
+    .tb-id{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.05em}
+    .tb-proj{font-size:13px;font-weight:700;flex:1;color:rgba(255,255,255,.9)}
+    .tb-btn{padding:7px 13px;border-radius:4px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;white-space:nowrap}
+    .tb-btn:hover{background:rgba(255,255,255,.18)}
+    .tb-btn.accent{background:var(--accent);border-color:var(--accent)}
+    .tb-btn.accent:hover{background:#0d47a1}
+    .tb-back{color:rgba(255,255,255,.5);font-size:11px;text-decoration:none;letter-spacing:.04em}
+    .tb-back:hover{color:#fff}
+    /* Status */
+    .sts{background:rgba(31,42,48,.9);color:rgba(255,255,255,.7);font-size:12px;padding:5px 28px}
+    /* Content */
+    .content{max-width:900px;margin:28px auto;padding:0 24px 60px}
+    /* Section cards */
+    .sec{background:var(--panel);border:1px solid rgba(31,42,48,.09);border-radius:var(--r);padding:22px 24px;margin-bottom:16px;box-shadow:0 6px 18px rgba(17,22,26,.07)}
+    .sec-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+    .sec-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:var(--dark)}
+    .sec-body{font-size:14px;line-height:1.65;white-space:pre-wrap;color:var(--ink);min-height:40px}
+    .sec-body.empty{color:var(--muted);font-style:italic}
+    .sec-ta{width:100%;border:1px solid var(--line);border-radius:4px;padding:10px 12px;font-size:13px;line-height:1.6;min-height:160px;resize:vertical;background:#fafaf8}
+    .sec-ta:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(182,58,50,.08)}
+    .edit-btn{padding:5px 10px;border-radius:4px;border:1px solid var(--line);background:#fff;color:var(--dark);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;cursor:pointer;white-space:nowrap}
+    .edit-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .save-btn{padding:5px 10px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;cursor:pointer;white-space:nowrap}
+    /* Summary row */
+    .sumrow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+    .sumcard{padding:12px 14px;border:1px solid var(--line);border-radius:6px;background:#fff;position:relative;overflow:hidden}
+    .sumcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+    .sumcard span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:5px;padding-left:8px}
+    .sumcard strong{display:block;font-size:13px;font-weight:700;padding-left:8px;word-break:break-word}
+    /* Export panel */
+    .exp-panel{background:var(--dark);border-radius:var(--r);padding:18px 20px;margin-bottom:20px;color:#fff}
+    .exp-panel h3{margin:0 0 12px;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.6)}
+    .exp-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .exp-row select{padding:6px 9px;border-radius:4px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:11px}
+    .exp-note{margin-top:10px;font-size:11px;color:rgba(255,255,255,.5)}
+    @media print{
+      .topbar,.sts,.exp-panel,.edit-btn,.save-btn,.tb-btn{display:none!important}
+      .content{margin:0;padding:0}.sec{box-shadow:none;border:none;padding:10px 0}
+    }
+    @media(max-width:680px){.sumrow{grid-template-columns:1fr}.topbar{padding:8px 14px}}
+  </style>
+</head>
+<body>
+<div class="topbar" id="topbar">
+  <a class="tb-back" href="/">← Back to FP-GEN</a>
+  <span class="tb-brand">FP-GEN</span>
+  <span class="tb-id" id="pidLabel"></span>
+  <span class="tb-proj" id="projLabel">Loading…</span>
+  <button class="tb-btn" id="saveAllBtn" disabled>Save All</button>
+  <button class="tb-btn" onclick="window.print()">Print / PDF</button>
+  <button class="tb-btn accent" id="expInddBtn" disabled>Export to InDesign</button>
+  <button class="tb-btn accent" id="expJsxBtn" disabled>Download JSX Bundle</button>
+</div>
+<div class="sts" id="sts">Loading proposal…</div>
+
+<div class="content">
+  <div class="sumrow" id="sumrow"></div>
+  <div class="exp-panel">
+    <h3>InDesign Export</h3>
+    <div class="exp-row">
+      <select id="tplSel"><option value="commercial">Template: Commercial</option><option value="master-plan">Template: Master Plan</option><option value="technical">Template: Technical</option></select>
+      <button class="tb-btn" id="expInddBtn2" disabled>Export to InDesign (COM)</button>
+      <button class="tb-btn" id="expJsxBtn2" disabled>Download JSX Bundle</button>
+    </div>
+    <p class="exp-note" id="inddNote">Checking InDesign availability…</p>
+  </div>
+  <div id="sections"></div>
+</div>
+
+<script>
+"use strict";
+var PID="",proposal={},sections={},hasChanges=false;
+function ge(id){return document.getElementById(id)}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function st(m){ge("sts").textContent=m}
+
+var SECTION_ORDER=[
+  ["Cover Letter","cover_letter"],
+  ["Project Understanding","project_understanding"],
+  ["Methodology","methodology"],
+  ["Scope and Deliverables","scope_deliverables"],
+  ["Schedule","schedule"],
+  ["Team Structure","team"],
+  ["Financial Proposal","financial"],
+  ["Relevant Experience","relevant_experience"],
+  ["Assumptions and Exclusions","assumptions_exclusions"]
+];
+
+function getPidFromUrl(){
+  var m=location.pathname.match(/\/proposals\/([^/]+)\/review/);
+  return m?m[1]:"";
+}
+
+async function loadProposal(){
+  PID=getPidFromUrl();
+  if(!PID){st("No proposal ID in URL.");return}
+  ge("pidLabel").textContent="#"+PID.slice(0,8);
+  try{
+    var r=await fetch("/v1/proposals/"+PID);
+    if(!r.ok)throw new Error("Proposal not found");
+    var data=await r.json();
+    proposal=data.proposal||{};
+    sections=Object.assign({},proposal.sections||{});
+    var proj=(proposal.parsed&&proposal.parsed.project)||{};
+    var cli=(proposal.parsed&&proposal.parsed.client)||{};
+    ge("projLabel").textContent=(proj.name||"Untitled Proposal")+(cli.name?" · "+cli.name:"");
+    document.title=(proj.name||"Proposal")+" — FP-GEN Review";
+    renderSummary(proj,cli,proposal);
+    renderSections();
+    ["saveAllBtn","expInddBtn","expJsxBtn","expInddBtn2","expJsxBtn2"].forEach(function(id){var e=ge(id);if(e)e.disabled=false});
+    st("Proposal loaded. Click Edit on any section to make changes.");
+  }catch(e){st("Error: "+e.message)}
+  checkInddCapability();
+}
+
+function renderSummary(proj,cli,p){
+  var fin=p.financial||p.fee||{};
+  var cards=[
+    ["Project",proj.name||"—"],
+    ["Client",cli.name||"—"],
+    ["Location",proj.location||"—"],
+    ["Type",proj.type||"—"],
+    ["Site Area",proj.siteArea||"—"],
+    ["Proposal ID",PID.slice(0,8)]
+  ];
+  ge("sumrow").innerHTML=cards.map(function(c){
+    return "<div class='sumcard'><span>"+esc(c[0])+"</span><strong>"+esc(c[1])+"</strong></div>"
+  }).join("");
+}
+
+function renderSections(){
+  var cont=ge("sections");cont.innerHTML="";
+  SECTION_ORDER.forEach(function(pair){
+    var title=pair[0],key=pair[1];
+    var text=sections[key]||"";
+    var sec=document.createElement("div");sec.className="sec";sec.dataset.key=key;
+    var isEmpty=!text.trim();
+    sec.innerHTML="<div class='sec-head'><div class='sec-title'>"+esc(title)+"</div>"+
+      "<button class='edit-btn' data-key='"+key+"'>Edit</button></div>"+
+      "<div class='sec-body"+(isEmpty?" empty":"")+"' id='sb-"+key+"'>"+(isEmpty?"(not yet generated)":esc(text))+"</div>";
+    sec.querySelector(".edit-btn").addEventListener("click",function(){startEdit(key,title,text)});
+    cont.appendChild(sec);
+  });
+}
+
+var editingKey=null;
+function startEdit(key,title,initialText){
+  if(editingKey&&editingKey!==key)finishEdit(editingKey,false);
+  editingKey=key;
+  var sec=ge("sections").querySelector("[data-key='"+key+"']");if(!sec)return;
+  sec.querySelector(".edit-btn").style.display="none";
+  var body=ge("sb-"+key);
+  var ta=document.createElement("textarea");ta.className="sec-ta";ta.value=sections[key]||initialText;
+  body.replaceWith(ta);ta.id="sb-"+key;ta.focus();
+  var saveBtn=document.createElement("button");saveBtn.className="save-btn";saveBtn.textContent="Save Section";
+  var cancelBtn=document.createElement("button");cancelBtn.className="edit-btn";cancelBtn.textContent="Cancel";cancelBtn.style.marginLeft="6px";
+  var btnRow=document.createElement("div");btnRow.style.cssText="display:flex;gap:7px;margin-top:8px";
+  btnRow.appendChild(saveBtn);btnRow.appendChild(cancelBtn);
+  sec.appendChild(btnRow);
+  saveBtn.addEventListener("click",function(){finishEdit(key,true);btnRow.remove()});
+  cancelBtn.addEventListener("click",function(){finishEdit(key,false);btnRow.remove()});
+}
+
+function finishEdit(key,save){
+  editingKey=null;
+  var sec=ge("sections").querySelector("[data-key='"+key+"']");if(!sec)return;
+  var ta=ge("sb-"+key);if(!ta||ta.tagName!=="TEXTAREA")return;
+  var newText=ta.value;
+  if(save){sections[key]=newText;hasChanges=true}
+  var div=document.createElement("div");div.className="sec-body"+(newText.trim()?"":(" empty"));
+  div.id="sb-"+key;div.textContent=newText.trim()||(save?"":"(not yet generated)");
+  ta.replaceWith(div);
+  var eb=sec.querySelector(".edit-btn");if(eb)eb.style.display="";
+  if(save){st("Section saved. Click 'Save All' to persist to server.")}
+}
+
+ge("saveAllBtn").addEventListener("click",async function(){
+  if(editingKey)finishEdit(editingKey,true);
+  ge("saveAllBtn").disabled=true;st("Saving…");
+  try{
+    var r=await fetch("/v1/proposals/"+PID,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({sections:sections})});
+    if(!r.ok){var e=await r.json();throw new Error(e.detail||"Save failed")}
+    hasChanges=false;st("All changes saved.");
+  }catch(e){st("Save failed: "+e.message)}
+  finally{ge("saveAllBtn").disabled=false}
+});
+
+async function checkInddCapability(){
+  try{
+    var r=await fetch("/v1/capabilities");var d=await r.json();
+    var cap=d.indd_export||{};
+    ge("inddNote").textContent=cap.enabled?"InDesign COM is available on this host.":cap.reason||"InDesign COM not available.";
+    if(!cap.enabled){["expInddBtn","expInddBtn2"].forEach(function(id){var e=ge(id);if(e)e.disabled=true})}
+  }catch(_){}
+}
+
+ge("expInddBtn").addEventListener("click",exportIndd);
+ge("expInddBtn2").addEventListener("click",exportIndd);
+async function exportIndd(){
+  st("Exporting to InDesign…");
+  try{
+    var r=await fetch("/v1/proposals/"+PID+"/export/indd",{method:"POST"});
+    var d=await r.json();if(!r.ok)throw new Error(d.detail||"Export failed");
+    st("InDesign export complete. "+JSON.stringify(d));
+  }catch(e){st("INDD export failed: "+e.message)}
+}
+
+ge("expJsxBtn").addEventListener("click",exportJsx);
+ge("expJsxBtn2").addEventListener("click",exportJsx);
+async function exportJsx(){
+  st("Building JSX bundle…");
+  var tpl=ge("tplSel").value||"commercial";
+  try{
+    var r=await fetch("/v1/proposals/"+PID+"/export/jsx",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({cv_assignments:{},experience_ids:[],template_id:tpl})});
+    if(!r.ok){var e=await r.json().catch(function(){return{detail:"Failed"}});throw new Error(e.detail)}
+    var blob=await r.blob();var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");a.href=url;a.download="proposal_"+PID.slice(0,8)+"_bundle.zip";a.click();
+    URL.revokeObjectURL(url);st("JSX bundle downloaded.");
+  }catch(e){st("JSX export failed: "+e.message)}
+}
+
+loadProposal();
+</script>
+</body>
+</html>

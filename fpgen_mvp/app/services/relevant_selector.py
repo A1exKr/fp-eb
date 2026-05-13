@@ -6,7 +6,10 @@ from app.config import settings
 def _load_projects() -> list[dict]:
     if not settings.reference_projects_path.exists():
         return []
-    return json.loads(settings.reference_projects_path.read_text(encoding="utf-8"))
+    try:
+        return json.loads(settings.reference_projects_path.read_text(encoding="utf-8"))
+    except Exception:
+        return []
 
 
 def select_relevant_projects(parsed: dict, selected_ids: list[str], limit: int = 3) -> list[dict]:

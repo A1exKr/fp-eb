@@ -3,1143 +3,662 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FP-GEN MVP</title>
+  <title>FP-GEN | Fee Proposal Generator — Nikken Sekkei</title>
   <style>
     :root {
-      --bg: #f2f3ef;
-      --panel: rgba(255, 255, 255, 0.94);
-      --card: #fafaf8;
-      --ink: #11161a;
-      --muted: #66707a;
-      --accent: #b63a32;
-      --accent-dark: #1f2a30;
-      --accent-soft: #ece6e0;
-      --line: #d8dcd8;
-      --line-strong: #b9c0c6;
-      --shadow: 0 18px 38px rgba(16, 22, 26, 0.08);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      color: var(--ink);
-      font-family: "Avenir Next", "Helvetica Neue", "Nimbus Sans", sans-serif;
-      background:
-        linear-gradient(180deg, rgba(17, 22, 26, 0.03), rgba(17, 22, 26, 0) 18%),
-        linear-gradient(90deg, rgba(182, 58, 50, 0.05), rgba(182, 58, 50, 0) 24%),
-        linear-gradient(180deg, #f7f7f4 0%, var(--bg) 52%, #eef0ec 100%);
-    }
-    button, input, textarea, select {
-      font: inherit;
-    }
-    .wrap {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 30px;
-    }
-    .hero {
-      margin-bottom: 22px;
-      padding: 24px 28px 26px;
-      border: 1px solid rgba(31, 42, 48, 0.12);
-      border-top: 4px solid var(--accent);
-      border-radius: 10px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 248, 245, 0.94)),
-        linear-gradient(90deg, rgba(182, 58, 50, 0.04), rgba(182, 58, 50, 0));
-      box-shadow: var(--shadow);
-    }
-    .eyebrow {
-      margin: 0 0 8px;
-      font-size: 12px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--accent-dark);
-    }
-    h1 {
-      margin: 0;
-      font-size: 44px;
-      line-height: 1.02;
-      max-width: 920px;
-      letter-spacing: -0.03em;
-      text-transform: uppercase;
-    }
-    .sub {
-      margin: 12px 0 18px;
-      max-width: 820px;
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.5;
-    }
-    .hero-steps {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .hero-steps span {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 12px;
-      border-radius: 4px;
-      background: #fff;
-      border: 1px solid rgba(31, 42, 48, 0.10);
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent-dark);
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(420px, 0.95fr) minmax(460px, 1.05fr);
-      gap: 22px;
-      align-items: start;
-    }
-    .panel {
-      background: var(--panel);
-      border: 1px solid rgba(31, 42, 48, 0.10);
-      border-radius: 10px;
-      padding: 22px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(6px);
-    }
-    .step {
-      padding: 18px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.70);
-    }
-    .step + .step {
-      margin-top: 14px;
-    }
-    .step-head {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 12px;
-    }
-    .step-no {
-      width: 34px;
-      height: 34px;
-      border-radius: 4px;
-      display: grid;
-      place-items: center;
-      background: var(--accent);
-      color: #fff;
-      font-size: 14px;
-      flex: 0 0 auto;
-    }
-    .step-head h2,
-    .output-head h2 {
-      margin: 0;
-      font-size: 23px;
-      letter-spacing: -0.02em;
-    }
-    .hint,
-    .output-meta,
-    .meta,
-    .status {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.45;
-    }
-    label {
-      display: block;
-      margin: 12px 0 6px;
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-    }
-    input,
-    textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 4px;
-      padding: 11px 12px;
-      background: #ffffff;
-      color: var(--ink);
-    }
-    textarea {
-      min-height: 140px;
-      resize: vertical;
-      line-height: 1.45;
-    }
-    input:focus,
-    textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(182, 58, 50, 0.08);
-    }
-    .source-grid,
-    .row,
-    .review-grid,
-    .summary-grid,
-    .expense-grid {
-      display: grid;
-      gap: 12px;
-    }
-    .source-grid,
-    .row,
-    .review-grid,
-    .summary-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .expense-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-    .filebox,
-    .summary-card,
-    .mini,
-    .table-wrap,
-    .advanced {
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: var(--card);
-    }
-    .filebox {
-      padding: 12px;
-    }
-    .meta {
-      margin: 8px 0 0;
-      min-height: 20px;
-    }
-    .summary-grid {
-      margin: 16px 0;
-    }
-    .summary-card {
-      padding: 14px 16px;
-      min-height: 96px;
-      position: relative;
-      overflow: hidden;
-    }
-    .summary-card::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 3px;
-      background: var(--accent);
-    }
-    .summary-card span {
-      display: block;
-      margin-bottom: 8px;
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .summary-card strong,
-    .summary-card div {
-      display: block;
-      font-size: 16px;
-      line-height: 1.45;
-      font-weight: 700;
-      word-break: break-word;
-      padding-left: 8px;
-    }
-    .summary-card a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-    .summary-card a:hover {
-      text-decoration: underline;
-    }
-    .mini {
-      padding: 14px;
-    }
-    .mini h3 {
-      margin: 0 0 8px;
-      font-size: 16px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .mini p {
-      margin: 0;
-      white-space: pre-wrap;
-      line-height: 1.5;
-    }
-    .section-editor {
-      display: grid;
-      gap: 10px;
-    }
-    .section-editor textarea {
-      min-height: 150px;
-      background: #ffffff;
-    }
-    .section-note {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
-    }
-    .review-state {
-      display: inline-flex;
-      align-items: center;
-      padding: 8px 12px;
-      border-radius: 4px;
-      background: var(--accent-soft);
-      color: var(--accent-dark);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .list {
-      margin: 0;
-      padding-left: 18px;
-      line-height: 1.45;
-    }
-    .list li + li {
-      margin-top: 6px;
-    }
-    .table-wrap {
-      overflow: auto;
-      margin-top: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 640px;
-    }
-    th,
-    td {
-      padding: 10px 10px;
-      border-bottom: 1px solid rgba(216, 220, 216, 0.9);
-      vertical-align: middle;
-    }
-    th {
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      text-align: left;
-    }
-    td input[type="number"],
-    td input[type="text"] {
-      min-width: 90px;
-      padding: 8px 10px;
-    }
-    td.center {
-      text-align: center;
-    }
-    .inline-actions,
-    .primary-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 12px;
-    }
-    .primary-actions {
-      margin-top: 18px;
-    }
-    button {
-      border: 1px solid transparent;
-      border-radius: 4px;
-      padding: 12px 18px;
-      cursor: pointer;
-      transition: transform 120ms ease, opacity 120ms ease, background 120ms ease;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: 12px;
-      font-weight: 700;
-    }
-    button:hover:not(:disabled) {
-      transform: translateY(-1px);
-    }
-    button:disabled {
-      cursor: not-allowed;
-      opacity: 0.5;
-    }
-    .primary {
-      background: var(--accent);
-      color: #fff;
-    }
-    .secondary {
-      background: var(--accent-dark);
-      color: #fff;
-    }
-    .ghost {
-      background: #fff;
-      color: var(--accent-dark);
-      border: 1px solid var(--line-strong);
-    }
-    .tiny {
-      padding: 8px 12px;
-      font-size: 13px;
-    }
-    .output-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: end;
-      margin-bottom: 10px;
-    }
-    .stack {
-      display: grid;
-      gap: 14px;
-    }
-    .advanced {
-      margin-top: 18px;
-      padding: 12px 14px;
-    }
-    .advanced summary {
-      cursor: pointer;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: 12px;
-    }
-    .advanced pre {
-      margin: 12px 0 0;
-      white-space: pre-wrap;
-      word-break: break-word;
-      background: #ffffff;
-      border: 1px solid var(--line);
-      border-radius: 4px;
-      padding: 12px;
-      max-height: 320px;
-      overflow: auto;
-    }
-    .status {
-      min-height: 20px;
-      margin: 14px 0 0;
-    }
-    .empty {
-      color: var(--muted);
-      font-style: italic;
-      list-style: none;
-      margin-left: -18px;
-    }
-    @media (max-width: 1100px) {
-      .layout,
-      .source-grid,
-      .row,
-      .review-grid,
-      .summary-grid,
-      .expense-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+      --accent:#1565c0; --accent-dark:#1f2a30; --bg:#f2f3ef; --ink:#11161a;
+      --soft:#ece6e0; --muted:#66707a; --line:#d8dcd8; --line2:#b9c0c6;
+      --panel:rgba(255,255,255,0.97); --card:#fafaf8;
+      --shadow:0 10px 28px rgba(17,22,26,0.09); --r:8px;
+      --font:"Century Gothic","Avenir Next","Helvetica Neue",sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html{font-size:14px}
+    html,body{overflow-x:hidden}
+    body{margin:0;color:var(--ink);font-family:var(--font);background:#e8edf5;min-height:100vh}
+    button,input,textarea,select{font:inherit}
+    /* Header */
+    .hdr{position:sticky;top:0;z-index:100;width:100%;border-top:4px solid var(--accent);background:linear-gradient(135deg,var(--accent-dark) 0%,#11161a 100%);color:#fff}
+    .hdr-in{max-width:1600px;margin:0 auto;padding:14px 28px 10px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+    .wm{font-size:34px;font-weight:700;letter-spacing:-.04em;text-transform:uppercase;line-height:1}
+    .wm-sub{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:3px}
+    .pills{display:flex;gap:5px;flex-wrap:wrap;flex:1}
+    .pill{padding:5px 10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:3px;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+    .pill.done{background:rgba(21,101,192,.5);border-color:rgba(21,101,192,.8);color:#fff}
+    /* Status */
+    .status{background:var(--accent-dark);color:rgba(255,255,255,.72);font-size:12px;padding:0;min-height:30px}
+    .status-in{max-width:1600px;margin:0 auto;padding:6px 28px}
+    /* Layout */
+    .wrap{max-width:1600px;margin:0 auto;padding:20px 28px 60px;display:grid;grid-template-columns:44fr 56fr;gap:18px;align-items:start;background:#e8edf5}
+    /* Cards */
+    .card{background:var(--panel);border:1px solid rgba(31,42,48,.09);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:14px}
+    .card.locked{opacity:.4;pointer-events:none}
+    .card.locked .sn{background:var(--muted)}
+    .sh{display:flex;gap:11px;align-items:flex-start;margin-bottom:12px}
+    .sn{width:30px;height:30px;border-radius:4px;display:grid;place-items:center;background:var(--accent);color:#fff;font-size:12px;font-weight:700;flex:0 0 auto}
+    .sh h2{margin:0;font-size:18px;letter-spacing:-.02em;line-height:1.2}
+    .sh p{margin:3px 0 0;font-size:11px;color:var(--muted)}
+    /* Form */
+    label{display:block;margin:9px 0 3px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.13em}
+    .hint{color:var(--muted);font-size:11px;line-height:1.45;margin:3px 0 0}
+    input[type=text],input[type=number],input:not([type]),textarea,select{width:100%;border:1px solid var(--line);border-radius:4px;padding:8px 10px;background:#fff;color:var(--ink)}
+    textarea{resize:vertical;line-height:1.5}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(21,101,192,.13)}
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+    .filebox{border:1px dashed var(--line2);border-radius:6px;background:var(--card);padding:14px;text-align:center}
+    .filebox input{border:none;padding:0;background:none;width:auto}
+    /* Buttons */
+    button{border:1px solid transparent;border-radius:4px;padding:9px 14px;cursor:pointer;transition:transform 90ms,background 90ms;text-transform:uppercase;letter-spacing:.08em;font-size:10px;font-weight:700;white-space:nowrap}
+    button:hover:not(:disabled){transform:translateY(-1px)}
+    button:disabled{cursor:not-allowed;opacity:.38}
+    .bp{background:var(--accent);color:#fff}
+    .bs{background:var(--accent-dark);color:#fff}
+    .bg{background:#fff;color:var(--accent-dark);border-color:var(--line2)}
+    .bsm{padding:5px 10px;font-size:10px}
+    .bgen{width:100%;padding:14px;font-size:13px;letter-spacing:.1em}
+    .ar{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;align-items:center}
+    /* Tables */
+    .tw{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--card)}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:7px 9px;border-bottom:1px solid rgba(216,220,216,.8);vertical-align:middle}
+    th{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;background:rgba(242,243,239,.5);white-space:nowrap}
+    td input[type=text],td input[type=number],td input:not([type]){padding:5px 7px;font-size:12px}
+    td select{padding:5px 7px;font-size:12px}
+    tfoot td{font-weight:700;font-size:11px;background:rgba(31,42,48,.03)}
+    .tc{font-weight:700;color:var(--accent-dark);white-space:nowrap}
+    .xb{width:20px;height:20px;border-radius:50%;background:rgba(21,101,192,.12);color:var(--accent);font-size:10px;font-weight:700;cursor:pointer;border:none;padding:0;letter-spacing:0;text-transform:none;line-height:1}
+    .xb:hover{background:var(--accent);color:#fff}
+    /* Grand total */
+    .gtbar{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;margin-top:10px;background:var(--accent-dark);color:#fff;border-radius:var(--r);font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:11px}
+    #gtDisp{font-size:16px}
+    /* Reference projects */
+    .type-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+    .ttab{padding:5px 10px;border-radius:3px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;cursor:pointer}
+    .ttab.active{background:var(--accent-dark);color:#fff;border-color:var(--accent-dark)}
+    .refgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;max-height:320px;overflow-y:auto;padding-right:2px}
+    .rc{border:1px solid var(--line);border-radius:5px;background:var(--card);padding:9px 10px;cursor:pointer;transition:border-color 100ms}
+    .rc.sel{border-color:var(--accent);background:#f0f5ff}
+    .rc-h{display:flex;gap:7px;align-items:flex-start}
+    .rc-chk{width:14px;height:14px;accent-color:var(--accent);flex:0 0 auto;margin-top:2px}
+    .rc-n{font-size:11px;font-weight:700;line-height:1.3}
+    .rc-m{font-size:10px;color:var(--muted);margin-top:2px}
+    .rbadge{display:inline-block;padding:1px 6px;border-radius:8px;background:var(--soft);color:var(--accent-dark);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+    /* Team */
+    .pbar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+    .pbar label{margin:0;white-space:nowrap}
+    .pbar select{flex:1}
+    /* Phase header editable */
+    .phd{display:inline-block;min-width:55px;outline:none}
+    .phd:focus{border-bottom:1px dashed var(--accent)}
+    /* Proposal link */
+    .plink{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 14px;background:var(--soft);border-radius:6px;border:1px solid rgba(31,42,48,.1)}
+    .plink a{color:var(--accent-dark);font-weight:700;font-size:12px;text-decoration:none}
+    .plink a:hover{text-decoration:underline}
+    /* Dialog */
+    dialog{border:none;border-radius:var(--r);padding:0;max-width:620px;width:90vw;max-height:82vh;box-shadow:0 20px 56px rgba(0,0,0,.22)}
+    dialog::backdrop{background:rgba(17,22,26,.5)}
+    .dlg-h{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+    .dlg-h h3{margin:0;font-size:15px}
+    .dlg-b{padding:14px 18px;overflow-y:auto;max-height:calc(82vh - 110px)}
+    .dlg-f{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:7px}
+    .dlg-s{width:100%;padding:7px 10px;border:1px solid var(--line);border-radius:4px;margin-bottom:10px;font:inherit}
+    .librow{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(216,220,216,.5)}
+    .librow input{margin-top:2px;accent-color:var(--accent);flex:0 0 auto}
+    /* Print */
+    @media print{.hdr,.status,.left-col,.ar,.type-tabs,.pbar,.bgen,.plink,.dlg-h{display:none!important}.wrap{display:block}.card{box-shadow:none;border:none;padding:6px 0}}
+    @media(max-width:1100px){.wrap{grid-template-columns:1fr}.g2{grid-template-columns:1fr}.refgrid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="hero">
-      <p class="eyebrow">Minimum Viable Product</p>
-      <h1>FP-GEN    =>   the Fee Proposal Generator</h1>
-       <div class="hero-steps">
-        <span>1. Analyze RFP</span>
-        <span>2. Review Extracted Brief</span>
-        <span>3. Set Assumptions</span>
-        <span>4. Generate Proposal</span>
-        <span>5. Export to InDesign</span>
-      </div>
-    </section>
-
-    <div class="layout">
-      <section class="panel">
-        <div class="step">
-          <div class="step-head">
-            <div class="step-no">1</div>
-            <div>
-              <h2>Bring in the RFP</h2>
-              <p class="hint">Upload a file or paste the raw text. If you upload a file, click <strong>Analyze RFP</strong> to extract its text into the working area.</p>
-            </div>
-          </div>
-
-          <div class="source-grid">
-            <div>
-              <label for="rfpFile">RFP file</label>
-              <div class="filebox">
-                <input id="rfpFile" type="file" accept=".txt,.md,.json,.pdf,.docx">
-                <p class="meta" id="fileMeta">Supported: .txt, .md, .json, .pdf, .docx</p>
-              </div>
-            </div>
-            <div>
-              <label for="rfpText">Working RFP text</label>
-              <textarea id="rfpText">Client requests a mixed-use master plan in Ho Chi Minh City with sustainability, mobility, and phased delivery over 16 weeks. Deliverables include concept options, final master plan report, and presentation boards.</textarea>
-            </div>
-          </div>
-
-          <div class="primary-actions">
-            <button id="analyzeBtn" class="primary" type="button">Analyze RFP</button>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-head">
-            <div class="step-no">2</div>
-            <div>
-              <h2>Review project details</h2>
-              <p class="hint">These fields are the user-facing corrections that matter most in the proposal. They will override the parsed values if you edit them.</p>
-            </div>
-          </div>
-
-          <div class="row">
-            <div>
-              <label for="projectName">Project name</label>
-              <input id="projectName" value="HCMC Mixed-Use Master Plan">
-            </div>
-            <div>
-              <label for="clientName">Client name</label>
-              <input id="clientName" value="Example Client">
-            </div>
-          </div>
-
-          <div class="row">
-            <div>
-              <label for="location">Location</label>
-              <input id="location" value="Ho Chi Minh City, Vietnam">
-            </div>
-            <div>
-              <label for="projectType">Project type</label>
-              <input id="projectType" value="Master Plan">
-            </div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-head">
-            <div class="step-no">3</div>
-            <div>
-              <h2>Set fee assumptions</h2>
-              <p class="hint">Use the structured form instead of raw JSON. Add or remove roles and subconsultants only when they matter for the fee.</p>
-            </div>
-          </div>
-
-          <label>Role effort by phase</label>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Role</th>
-                  <th>Rate</th>
-                  <th>Kick-off</th>
-                  <th>Concept</th>
-                  <th>Finalization</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="roleRows"></tbody>
-            </table>
-          </div>
-          <div class="inline-actions">
-            <button id="addRoleBtn" class="ghost tiny" type="button">Add role</button>
-          </div>
-
-          <label>Subconsultants</label>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Fee</th>
-                  <th>Included in lump sum</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="consultantRows"></tbody>
-            </table>
-          </div>
-          <div class="inline-actions">
-            <button id="addConsultantBtn" class="ghost tiny" type="button">Add subconsultant</button>
-          </div>
-
-          <div class="expense-grid">
-            <div>
-              <label for="overheadPct">Overhead %</label>
-              <input id="overheadPct" type="number" step="0.01" value="0.10">
-            </div>
-            <div>
-              <label for="travelTrips">Trips</label>
-              <input id="travelTrips" type="number" step="1" value="2">
-            </div>
-            <div>
-              <label for="travelPeople">People / trip</label>
-              <input id="travelPeople" type="number" step="1" value="2">
-            </div>
-            <div>
-              <label for="travelUnitCost">Travel unit cost</label>
-              <input id="travelUnitCost" type="number" step="0.01" value="6000">
-            </div>
-          </div>
-
-          <div class="expense-grid">
-            <div>
-              <label for="miscReimbursables">Misc reimbursables</label>
-              <input id="miscReimbursables" type="number" step="0.01" value="3000">
-            </div>
-            <div>
-              <label for="travelIncluded">Travel in lump sum</label>
-              <input id="travelIncluded" type="checkbox" checked>
-            </div>
-          </div>
-
-          <div class="primary-actions">
-            <button id="generateBtn" class="secondary" type="button">Generate Proposal</button>
-          </div>
-        </div>
-        <p class="status" id="status">Ready. Analyze the RFP first if you want to review the extracted brief before generation.</p>
-      </section>
-
-      <section class="panel">
-        <div class="output-head">
-          <div>
-            <h2>Proposal review</h2>
-            <p class="output-meta" id="resultMeta">No proposal yet. Start by analyzing the RFP.</p>
-          </div>
-          <div class="review-state" id="reviewState">No review changes</div>
-        </div>
-
-        <div class="summary-grid">
-          <div class="summary-card">
-            <span>Proposal ID</span>
-            <strong id="proposalIdOut">Not generated yet</strong>
-          </div>
-          <div class="summary-card">
-            <span>InDesign export</span>
-            <div id="exportOut">Not exported yet</div>
-          </div>
-        </div>
-
-        <div class="review-grid">
-          <div class="mini">
-            <h3>Scope summary</h3>
-            <p id="briefSummary">Run Analyze RFP to see what the system understood.</p>
-          </div>
-          <div class="mini">
-            <h3>Deliverables</h3>
-            <ul id="deliverablesOut" class="list"><li class="empty">No extracted deliverables yet.</li></ul>
-          </div>
-          <div class="mini">
-            <h3>Milestones</h3>
-            <ul id="milestonesOut" class="list"><li class="empty">No extracted milestones yet.</li></ul>
-          </div>
-          <div class="mini">
-            <h3>Required disciplines</h3>
-            <ul id="disciplinesOut" class="list"><li class="empty">No extracted disciplines yet.</li></ul>
-          </div>
-        </div>
-
-        <div id="sectionsOut" class="stack" style="margin-top: 16px;"></div>
-
-        <div class="primary-actions">
-          <button id="exportInddBtn" class="ghost" type="button" disabled>Export to InDesign</button>
-        </div>
-
-        <details class="advanced">
-          <summary>Advanced diagnostics</summary>
-          <label for="parsedOut">Parsed JSON</label>
-          <pre id="parsedOut"></pre>
-          <label for="financialOut">Financial JSON</label>
-          <pre id="financialOut"></pre>
-          <label for="proposalOut">Proposal markdown</label>
-          <pre id="proposalOut"></pre>
-        </details>
-      </section>
+<header class="hdr">
+  <div class="hdr-in">
+    <div><div class="wm">FP-GEN</div><div class="wm-sub">by Nikken Sekkei</div></div>
+    <div class="pills">
+      <span class="pill" id="pl1">1 · Analyze RFP</span>
+      <span class="pill" id="pl2">2 · Project Details</span>
+      <span class="pill" id="pl3">3 · References &amp; Team</span>
+      <span class="pill" id="pl4">4 · Fee &amp; Schedule</span>
+      <span class="pill" id="pl5">5 · Generate</span>
     </div>
   </div>
+</header>
+<div class="status"><div class="status-in" id="sb">Ready. Upload an RFP to begin.</div></div>
 
-  <script>
-    const DEFAULT_FEE = {
-      roles: [
-        {
-          role: "Urban Planner",
-          rate: 180,
-          hours_by_phase: {
-            "Kick-off": 30,
-            "Concept Development": 80,
-            "Finalization": 40
-          }
-        },
-        {
-          role: "Architect",
-          rate: 200,
-          hours_by_phase: {
-            "Kick-off": 20,
-            "Concept Development": 70,
-            "Finalization": 35
-          }
-        }
-      ],
-      subconsultants: [
-        {
-          name: "Local Traffic Consultant",
-          fee: 12000,
-          included_in_lump_sum: true
-        }
-      ],
-      overhead_pct: 0.10,
-      travel: {
-        trips: 2,
-        people_per_trip: 2,
-        unit_cost: 6000,
-        include_in_lump_sum: true
-      },
-      misc_reimbursables: 3000
+<div class="wrap">
+  <!-- LEFT COLUMN -->
+  <section class="left-col">
+
+    <!-- Step 1: Upload RFP -->
+    <div class="card" id="sc1">
+      <div class="sh"><div class="sn">1</div><div><h2>Upload RFP</h2><p>Upload a file or paste text, then analyze.</p></div></div>
+      <div class="filebox">
+        <input id="rfpFile" type="file" accept=".txt,.md,.json,.pdf,.docx">
+        <p id="fm" class="hint" style="margin-top:7px">Supported: .txt .md .pdf .docx</p>
+      </div>
+      <label>Or paste RFP text</label>
+      <textarea id="rfpText" rows="6" placeholder="Paste the full RFP here…"></textarea>
+      <div class="ar">
+        <button id="analyzeBtn" class="bp">Analyze RFP</button>
+        <button id="clearBtn" class="bg bsm" style="margin-left:auto">Clear All</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Project Details -->
+    <div class="card locked" id="sc2">
+      <div class="sh"><div class="sn">2</div><div><h2>Project Details</h2><p>AI-extracted. Edit as needed.</p></div></div>
+      <div class="g2">
+        <div><label>Project Name</label><input id="projName" type="text" placeholder="—"></div>
+        <div><label>Client</label><input id="clientName" type="text" placeholder="—"></div>
+        <div><label>Project Type</label><input id="projType" type="text" placeholder="—"></div>
+        <div><label>Location</label><input id="location" type="text" placeholder="—"></div>
+      </div>
+      <label>Site Area</label>
+      <input id="siteArea" type="text" placeholder="—">
+      <label>Executive Summary</label>
+      <textarea id="summary" rows="5" placeholder="AI-generated project summary will appear here…"></textarea>
+    </div>
+
+    <!-- Step 3: Schedule -->
+    <div class="card locked" id="sc3">
+      <div class="sh"><div class="sn">3</div><div><h2>Schedule</h2><p>Phases drive fee calculator columns. Edit start week and duration.</p></div></div>
+      <div class="tw">
+        <table>
+          <thead><tr>
+            <th style="min-width:130px">Phase</th>
+            <th style="min-width:75px">Start (wk)</th>
+            <th style="min-width:75px">Duration (wks)</th>
+            <th style="min-width:150px">Key Deliverable</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="schBody"></tbody>
+        </table>
+      </div>
+      <div class="ar"><button id="addPhBtn" class="bg bsm">+ Add Phase</button></div>
+    </div>
+
+  </section>
+
+  <!-- RIGHT COLUMN -->
+  <section class="right-col">
+
+    <!-- Step 4: Reference Projects -->
+    <div class="card locked" id="sc4">
+      <div class="sh"><div class="sn">4</div><div><h2>Reference Projects</h2><p>AI pre-selects by relevance. Click to toggle. Add from the full library.</p></div></div>
+      <div class="type-tabs" id="typeTabs">
+        <button class="ttab active" data-t="All">All</button>
+        <button class="ttab" data-t="Master Plan">Master Plan</button>
+        <button class="ttab" data-t="Commercial">Commercial</button>
+        <button class="ttab" data-t="Technical">Technical</button>
+      </div>
+      <div id="refGrid" class="refgrid"><p class="hint">Analyze an RFP first.</p></div>
+      <div class="ar"><button id="libBtn" class="bg bsm">+ Add from Library</button></div>
+    </div>
+
+    <!-- Step 5: Team -->
+    <div class="card locked" id="sc5">
+      <div class="sh"><div class="sn">5</div><div><h2>Team</h2><p>Select a preset or build manually. Names drive CV assignments for export.</p></div></div>
+      <div class="pbar">
+        <label>Preset</label>
+        <select id="presetSel"><option value="">— select —</option></select>
+        <button id="applyPre" class="bg bsm">Apply</button>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr>
+            <th style="min-width:130px">Role</th>
+            <th style="min-width:160px">Name</th>
+            <th style="min-width:85px">Rate USD/h</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="teamBody"></tbody>
+        </table>
+      </div>
+      <div class="ar"><button id="addMbr" class="bg bsm">+ Add Row</button></div>
+    </div>
+
+    <!-- Step 6: Fee Calculator -->
+    <div class="card locked" id="sc6">
+      <div class="sh">
+        <div class="sn">6</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h2 style="margin:0">Fee Calculator</h2>
+            <div style="display:flex;align-items:center;gap:7px">
+              <label style="margin:0;white-space:nowrap">Display</label>
+              <select id="curSel" style="width:auto;padding:5px 7px;font-size:11px">
+                <option>USD</option><option>JPY</option><option>SGD</option>
+                <option>AED</option><option>EUR</option><option>GBP</option>
+              </select>
+            </div>
+          </div>
+          <p style="margin:3px 0 0;font-size:11px;color:var(--muted)">Phases from Step 3 · Roles from Step 5 · Rates in USD</p>
+        </div>
+      </div>
+      <div class="tw"><table><thead id="feeH"></thead><tbody id="feeB"></tbody><tfoot id="feeF"></tfoot></table></div>
+      <div class="gtbar"><span>Estimated Fee (Labour)</span><span id="gtDisp">USD 0</span></div>
+      <label style="margin-top:14px">Subconsultants</label>
+      <div class="tw"><table><thead><tr><th>Firm</th><th>Fee USD</th><th>In Lump Sum</th><th></th></tr></thead><tbody id="subRows"></tbody></table></div>
+      <div class="ar"><button id="addSub" class="bg bsm">+ Add Subconsultant</button></div>
+      <div class="g4">
+        <div><label>Overhead %</label><input id="ohPct" type="number" step="0.01" value="0.10"></div>
+        <div><label>Trips</label><input id="tvTrips" type="number" step="1" value="2"></div>
+        <div><label>People/Trip</label><input id="tvPpl" type="number" step="1" value="2"></div>
+        <div><label>Unit Cost USD</label><input id="tvCost" type="number" step="100" value="6000"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;margin-top:9px">
+        <input id="tvIncl" type="checkbox" checked style="width:16px;height:16px;accent-color:var(--accent)">
+        <label style="margin:0;text-transform:none;font-size:12px;color:var(--ink)">Include travel in lump sum</label>
+      </div>
+    </div>
+
+    <!-- Step 7: Generate -->
+    <div class="card" style="background:var(--accent-dark)">
+      <button id="genBtn" class="bs bgen" disabled style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff">Generate Proposal</button>
+      <div id="plinkWrap" style="display:none" class="plink">
+        <span style="font-size:11px;color:var(--muted)">Proposal ready:</span>
+        <a id="plink" href="#" target="_blank">Open Review &amp; Export →</a>
+        <code id="pidOut" style="font-size:10px;color:var(--muted);margin-left:auto"></code>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- Library dialog -->
+<dialog id="libDlg">
+  <div class="dlg-h"><h3>Reference Project Library</h3><button class="bg bsm" onclick="document.getElementById('libDlg').close()">Close</button></div>
+  <div class="dlg-b">
+    <input id="libQ" class="dlg-s" type="text" placeholder="Search by name, type or location…">
+    <div id="libList"></div>
+  </div>
+  <div class="dlg-f"><button id="libAdd" class="bp bsm">Add Selected</button></div>
+</dialog>
+
+<script>
+"use strict";
+var CUR={USD:1,JPY:150,SGD:1.35,AED:3.67,EUR:0.92,GBP:0.79};
+var schRows=[], teamRows=[], selRef={}, allRef=[], personnel=[], presets=[], curType="All";
+function ge(id){return document.getElementById(id)}
+function num(v){var n=parseFloat(v);return isFinite(n)?n:0}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function st(m){ge("sb").textContent=m}
+function cc(){return ge("curSel").value||"USD"}
+function cr(){return CUR[cc()]||1}
+function fm(u){return cc()+" "+Math.round(u*cr()).toLocaleString("en-US")}
+function unlock(n){var e=ge("sc"+n);if(e)e.classList.remove("locked")}
+function pill(n){var e=ge("pl"+n);if(e)e.classList.add("done")}
+
+/* ---- SCHEDULE ---- */
+function renderSch(){
+  var b=ge("schBody");b.innerHTML="";
+  schRows.forEach(function(r,i){
+    var tr=document.createElement("tr");
+    tr.innerHTML="<td><input type='text' class='sp' data-i='"+i+"' value='"+esc(r.phase)+"' style='min-width:120px'></td>"+
+      "<td><input type='number' class='ss' data-i='"+i+"' value='"+r.sw+"' style='max-width:65px'></td>"+
+      "<td><input type='number' class='sd' data-i='"+i+"' value='"+r.dur+"' style='max-width:65px'></td>"+
+      "<td><input type='text' class='sdl' data-i='"+i+"' value='"+esc(r.del)+"' style='min-width:140px'></td>"+
+      "<td><button type='button' class='xb del-sch' data-i='"+i+"'>&#10005;</button></td>";
+    b.appendChild(tr);
+  });
+}
+function getPhases(){return schRows.map(function(r){return r.phase}).filter(Boolean)}
+ge("schBody").addEventListener("input",function(e){
+  var t=e.target,i=parseInt(t.dataset.i,10);if(!schRows[i])return;
+  if(t.classList.contains("sp")){schRows[i].phase=t.value;syncFeePhases()}
+  if(t.classList.contains("ss"))schRows[i].sw=num(t.value);
+  if(t.classList.contains("sd"))schRows[i].dur=num(t.value);
+  if(t.classList.contains("sdl"))schRows[i].del=t.value;
+});
+ge("schBody").addEventListener("click",function(e){
+  if(!e.target.classList.contains("del-sch"))return;
+  schRows.splice(parseInt(e.target.dataset.i,10),1);renderSch();syncFeePhases();
+});
+ge("addPhBtn").addEventListener("click",function(){
+  var lw=schRows.length?schRows[schRows.length-1].sw+schRows[schRows.length-1].dur:1;
+  schRows.push({phase:"New Phase",sw:lw,dur:2,del:""});renderSch();syncFeePhases();
+});
+function syncFeePhases(){
+  var ph=getPhases();
+  teamRows.forEach(function(r){if(!r.hrs)r.hrs={};ph.forEach(function(p){if(r.hrs[p]==null)r.hrs[p]=0})});
+  renderFee();
+}
+
+/* ---- REFERENCE PROJECTS ---- */
+function renderRef(){
+  var g=ge("refGrid");g.innerHTML="";
+  var list=allRef.filter(function(p){return curType==="All"||p.type===curType});
+  if(!list.length){g.innerHTML="<p class='hint'>No projects match this filter.</p>";return}
+  list.forEach(function(rp){
+    var ch=!!selRef[rp.id];
+    var d=document.createElement("div");
+    d.className="rc"+(ch?" sel":"");d.dataset.rid=rp.id;
+    d.innerHTML="<div class='rc-h'><input type='checkbox' class='rc-chk'"+(ch?" checked":"")+">" +
+      "<div><span class='rbadge'>"+esc(rp.type||"Project")+"</span>" +
+      "<div class='rc-n'>"+esc(rp.name)+"</div></div></div>" +
+      "<div class='rc-m'>"+esc(rp.location||"")+(rp.year?" · "+rp.year:"")+"</div>" +
+      "<div class='hint' style='font-size:10px;margin-top:3px'>"+esc((rp.summary||"").slice(0,85))+"…</div>";
+    d.querySelector(".rc-chk").addEventListener("change",function(e){
+      if(e.target.checked)selRef[rp.id]=true;else delete selRef[rp.id];
+      d.classList.toggle("sel",e.target.checked);
+    });
+    d.addEventListener("click",function(e){
+      if(e.target.tagName==="INPUT")return;
+      var c=d.querySelector(".rc-chk");c.checked=!c.checked;c.dispatchEvent(new Event("change"));
+    });
+    g.appendChild(d);
+  });
+}
+ge("typeTabs").addEventListener("click",function(e){
+  if(!e.target.classList.contains("ttab"))return;
+  ge("typeTabs").querySelectorAll(".ttab").forEach(function(b){b.classList.remove("active")});
+  e.target.classList.add("active");curType=e.target.dataset.t;renderRef();
+});
+async function loadRef(){
+  try{var r=await fetch("/v1/reference-projects");if(!r.ok)return;allRef=await r.json();renderRef()}catch(_){}
+}
+ge("libBtn").addEventListener("click",function(){renderLib("");ge("libQ").value="";ge("libDlg").showModal()});
+ge("libQ").addEventListener("input",function(e){renderLib(e.target.value)});
+function renderLib(q){
+  var lq=q.toLowerCase();var l=ge("libList");l.innerHTML="";
+  allRef.filter(function(p){return !q||(p.name+p.location+p.type).toLowerCase().includes(lq)})
+  .forEach(function(rp){
+    var ch=!!selRef[rp.id];
+    var row=document.createElement("div");row.className="librow";
+    row.innerHTML="<input type='checkbox' class='lc' data-id='"+esc(rp.id)+"'"+(ch?" checked":"")+">"+
+      "<div><span class='rbadge'>"+esc(rp.type||"")+"</span> <strong style='font-size:11px'>"+esc(rp.name)+"</strong>"+
+      "<div style='font-size:10px;color:var(--muted)'>"+esc(rp.location||"")+(rp.year?" · "+rp.year:"")+"</div></div>";
+    l.appendChild(row);
+  });
+}
+ge("libAdd").addEventListener("click",function(){
+  ge("libList").querySelectorAll(".lc").forEach(function(c){
+    if(c.checked)selRef[c.dataset.id]=true;else delete selRef[c.dataset.id];
+  });
+  ge("libDlg").close();renderRef();
+});
+
+/* ---- PERSONNEL / TEAM PRESETS ---- */
+async function loadPersonnel(){try{var r=await fetch("/v1/personnel");if(!r.ok)return;personnel=await r.json()}catch(_){}}
+async function loadPresets(){
+  try{
+    var r=await fetch("/v1/team-presets");if(!r.ok)return;presets=await r.json();
+    var s=ge("presetSel");
+    presets.forEach(function(p){var o=document.createElement("option");o.value=p.id;o.textContent=p.name;s.appendChild(o)});
+  }catch(_){}
+}
+ge("applyPre").addEventListener("click",function(){
+  var pid=ge("presetSel").value;if(!pid)return;
+  var prs=presets.find(function(p){return p.id===pid});if(!prs)return;
+  var ph=getPhases();
+  teamRows=prs.assignments.map(function(a){
+    var per=personnel.find(function(p){return p.id===a.person_id})||{};
+    var hrs={};ph.forEach(function(p){hrs[p]=0});
+    return{role:a.role,name:per.name||"",pid:a.person_id,rate:a.rate,hrs:hrs};
+  });
+  renderTeam();renderFee();unlock(6);
+});
+function renderTeam(){
+  var b=ge("teamBody");b.innerHTML="";
+  teamRows.forEach(function(r,i){
+    var opts="<option value=''>(none)</option>";
+    personnel.forEach(function(p){opts+="<option value='"+esc(p.id)+"'"+(p.id===r.pid?" selected":"")+" data-n='"+esc(p.name)+"'>"+esc(p.name)+"</option>"});
+    var tr=document.createElement("tr");
+    tr.innerHTML="<td><input type='text' class='trole' data-i='"+i+"' value='"+esc(r.role)+"' style='min-width:120px'></td>"+
+      "<td><select class='tper' data-i='"+i+"'>"+opts+"</select></td>"+
+      "<td><input type='number' class='trate' data-i='"+i+"' step='5' value='"+r.rate+"' style='max-width:80px'></td>"+
+      "<td><button type='button' class='xb del-tm' data-i='"+i+"'>&#10005;</button></td>";
+    b.appendChild(tr);
+  });
+}
+ge("teamBody").addEventListener("input",function(e){
+  var t=e.target,i=parseInt(t.dataset.i,10);if(!teamRows[i])return;
+  if(t.classList.contains("trole")){teamRows[i].role=t.value;renderFee()}
+  if(t.classList.contains("trate")){teamRows[i].rate=num(t.value);renderFee()}
+});
+ge("teamBody").addEventListener("change",function(e){
+  var t=e.target,i=parseInt(t.dataset.i,10);if(!teamRows[i])return;
+  if(t.classList.contains("tper")){
+    teamRows[i].pid=t.value;
+    var o=t.options[t.selectedIndex];teamRows[i].name=o.dataset.n||o.text;
+    renderFee();
+  }
+});
+ge("teamBody").addEventListener("click",function(e){
+  if(!e.target.classList.contains("del-tm"))return;
+  teamRows.splice(parseInt(e.target.dataset.i,10),1);renderTeam();renderFee();
+});
+ge("addMbr").addEventListener("click",function(){
+  var hrs={};getPhases().forEach(function(p){hrs[p]=0});
+  teamRows.push({role:"",name:"",pid:"",rate:150,hrs:hrs});renderTeam();renderFee();
+});
+
+/* ---- FEE CALCULATOR ---- */
+function renderFee(){
+  var ph=getPhases();
+  var h="<tr><th>Role</th><th>Name</th><th>Rate</th>";
+  ph.forEach(function(p,pi){h+="<th class='phd-th'><span class='phd' contenteditable='true' data-pi='"+pi+"'>"+esc(p)+"</span></th>"});
+  h+="<th>Total</th></tr>";ge("feeH").innerHTML=h;
+  var b="";
+  teamRows.forEach(function(r,ri){
+    if(!r.hrs)r.hrs={};
+    var tot=ph.reduce(function(s,p){return s+num(r.hrs[p]||0)*num(r.rate)},0);
+    b+="<tr><td style='font-size:11px;min-width:110px;white-space:nowrap'>"+esc(r.role||"—")+"</td>"+
+       "<td style='font-size:11px;min-width:130px;white-space:nowrap'>"+esc(r.name||"—")+"</td>"+
+       "<td><input type='number' class='frate' data-ri='"+ri+"' step='5' value='"+num(r.rate)+"' style='max-width:65px'></td>";
+    ph.forEach(function(p){b+="<td><input type='number' step='1' class='fh' data-ri='"+ri+"' data-p='"+esc(p)+"' value='"+(r.hrs[p]||0)+"' style='max-width:68px'></td>"});
+    b+="<td class='tc' id='rt"+ri+"'>"+fm(tot)+"</td></tr>";
+  });
+  ge("feeB").innerHTML=b;
+  renderFoot(ph);gtotal();
+}
+function renderFoot(ph){
+  var f="<tr><td colspan='3' style='text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)'>Phase totals</td>";
+  ph.forEach(function(p){var t=teamRows.reduce(function(s,r){return s+num((r.hrs||{})[p]||0)*num(r.rate)},0);f+="<td class='tc'>"+fm(t)+"</td>"});
+  var g=teamRows.reduce(function(s,r){return s+ph.reduce(function(rs,p){return rs+num((r.hrs||{})[p]||0)*num(r.rate)},0)},0);
+  f+="<td class='tc'>"+fm(g)+"</td></tr>";ge("feeF").innerHTML=f;
+}
+function gtotal(){
+  var ph=getPhases();
+  var lab=teamRows.reduce(function(s,r){return s+ph.reduce(function(rs,p){return rs+num((r.hrs||{})[p]||0)*num(r.rate)},0)},0);
+  var oh=lab*num(ge("ohPct").value);
+  var tv=num(ge("tvTrips").value)*num(ge("tvPpl").value)*num(ge("tvCost").value);
+  var su=Array.from(ge("subRows").querySelectorAll("tr")).reduce(function(s,tr){
+    var ch=tr.querySelector(".sic"),fe=tr.querySelector(".sfe");return s+(ch&&ch.checked&&fe?num(fe.value):0)},0);
+  ge("gtDisp").textContent=fm(lab+oh+(ge("tvIncl").checked?tv:0)+su);
+}
+ge("feeB").addEventListener("input",function(e){
+  var ri=parseInt(e.target.dataset.ri,10);
+  if(e.target.classList.contains("fh")){
+    var p=e.target.dataset.p;
+    if(teamRows[ri]){if(!teamRows[ri].hrs)teamRows[ri].hrs={};teamRows[ri].hrs[p]=num(e.target.value)}
+    var ph=getPhases();
+    var tot=ph.reduce(function(s,pp){return s+num((teamRows[ri]||{hrs:{}}).hrs[pp]||0)*num((teamRows[ri]||{rate:0}).rate)},0);
+    var c=ge("rt"+ri);if(c)c.textContent=fm(tot);
+    renderFoot(ph);gtotal();
+  }else if(e.target.classList.contains("frate")){
+    if(teamRows[ri]){teamRows[ri].rate=Math.max(0,num(e.target.value));}
+    var ph=getPhases();
+    var tot=ph.reduce(function(s,p){return s+num((teamRows[ri].hrs||{})[p]||0)*num(teamRows[ri].rate)},0);
+    var c=ge("rt"+ri);if(c)c.textContent=fm(tot);
+    renderFoot(ph);gtotal();
+  }
+});
+ge("feeH").addEventListener("blur",function(e){
+  if(!e.target.classList.contains("phd"))return;
+  var pi=parseInt(e.target.dataset.pi,10);var np=(e.target.textContent||"").trim();
+  if(np&&schRows[pi]&&np!==schRows[pi].phase){schRows[pi].phase=np;renderSch();syncFeePhases()}
+},true);
+document.addEventListener("change",function(e){
+  if(e.target===ge("curSel")||e.target===ge("tvIncl")||e.target.classList.contains("sic"))gtotal();
+  if(e.target===ge("curSel"))renderFee();
+});
+document.addEventListener("input",function(e){
+  if(["ohPct","tvTrips","tvPpl","tvCost"].indexOf(e.target.id)>-1||e.target.classList.contains("sfe"))gtotal();
+});
+
+/* ---- SUBCONSULTANTS ---- */
+function addSub(d){
+  d=d||{};var tr=document.createElement("tr");
+  tr.innerHTML="<td><input type='text' class='snm' value='"+esc(d.name||"")+"' placeholder='Firm' style='min-width:110px'></td>"+
+    "<td><input type='number' class='sfe' step='100' value='"+(d.fee||0)+"' style='max-width:95px'></td>"+
+    "<td style='text-align:center'><input type='checkbox' class='sic'"+(d.included_in_lump_sum!==false?" checked":"")+" style='width:15px;height:15px;accent-color:var(--accent)'></td>"+
+    "<td><button type='button' class='xb dls'>&#10005;</button></td>";
+  tr.querySelector(".dls").addEventListener("click",function(){tr.remove();gtotal()});
+  ge("subRows").appendChild(tr);gtotal();
+}
+ge("addSub").addEventListener("click",function(){addSub({})});
+
+/* ---- ANALYZE ---- */
+ge("analyzeBtn").addEventListener("click",async function(){
+  var txt=ge("rfpText").value.trim(),file=ge("rfpFile").files&&ge("rfpFile").files[0];
+  if(!txt&&!file){st("Please paste RFP text or upload a file.");return}
+  ge("analyzeBtn").disabled=true;st("Analyzing RFP with AI…");
+  try{
+    var data;
+    if(file){
+      var fm2=new FormData();fm2.append("rfp_file",file);fm2.append("project_hint",ge("projName").value||"");
+      var res=await fetch("/v1/parse/file",{method:"POST",body:fm2});
+      var _t1=await res.text();var data1;try{data1=JSON.parse(_t1)}catch(_){data1={detail:_t1.slice(0,200)||res.statusText}};data=data1;
+      if(!res.ok)throw new Error(data.detail||"Parse failed");
+      if(data.extracted_text)ge("rfpText").value=data.extracted_text;
+      applyParsed(data.parsed);
+    }else{
+      var res=await fetch("/v1/parse",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({rfp_text:txt,project_hint:ge("projName").value||""})});
+      var _t2=await res.text();var data2;try{data2=JSON.parse(_t2)}catch(_){data2={detail:_t2.slice(0,200)||res.statusText}};data=data2;
+      if(!res.ok)throw new Error(data.detail||"Parse failed");
+      applyParsed(data.parsed);
+    }
+    [2,3,4,5].forEach(unlock);[1,2].forEach(pill);
+    ge("genBtn").disabled=false;
+    st("Analysis complete. Review the pre-filled data, adjust if needed, then generate.");
+  }catch(e){st("Analysis failed: "+e.message)}
+  finally{ge("analyzeBtn").disabled=false}
+});
+
+function formatSummary(txt){
+  if(!txt||txt.length<30)return txt;
+  var sents=[];
+  txt.replace(/[^.!?\n]+[.!?\n]+/g,function(m){var s=m.trim();if(s.length>15)sents.push(s)});
+  if(sents.length<2)return txt;
+  return sents.map(function(s){return '\u2022 '+(s.charAt(0).toUpperCase()+s.slice(1))}).join('\n');
+}
+
+function applyParsed(p){
+  if(!p)return;
+  var proj=p.project||{},cli=p.client||{};
+  if(proj.name)ge("projName").value=proj.name;
+  if(cli.name)ge("clientName").value=cli.name;
+  if(proj.type)ge("projType").value=proj.type;
+  if(proj.location)ge("location").value=proj.location;
+  if(proj.siteArea)ge("siteArea").value=proj.siteArea;
+  var und=(p.understanding||{}).understanding||"";
+  if(und)ge("summary").value=formatSummary(und);
+
+  /* Schedule */
+  var fee=p.fee||{},ebp=fee.effortByPhase||{},phases=Object.keys(ebp);
+  var totalWks=(p.schedule&&p.schedule.totalWeeks)||16;
+  if(phases.length){
+    var sw=1;
+    schRows=phases.map(function(ph){
+      var dur=estDur(ph,totalWks,phases.length);var row={phase:ph,sw:sw,dur:dur,del:""};sw+=dur;return row;
+    });
+  }else if(p.schedule&&p.schedule.milestones&&p.schedule.milestones.length){
+    var ms=p.schedule.milestones,sw=1,dd=Math.max(1,Math.round(totalWks/ms.length));
+    schRows=ms.map(function(m){var row={phase:m,sw:sw,dur:dd,del:""};sw+=dd;return row});
+  }
+  renderSch();
+
+  /* Team from fee.rates + personnel */
+  var rates=fee.rates||{};
+  if(Object.keys(rates).length){
+    var ph2=getPhases();
+    teamRows=Object.entries(rates).map(function(kv){
+      var role=kv[0],rate=kv[1];
+      var per=personnel.find(function(x){return(x.roles||[]).indexOf(role)>-1})||{};
+      var hrs={};ph2.forEach(function(pp){hrs[pp]=(ebp[pp]&&ebp[pp][role])?parseFloat(ebp[pp][role]):0});
+      return{role:role,name:per.name||"",pid:per.id||"",rate:num(rate),hrs:hrs};
+    });
+    renderTeam();renderFee();unlock(6);
+  }
+
+  /* Auto-select preset */
+  if(p.template_suggestion){
+    var tm={"master-plan":"preset-master-plan",commercial:"preset-commercial",technical:"preset-technical"};
+    if(tm[p.template_suggestion])ge("presetSel").value=tm[p.template_suggestion];
+  }
+
+  /* Reference projects */
+  selRef={};
+  if(p.suggested_reference_ids&&p.suggested_reference_ids.length)
+    p.suggested_reference_ids.forEach(function(id){selRef[id]=true});
+  if(p.template_suggestion){
+    var tmap={"master-plan":"Master Plan",commercial:"Commercial",technical:"Technical"};
+    var tv=tmap[p.template_suggestion]||"All";
+    ge("typeTabs").querySelectorAll(".ttab").forEach(function(b){b.classList.toggle("active",b.dataset.t===tv)});
+    curType=tv;
+  }
+  renderRef();
+}
+
+function estDur(ph,total,count){
+  var l=ph.toLowerCase();
+  if(l.includes("kick")||l.includes("inception")||l.includes("start"))return Math.max(1,Math.round(total*0.1));
+  if(l.includes("final")||l.includes("submission")||l.includes("delivery"))return Math.max(1,Math.round(total*0.15));
+  return Math.max(1,Math.round(total/Math.max(count,1)));
+}
+
+/* ---- GENERATE ---- */
+ge("genBtn").addEventListener("click",async function(){
+  ge("genBtn").disabled=true;st("Generating proposal…");
+  try{
+    var ov={name:ge("projName").value,client_name:ge("clientName").value,location:ge("location").value,type:ge("projType").value,siteArea:ge("siteArea").value};
+    var ph=getPhases();
+    var roles=teamRows.filter(function(r){return r.role}).map(function(r){
+      var hbp={};ph.forEach(function(p){hbp[p]=(r.hrs||{})[p]||0});return{role:r.role,rate:r.rate,hours_by_phase:hbp}
+    });
+    var subs=Array.from(ge("subRows").querySelectorAll("tr")).map(function(tr){
+      return{name:(tr.querySelector(".snm")||{}).value||"",fee:num((tr.querySelector(".sfe")||{}).value),included_in_lump_sum:(tr.querySelector(".sic")||{}).checked!==false}
+    }).filter(function(c){return c.name});
+    var payload={
+      rfp_text:(ge("rfpText").value||"RFP text not provided.").trim()||"RFP text not provided. Using project details above.",
+      fee_input:{roles:roles,overhead_pct:num(ge("ohPct").value),subconsultants:subs,
+        travel:{trips:num(ge("tvTrips").value),people_per_trip:num(ge("tvPpl").value),unit_cost:num(ge("tvCost").value),include_in_lump_sum:ge("tvIncl").checked},misc_reimbursables:0},
+      selected_reference_ids:Object.keys(selRef),
+      overrides:ov
     };
+    var res=await fetch("/v1/proposals/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    var _t=await res.text();var data;try{data=JSON.parse(_t)}catch(_){data={detail:_t.slice(0,200)||res.statusText}}
+    if(!res.ok)throw new Error(data.detail||"Generation failed (HTTP "+res.status+")");
+    var id=data.proposal_id;
+    ge("pidOut").textContent="#"+id.slice(0,8);
+    ge("plink").href="/proposals/"+id+"/review";
+    ge("plinkWrap").style.display="flex";
+    [4,5].forEach(pill);
+    st("Proposal generated. Click 'Open Review & Export' to edit sections and export to InDesign.");
+  }catch(e){st("Generation failed: "+e.message)}
+  finally{ge("genBtn").disabled=false}
+});
 
-    const PHASE_KEYS = ["Kick-off", "Concept Development", "Finalization"];
+/* ---- CLEAR ---- */
+ge("clearBtn").addEventListener("click",function(){
+  ge("rfpFile").value="";ge("rfpText").value="";ge("fm").textContent="Supported: .txt .md .pdf .docx";
+  ["projName","clientName","projType","location","siteArea","summary"].forEach(function(id){ge(id).value=""});
+  schRows=[];teamRows=[];selRef={};
+  renderSch();renderTeam();renderFee();renderRef();
+  ge("subRows").innerHTML="";
+  [2,3,4,5,6].forEach(function(n){var e=ge("sc"+n);if(e)e.classList.add("locked")});
+  ge("genBtn").disabled=true;ge("plinkWrap").style.display="none";
+  st("Cleared. Upload a new RFP to begin.");
+});
+ge("rfpFile").addEventListener("change",function(){
+  var f=ge("rfpFile").files&&ge("rfpFile").files[0];
+  ge("fm").textContent=f?"Selected: "+f.name+" — click Analyze RFP":"Supported: .txt .md .pdf .docx";
+});
 
-    const fileInput = document.getElementById("rfpFile");
-    const fileMeta = document.getElementById("fileMeta");
-    const rfpText = document.getElementById("rfpText");
-    const projectName = document.getElementById("projectName");
-    const clientName = document.getElementById("clientName");
-    const locationInput = document.getElementById("location");
-    const projectType = document.getElementById("projectType");
-    const roleRows = document.getElementById("roleRows");
-    const consultantRows = document.getElementById("consultantRows");
-    const overheadPct = document.getElementById("overheadPct");
-    const travelTrips = document.getElementById("travelTrips");
-    const travelPeople = document.getElementById("travelPeople");
-    const travelUnitCost = document.getElementById("travelUnitCost");
-    const travelIncluded = document.getElementById("travelIncluded");
-    const miscReimbursables = document.getElementById("miscReimbursables");
-    const statusEl = document.getElementById("status");
-    const resultMeta = document.getElementById("resultMeta");
-    const proposalIdOut = document.getElementById("proposalIdOut");
-    const exportOut = document.getElementById("exportOut");
-    const briefSummary = document.getElementById("briefSummary");
-    const deliverablesOut = document.getElementById("deliverablesOut");
-    const milestonesOut = document.getElementById("milestonesOut");
-    const disciplinesOut = document.getElementById("disciplinesOut");
-    const sectionsOut = document.getElementById("sectionsOut");
-    const parsedOut = document.getElementById("parsedOut");
-    const financialOut = document.getElementById("financialOut");
-    const proposalOut = document.getElementById("proposalOut");
-    const exportInddBtn = document.getElementById("exportInddBtn");
-    const reviewState = document.getElementById("reviewState");
-
-    const SECTION_ORDER = [
-      ["Cover Letter", "cover_letter"],
-      ["Project Understanding", "project_understanding"],
-      ["Methodology", "methodology"],
-      ["Scope and Deliverables", "scope_deliverables"],
-      ["Schedule", "schedule"],
-      ["Team Structure", "team"],
-      ["Financial Proposal", "financial"],
-      ["Relevant Experience", "relevant_experience"],
-      ["Assumptions and Exclusions", "assumptions_exclusions"]
-    ];
-
-    let currentProposalId = "";
-    let currentParsed = null;
-    let currentSections = {};
-    let hasUnsavedReviewChanges = false;
-    let exportCapability = {
-      enabled: false,
-      reason: "Checking InDesign export availability..."
-    };
-
-    function numberValue(value) {
-      const parsed = Number(value);
-      return Number.isFinite(parsed) ? parsed : 0;
-    }
-
-    function setStatus(message) {
-      statusEl.textContent = message;
-    }
-
-    function setResultMeta(message) {
-      resultMeta.textContent = message;
-    }
-
-    function setReviewState(message, dirty = false) {
-      reviewState.textContent = message;
-      reviewState.style.background = dirty ? "#f0cdb7" : "var(--accent-soft)";
-      reviewState.style.color = dirty ? "#7a3417" : "var(--accent-dark)";
-    }
-
-    function applyCapabilities(data) {
-      exportCapability = data?.indd_export || {
-        enabled: false,
-        reason: "InDesign export status is unavailable."
-      };
-
-      if (exportCapability.enabled) {
-        exportOut.textContent = currentProposalId ? "Ready to export." : "Not exported yet";
-        exportInddBtn.disabled = !currentProposalId;
-        return;
-      }
-
-      exportOut.textContent = exportCapability.reason || "InDesign export is unavailable in this environment.";
-      exportInddBtn.disabled = true;
-    }
-
-    async function loadCapabilities() {
-      try {
-        const response = await fetch("/v1/capabilities");
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.detail || JSON.stringify(data));
-        }
-        applyCapabilities(data);
-      } catch (error) {
-        applyCapabilities({
-          indd_export: {
-            enabled: false,
-            reason: "InDesign export status could not be loaded."
-          }
-        });
-      }
-    }
-
-    function renderList(target, items, emptyMessage) {
-      target.innerHTML = "";
-      if (!items || !items.length) {
-        const li = document.createElement("li");
-        li.className = "empty";
-        li.textContent = emptyMessage;
-        target.appendChild(li);
-        return;
-      }
-      for (const item of items) {
-        const li = document.createElement("li");
-        li.textContent = item;
-        target.appendChild(li);
-      }
-    }
-
-    function syncProjectFields(project) {
-      if (!project) return;
-      if (project.project_name) projectName.value = project.project_name;
-      if (project.client_name) clientName.value = project.client_name;
-      if (project.location) locationInput.value = project.location;
-      if (project.project_type) projectType.value = project.project_type;
-    }
-
-    function renderBrief(parsed) {
-      currentParsed = parsed;
-      briefSummary.textContent = parsed?.scope_summary || "Run Analyze RFP to see what the system understood.";
-      renderList(deliverablesOut, parsed?.deliverables, "No extracted deliverables yet.");
-      renderList(milestonesOut, parsed?.milestones, "No extracted milestones yet.");
-      renderList(disciplinesOut, parsed?.required_disciplines, "No extracted disciplines yet.");
-    }
-
-    function renderSections(sections) {
-      sectionsOut.innerHTML = "";
-      for (const [title, key] of SECTION_ORDER) {
-        const card = document.createElement("div");
-        const heading = document.createElement("h3");
-        const note = document.createElement("p");
-        const body = document.createElement("textarea");
-        card.className = "mini";
-        card.classList.add("section-editor");
-        heading.textContent = title;
-        note.className = "section-note";
-        note.textContent = "Edit this section if the wording needs adjustment before export.";
-        body.value = sections?.[key] || "";
-        body.dataset.sectionKey = key;
-        card.appendChild(heading);
-        card.appendChild(note);
-        card.appendChild(body);
-        sectionsOut.appendChild(card);
-      }
-    }
-
-    function buildMarkdownFromSections(sections) {
-      const projectTitle = projectName.value || currentParsed?.project?.project_name || "Untitled Project";
-      const parts = [`# Fee Proposal: ${projectTitle}`];
-      for (const [title, key] of SECTION_ORDER) {
-        parts.push(`\n## ${title}\n${sections[key] || ""}`);
-      }
-      return parts.join("\n");
-    }
-
-    function collectSectionEdits() {
-      const sections = { ...currentSections };
-      sectionsOut.querySelectorAll("textarea[data-section-key]").forEach((textarea) => {
-        sections[textarea.dataset.sectionKey] = textarea.value;
-      });
-      return sections;
-    }
-
-    function resetProposalOutputs() {
-      currentProposalId = "";
-      currentSections = {};
-      hasUnsavedReviewChanges = false;
-      proposalIdOut.textContent = "Not generated yet";
-      exportOut.textContent = exportCapability.enabled
-        ? "Not exported yet"
-        : exportCapability.reason;
-      exportInddBtn.disabled = true;
-      financialOut.textContent = "";
-      proposalOut.textContent = "";
-      sectionsOut.innerHTML = "";
-      setReviewState("No review changes");
-      setResultMeta("Review the extracted brief, then generate the proposal when ready.");
-    }
-
-    function createRoleRow(data = {}) {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><input type="text" class="role-name" value="${data.role || ""}" placeholder="Role"></td>
-        <td><input type="number" class="role-rate" step="0.01" value="${numberValue(data.rate || 0)}"></td>
-        <td><input type="number" class="phase-kickoff" step="0.01" value="${numberValue(data.hours_by_phase?.["Kick-off"] || 0)}"></td>
-        <td><input type="number" class="phase-concept" step="0.01" value="${numberValue(data.hours_by_phase?.["Concept Development"] || 0)}"></td>
-        <td><input type="number" class="phase-finalization" step="0.01" value="${numberValue(data.hours_by_phase?.["Finalization"] || 0)}"></td>
-        <td class="center"><button type="button" class="ghost tiny remove-row">Remove</button></td>
-      `;
-      roleRows.appendChild(tr);
-    }
-
-    function createConsultantRow(data = {}) {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><input type="text" class="consultant-name" value="${data.name || ""}" placeholder="Subconsultant"></td>
-        <td><input type="number" class="consultant-fee" step="0.01" value="${numberValue(data.fee || 0)}"></td>
-        <td class="center"><input type="checkbox" class="consultant-included" ${data.included_in_lump_sum !== false ? "checked" : ""}></td>
-        <td class="center"><button type="button" class="ghost tiny remove-row">Remove</button></td>
-      `;
-      consultantRows.appendChild(tr);
-    }
-
-    function seedFeeForm() {
-      roleRows.innerHTML = "";
-      consultantRows.innerHTML = "";
-      DEFAULT_FEE.roles.forEach(createRoleRow);
-      DEFAULT_FEE.subconsultants.forEach(createConsultantRow);
-      overheadPct.value = DEFAULT_FEE.overhead_pct;
-      travelTrips.value = DEFAULT_FEE.travel.trips;
-      travelPeople.value = DEFAULT_FEE.travel.people_per_trip;
-      travelUnitCost.value = DEFAULT_FEE.travel.unit_cost;
-      travelIncluded.checked = DEFAULT_FEE.travel.include_in_lump_sum;
-      miscReimbursables.value = DEFAULT_FEE.misc_reimbursables;
-    }
-
-    function getOverrides() {
-      return {
-        project_name: projectName.value,
-        client_name: clientName.value,
-        location: locationInput.value,
-        project_type: projectType.value
-      };
-    }
-
-    function buildFeeInput() {
-      const roles = [...roleRows.querySelectorAll("tr")]
-        .map((row) => ({
-          role: row.querySelector(".role-name").value.trim(),
-          rate: numberValue(row.querySelector(".role-rate").value),
-          hours_by_phase: {
-            "Kick-off": numberValue(row.querySelector(".phase-kickoff").value),
-            "Concept Development": numberValue(row.querySelector(".phase-concept").value),
-            "Finalization": numberValue(row.querySelector(".phase-finalization").value)
-          }
-        }))
-        .filter((role) => role.role);
-
-      const subconsultants = [...consultantRows.querySelectorAll("tr")]
-        .map((row) => ({
-          name: row.querySelector(".consultant-name").value.trim(),
-          fee: numberValue(row.querySelector(".consultant-fee").value),
-          included_in_lump_sum: row.querySelector(".consultant-included").checked
-        }))
-        .filter((consultant) => consultant.name);
-
-      return {
-        roles,
-        overhead_pct: numberValue(overheadPct.value),
-        subconsultants,
-        travel: {
-          trips: numberValue(travelTrips.value),
-          people_per_trip: numberValue(travelPeople.value),
-          unit_cost: numberValue(travelUnitCost.value),
-          include_in_lump_sum: travelIncluded.checked
-        },
-        misc_reimbursables: numberValue(miscReimbursables.value)
-      };
-    }
-
-    async function analyzeRfp() {
-      setStatus("Analyzing RFP...");
-      resetProposalOutputs();
-
-      let data;
-      if (fileInput.files?.[0]) {
-        const form = new FormData();
-        form.append("rfp_file", fileInput.files[0]);
-        form.append("project_hint", projectName.value);
-        const response = await fetch("/v1/parse/file", { method: "POST", body: form });
-        data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.detail || JSON.stringify(data));
-        }
-        rfpText.value = data.extracted_text;
-        parsedOut.textContent = JSON.stringify(data, null, 2);
-        renderBrief(data.parsed);
-        syncProjectFields(data.parsed.project);
-        setStatus(`RFP analyzed from file: ${data.filename}`);
-      } else {
-        const payload = {
-          rfp_text: rfpText.value,
-          project_hint: projectName.value
-        };
-        const response = await fetch("/v1/parse", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.detail || JSON.stringify(data));
-        }
-        parsedOut.textContent = JSON.stringify(data, null, 2);
-        renderBrief(data.parsed);
-        syncProjectFields(data.parsed.project);
-        setStatus("RFP analyzed from the working text.");
-      }
-    }
-
-    async function generateProposal() {
-      setStatus("Generating proposal...");
-      const payload = {
-        rfp_text: rfpText.value,
-        fee_input: buildFeeInput(),
-        selected_reference_ids: [],
-        overrides: getOverrides()
-      };
-
-      const response = await fetch("/v1/proposals/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.detail || JSON.stringify(data));
-      }
-
-      currentProposalId = data.proposal_id || "";
-      currentSections = { ...(data.proposal.sections || {}) };
-      hasUnsavedReviewChanges = false;
-      proposalIdOut.textContent = currentProposalId;
-      exportOut.textContent = exportCapability.enabled
-        ? "Ready to export."
-        : exportCapability.reason;
-      exportInddBtn.disabled = !currentProposalId || !exportCapability.enabled;
-      renderBrief(data.proposal.parsed);
-      syncProjectFields(data.proposal.project);
-      renderSections(currentSections);
-      parsedOut.textContent = JSON.stringify(data.proposal.parsed, null, 2);
-      financialOut.textContent = JSON.stringify(data.proposal.financial, null, 2);
-      proposalOut.textContent = data.proposal.markdown || "";
-      setReviewState("Review ready");
-      setResultMeta("Proposal generated. Edit the sections below before exporting if needed.");
-      setStatus(`Proposal generated. ID: ${currentProposalId}`);
-    }
-
-    async function saveReviewEdits() {
-      if (!currentProposalId) {
-        throw new Error("Generate a proposal first.");
-      }
-
-      const nextSections = collectSectionEdits();
-      const response = await fetch(`/v1/proposals/${currentProposalId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sections: nextSections })
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.detail || JSON.stringify(data));
-      }
-
-      currentSections = { ...(data.proposal.sections || {}) };
-      hasUnsavedReviewChanges = false;
-      proposalOut.textContent = data.proposal.markdown || buildMarkdownFromSections(currentSections);
-      parsedOut.textContent = JSON.stringify(data.proposal.parsed, null, 2);
-      financialOut.textContent = JSON.stringify(data.proposal.financial, null, 2);
-      setReviewState("Review saved");
-    }
-
-    async function exportIndd() {
-      if (!currentProposalId) {
-        throw new Error("Generate a proposal first.");
-      }
-      if (!exportCapability.enabled) {
-        throw new Error(exportCapability.reason || "InDesign export is unavailable in this environment.");
-      }
-
-      setStatus("Exporting to Adobe InDesign...");
-      if (hasUnsavedReviewChanges) {
-        setStatus("Saving review changes before export...");
-        await saveReviewEdits();
-        setStatus("Exporting to Adobe InDesign...");
-      }
-      const response = await fetch(`/v1/proposals/${currentProposalId}/export/indd`, {
-        method: "POST"
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.detail || JSON.stringify(data));
-      }
-
-      exportOut.innerHTML = `Saved locally.<br><a href="${data.download_url}" target="_blank" rel="noopener">Download the .indd file</a>`;
-      setResultMeta("Proposal exported. You can now download the generated InDesign file.");
-      setStatus("INDD export complete.");
-    }
-
-    fileInput.addEventListener("change", () => {
-      const file = fileInput.files?.[0];
-      fileMeta.textContent = file
-        ? `Selected: ${file.name}. Click Analyze RFP to extract the file into the working text.`
-        : "Supported: .txt, .md, .json, .pdf, .docx";
-    });
-
-    roleRows.addEventListener("click", (event) => {
-      if (event.target.classList.contains("remove-row")) {
-        event.target.closest("tr").remove();
-      }
-    });
-
-    consultantRows.addEventListener("click", (event) => {
-      if (event.target.classList.contains("remove-row")) {
-        event.target.closest("tr").remove();
-      }
-    });
-
-    sectionsOut.addEventListener("input", (event) => {
-      if (!event.target.matches("textarea[data-section-key]")) {
-        return;
-      }
-
-      hasUnsavedReviewChanges = true;
-      currentSections[event.target.dataset.sectionKey] = event.target.value;
-      proposalOut.textContent = buildMarkdownFromSections(collectSectionEdits());
-      setReviewState("Unsaved review changes", true);
-      setResultMeta("Review edits are pending. They will be saved automatically when you export.");
-    });
-
-    document.getElementById("addRoleBtn").addEventListener("click", () => createRoleRow({}));
-    document.getElementById("addConsultantBtn").addEventListener("click", () => createConsultantRow({}));
-    document.getElementById("analyzeBtn").addEventListener("click", async () => {
-      try {
-        await analyzeRfp();
-      } catch (error) {
-        setStatus("Analysis failed: " + error.message);
-      }
-    });
-    document.getElementById("generateBtn").addEventListener("click", async () => {
-      try {
-        await generateProposal();
-      } catch (error) {
-        setStatus("Generation failed: " + error.message);
-      }
-    });
-    exportInddBtn.addEventListener("click", async () => {
-      try {
-        await exportIndd();
-      } catch (error) {
-        setStatus("INDD export failed: " + error.message);
-      }
-    });
-
-    seedFeeForm();
-    renderBrief(null);
-    resetProposalOutputs();
-    loadCapabilities();
-  </script>
+/* ---- INIT ---- */
+Promise.all([loadRef(),loadPersonnel(),loadPresets()]);
+</script>
 </body>
 </html>

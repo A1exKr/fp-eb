@@ -1,5 +1,11 @@
 # FP-GEN MVP for exaBase
 
+> **Status: deployed and running.**
+> Image: `ghcr.io/verv0lk/fpgen-mvp-api:latest`
+> Repo: https://github.com/verv0lk/fp-eb
+> Pods: `fpgen-app-api` + `fpgen-app-nginx` — both Running.
+> Recommended import: `../FP-GEN_exaBase_import_v2.json`
+
 This folder contains the Python backend for an inside-exaBase MVP of FP-GEN.
 
 It is not the whole original FP-GEN project. Your existing VB/Excel implementation already exists at:
@@ -292,90 +298,13 @@ Build from this folder only:
 
 `C:\Users\03669\Desktop\Trud\matls\created\FP-GEN\exaBase\fpgen_mvp`
 
-Do not build from:
+Do not build from the root FP-GEN folder — it contains the legacy VB/Excel project and is much larger than needed.
 
-`C:\Users\03669\Desktop\Trud\matls\created\FP-GEN`
+### How the image is built
 
-Why:
+Local Docker is not required. The image is built and published automatically via GitHub Actions.
 
-- that root contains the legacy VB/Excel project
-- it is much larger than needed
-- it mixes runtime code with historical assets
-- the current Dockerfile only expects the Python MVP folder structure
-
-### Step-by-step image build
-
-1. Open Docker Desktop or make sure Docker Engine is running.
-2. Open PowerShell.
-3. Move into the MVP folder:
-
-```powershell
-Set-Location "C:\Users\03669\Desktop\Trud\matls\created\FP-GEN\exaBase\fpgen_mvp"
-```
-
-4. Build the image:
-
-```powershell
-docker build -t fpgen-mvp-api:0.1.0 .
-```
-
-5. Confirm the image exists:
-
-```powershell
-docker images fpgen-mvp-api
-```
-
-6. Test-run it locally:
-
-```powershell
-docker run --rm -p 8080:8080 fpgen-mvp-api:0.1.0
-```
-
-7. In another terminal, test the health endpoint:
-
-```powershell
-Invoke-RestMethod -Method Get -Uri "http://127.0.0.1:8080/health"
-```
-
-8. Stop the local container after the test.
-
-### Tag and push the image
-
-After the local test passes, tag it for your registry.
-
-Generic form:
-
-```powershell
-docker tag fpgen-mvp-api:0.1.0 <your-registry>/fpgen-mvp-api:0.1.0
-```
-
-Example:
-
-```powershell
-docker tag fpgen-mvp-api:0.1.0 registry.example.com/fpgen/fpgen-mvp-api:0.1.0
-```
-
-Log in:
-
-```powershell
-docker login <your-registry>
-```
-
-Push:
-
-```powershell
-docker push <your-registry>/fpgen-mvp-api:0.1.0
-```
-
-The final value exaBase needs is the pushed image URL, for example:
-
-```text
-registry.example.com/fpgen/fpgen-mvp-api:0.1.0
-```
-
-### Alternative: build the image in GitHub Actions
-
-If you cannot run Docker locally, you can build and publish the image from GitHub instead.
+### GitHub Actions build (current approach)
 
 Repository preparation:
 
@@ -388,7 +317,9 @@ What the workflow does:
 - runs on `push` to `main` or `master`
 - can also be started manually with `workflow_dispatch`
 - builds from `fpgen_mvp/`
-- publishes to GitHub Container Registry as `ghcr.io/<owner>/fpgen-mvp-api`
+- publishes to GitHub Container Registry as `ghcr.io/verv0lk/fpgen-mvp-api`
+
+Repo: https://github.com/verv0lk/fp-eb
 
 What you need in GitHub:
 
@@ -396,93 +327,231 @@ What you need in GitHub:
 - Packages enabled for the repository or organization
 - permission for `GITHUB_TOKEN` to write packages
 
-After the first workflow run, the exaBase image value can be:
+Published image tags:
 
 ```text
-ghcr.io/<github-owner>/fpgen-mvp-api:latest
+ghcr.io/verv0lk/fpgen-mvp-api:latest
+ghcr.io/verv0lk/fpgen-mvp-api:main
+ghcr.io/verv0lk/fpgen-mvp-api:sha-<commit>
 ```
 
-or a SHA tag produced by the workflow.
-
-Important:
-
-- this workspace is not currently a git repository, so the workflow will not run until the files are placed in a real GitHub repo
-- exaBase still pulls and runs the resulting image in its own environment; GitHub Actions only builds and publishes it
+exaBase pulls from the published image. GitHub Actions builds and pushes it. The package must be set to public in GHCR for exaBase to pull without credentials.
 
 ## What to paste into exaBase
 
-In the full canvas file:
+The image is already set in all import files:
 
-- `../FP-GEN_exaBase_import.json`
+```text
+ghcr.io/verv0lk/fpgen-mvp-api:latest
+```
 
-The `api` sideapp image field is intentionally a placeholder.
+The `api` sideapp receives these envs (all already configured in `FP-GEN_exaBase_import_v2.json`):
 
-Replace it with your actual pushed image URL.
-
-The sideapp should then receive these envs:
-
-### Required in LiteLLM mode
-
-- `LLM_PROVIDER=litellm`
-- `LITELLM_URL=http://fpgen-ai-litellm:8080`
-- `LITELLM_MASTER_KEY=<secret>`
-- `OPENAI_MODEL=gpt-4.1-mini`
-
-### Required in direct OpenAI mode
+### Required
 
 - `LLM_PROVIDER=openai`
-- `OPENAI_API_KEY=<secret>`
+- `OPENAI_API_KEY=${{SECRET.OPENAI_API_KEY}}`
 - `OPENAI_MODEL=gpt-4.1-mini`
 - `FPGEN_ENABLE_INDD_EXPORT=false`
 
-### Common runtime envs
+### Canvas variables (set before import)
 
-- `DEFAULT_CURRENCY`
-- `DEFAULT_OVERHEAD_PCT`
-- `TRAVEL_UNIT_COST_USD`
-- `FPGEN_STORAGE_DIR`
-- `FPGEN_REFERENCE_PROJECTS`
+- `DEFAULT_CURRENCY` (default: USD)
+- `DEFAULT_OVERHEAD_PCT` (default: 0.10)
+- `TRAVEL_UNIT_COST_USD` (default: 6000)
+- `FPGEN_STORAGE_DIR` (default: /app/data/proposals)
+- `FPGEN_REFERENCE_PROJECTS_PATH` (default: /app/data/reference_projects.json)
 
-The sideapp also needs persistent storage mounted for proposal JSON output.
+### Not required
+
+- `APP_URL` — only needed for Keycloak auth stack, not used in v2 canvas
+- `AUTH_URL` — only needed for Keycloak auth stack, not used in v2 canvas
+- `CONFIG_CRYPTO_KEY` — only needed for Config Center sideapp, not used in v2 canvas
+- `LITELLM_URL` / `LITELLM_MASTER_KEY` — using direct OpenAI instead
+- `DB_USER` / `DB_PASSWORD` — no PostgreSQL in v2 canvas
+
+The sideapp also needs persistent storage mounted at `/app/data` for proposal JSON output.
 
 Important for exaBase sideapps:
 
 - the container runs on Linux, so Adobe InDesign automation is not available there
-- the provided Dockerfile and import files now disable INDD export by default for exaBase deployment
-- proposal generation, review, JSON storage, and download endpoints remain deployable inside exaBase
+- INDD export is disabled by default (`FPGEN_ENABLE_INDD_EXPORT=false`)
+- proposal generation, review, JSON storage, and download endpoints are all available
 
 ## exaBase import variables
 
-If you import the full canvas, set these variables:
+For `FP-GEN_exaBase_import_v2.json` (recommended):
 
-- `FPGEN_API_URL=http://fpgen-mvp-api:8080`
-- `FPGEN_LITELLM_URL=http://fpgen-ai-litellm:8080`
-- `FPGEN_STORAGE_DIR=/app/data/proposals`
-- `FPGEN_REFERENCE_PROJECTS_PATH=/app/data/reference_projects.json`
-- `APP_URL=https://<your-exabase-app-url>/`
-- `AUTH_URL=https://<your-exabase-auth-url>/`
-- `CONFIG_CRYPTO_KEY=<secure-random-key>`
-- `DEFAULT_CURRENCY=USD`
-- `DEFAULT_OVERHEAD_PCT=0.10`
-- `TRAVEL_UNIT_COST_USD=6000`
+| Variable | Default | Required |
+|---|---|---|
+| `DEFAULT_CURRENCY` | USD | yes |
+| `DEFAULT_OVERHEAD_PCT` | 0.10 | yes |
+| `TRAVEL_UNIT_COST_USD` | 6000 | yes |
+| `FPGEN_API_URL` | http://fpgen-app-api:8080 | yes (internal only) |
+| `FPGEN_STORAGE_DIR` | /app/data/proposals | yes |
+| `FPGEN_REFERENCE_PROJECTS_PATH` | /app/data/reference_projects.json | yes |
+| `APP_URL` | — | **not needed** |
+| `AUTH_URL` | — | **not needed** |
+| `CONFIG_CRYPTO_KEY` | — | **not needed** |
+| `FPGEN_LITELLM_URL` | — | **not needed** |
 
-## Recommended first deployment path
+## exaBase import step by step
 
-1. Keep your VB UI as reference only.
-2. Run the backend locally with Python only.
-3. Open the built-in UI at `http://127.0.0.1:8080/` and test parse/generate end to end.
-4. Adjust prompts, fee rules, and reference data until the behavior is acceptable.
-5. Only then build the image from this folder.
-6. Push the image to a registry.
-7. Import `../FP-GEN_exaBase_import.json`.
-8. Replace the `api` sideapp image with your pushed image.
-9. Set secrets and env vars.
-10. Deploy.
-11. Wait until Pods are `Running`.
-12. Test `/health`.
-13. Test `/v1/proposals/generate`.
+### Available import files
 
-Only after that should you start porting or recreating the VB UI behavior inside exaBase.
+| File | What it contains | When to use |
+|---|---|---|
+| `../FP-GEN_exaBase_import_v2.json` | API + nginx proxy. No auth, no DB. | **Recommended.** Use this. |
+| `../FP-GEN_exaBase_import_mvp_public.json` | API + nginx proxy (original version) | Legacy, superseded by v2 |
+| `../FP-GEN_exaBase_import_mvp.json` | API only, no proxy | Minimal, no public URL |
+
+### 1. Choose the import file
+
+Recommended import:
+
+- `../FP-GEN_exaBase_import_v2.json`
+
+This canvas contains only the two components needed: the FastAPI runtime and an nginx reverse proxy. No auth stack, no PostgreSQL, no LiteLLM.
+
+### 2. Decide which image tag to deploy
+
+The checked-in import files currently point to:
+
+```text
+ghcr.io/verv0lk/fpgen-mvp-api:latest
+```
+
+That is acceptable for a first import.
+
+If you want a pinned image for a stable deployment, replace it with the published SHA tag before import, for example:
+
+```text
+ghcr.io/verv0lk/fpgen-mvp-api:sha-97f661b
+```
+
+### 3. Prepare exaBase secrets
+
+Create this secret in exaBase before deploy:
+
+- `OPENAI_API_KEY`
+
+The current import files already expect:
+
+```text
+${{SECRET.OPENAI_API_KEY}}
+```
+
+### 4. Import the canvas JSON
+
+In exaBase Studio:
+
+1. Create or open the target workspace.
+2. Choose the canvas import action.
+3. Import `../FP-GEN_exaBase_import_mvp.json` first.
+4. Confirm the `fpgen-mvp-api` sideapp appears.
+
+### 5. Verify the sideapp image and env values
+
+For the v2 import, the `api` sideapp should already contain:
+
+- `image=ghcr.io/verv0lk/fpgen-mvp-api:latest`
+- `LLM_PROVIDER=openai`
+- `OPENAI_API_KEY=${{SECRET.OPENAI_API_KEY}}`
+- `OPENAI_MODEL=gpt-4.1-mini`
+- `DEFAULT_CURRENCY=$[[DEFAULT_CURRENCY]]`
+- `DEFAULT_OVERHEAD_PCT=$[[DEFAULT_OVERHEAD_PCT]]`
+- `TRAVEL_UNIT_COST_USD=$[[TRAVEL_UNIT_COST_USD]]`
+- `FPGEN_STORAGE_DIR=$[[FPGEN_STORAGE_DIR]]`
+- `FPGEN_REFERENCE_PROJECTS=$[[FPGEN_REFERENCE_PROJECTS_PATH]]`
+- `FPGEN_ENABLE_INDD_EXPORT=false`
+
+Do not enable INDD export. The container runs on Linux and cannot automate desktop Adobe InDesign.
+
+### 6. Confirm storage is mounted
+
+The sideapp needs persistent storage at:
+
+```text
+/app/data
+```
+
+This is required so proposal JSON output can persist under:
+
+```text
+/app/data/proposals
+```
+
+### 7. Deploy the canvas
+
+After import:
+
+1. Save the canvas.
+2. Start deployment.
+3. Wait until the `fpgen-mvp-api` sideapp is in a healthy running state.
+
+Do not debug UI flow yet if the sideapp itself is not healthy. First prove the API container is up.
+
+### 8. Find the public URL and run the first health check
+
+In the exaBase canvas, click the endpoint node (port 8080 / uri `/`) at the top of the workspace. The assigned public HTTPS URL appears in the panel.
+
+All traffic enters through the nginx proxy pod, which forwards to the API pod internally.
+
+Test these once the URL is known:
+
+```text
+GET <endpoint-url>/health
+GET <endpoint-url>/ui
+GET <endpoint-url>/docs
+```
+
+Expected health response:
+
+```json
+{"status":"ok","capabilities":{"indd_export":{"enabled":false,"reason":"..."}}}
+```
+
+`indd_export.enabled=false` is expected inside exaBase.
+
+### 9. Run the first functional checks
+
+After health succeeds, test these endpoints in order:
+
+1. `POST /v1/parse`
+2. `POST /v1/proposals/generate`
+3. `GET /v1/proposals/{proposal_id}`
+
+The goal is to verify:
+
+- OpenAI access works through the provided secret
+- proposal JSON is saved to storage
+- the generated proposal can be loaded back
+
+### 10. If you need more components later
+
+The v2 canvas is intentionally minimal — API + nginx only.
+
+If you later need to add auth, Config Center, or vector search, see `../FP-GEN_exaBase_import.json` (the original full canvas). Before deploying it you will need:
+
+- `APP_URL` — public HTTPS URL assigned by exaBase to the app workspace
+- `AUTH_URL` — public HTTPS URL assigned by exaBase to the auth workspace
+- `CONFIG_CRYPTO_KEY` — a secure random string (any 32+ char random value)
+- `DB_USER` / `DB_PASSWORD` — for PostgreSQL
+- `LITE_LLM_ADMIN_PASSWORD` secret — for LiteLLM gateway
+
+For MVP testing, none of these are needed.
+
+### 11. First failure points to check
+
+If import succeeds but deploy fails, check these first:
+
+- the sideapp image tag exists and is public in GHCR
+- `OPENAI_API_KEY` secret exists and is spelled exactly the same as in the JSON
+- `/app/data` storage is attached
+- the sideapp logs show the container started and bound to port `8080`
+- `/health` is reachable before trying any proposal generation call
+
+Only after the API sideapp is stable should you spend time recreating more of the legacy VB behavior inside exaBase.
 
 ## If you want to reuse more of the VB project later
 
@@ -514,14 +583,31 @@ Bad candidates for the first container image:
 
 ## Quick smoke test after deploy
 
+Replace `<endpoint-url>` with the public URL shown on the endpoint node in the exaBase canvas.
+
+```powershell
+# Health check
+Invoke-RestMethod -Method Get -Uri "https://<endpoint-url>/health"
+
+# Browser UI
+Start-Process "https://<endpoint-url>/ui"
+
+# FastAPI docs
+Start-Process "https://<endpoint-url>/docs"
+
+# Parse test
+$parseBody = @{ rfp_text = "RFP for mixed-use master plan in Ho Chi Minh City with 16-week timeline." } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "https://<endpoint-url>/v1/parse" -ContentType "application/json" -Body $parseBody
+
+# Proposal generation test
+$genBody = Get-Content .\examples\generate_request.json -Raw
+Invoke-RestMethod -Method Post -Uri "https://<endpoint-url>/v1/proposals/generate" -ContentType "application/json" -Body $genBody
+```
+
+For local dev only (without exaBase):
+
 ```powershell
 Invoke-RestMethod -Method Get -Uri "http://127.0.0.1:8080/health"
-
-$parseBody = @{ rfp_text = "RFP for mixed-use master plan in Ho Chi Minh City with 16-week timeline." } | ConvertTo-Json
-Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8080/v1/parse" -ContentType "application/json" -Body $parseBody
-
-$genBody = Get-Content .\examples\generate_request.json -Raw
-Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8080/v1/proposals/generate" -ContentType "application/json" -Body $genBody
 ```
 
 Expected results:

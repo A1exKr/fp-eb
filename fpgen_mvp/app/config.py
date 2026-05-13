@@ -28,9 +28,16 @@ class Settings:
     reference_projects_path: Path = Path(
         os.getenv("FPGEN_REFERENCE_PROJECTS", ROOT_DIR / "data" / "reference_projects.json")
     )
+    assets_dir: Path = Path(os.getenv("FPGEN_ASSETS_DIR", ROOT_DIR / "data" / "assets"))
+    assets_registry_path: Path = Path(
+        os.getenv("FPGEN_ASSETS_REGISTRY", ROOT_DIR / "data" / "assets_registry.json")
+    )
+    personnel_path: Path = Path(os.getenv("FPGEN_PERSONNEL", ROOT_DIR / "data" / "personnel.json"))
+    team_presets_path: Path = Path(os.getenv("FPGEN_TEAM_PRESETS", ROOT_DIR / "data" / "team_presets.json"))
     default_currency: str = os.getenv("DEFAULT_CURRENCY", "USD")
     default_overhead_pct: float = float(os.getenv("DEFAULT_OVERHEAD_PCT", "0.10"))
     travel_unit_cost_usd: float = float(os.getenv("TRAVEL_UNIT_COST_USD", "6000"))
+    openai_ssl_verify: bool = os.getenv("OPENAI_SSL_VERIFY", "true").lower() != "false"
 
 
 settings = Settings()

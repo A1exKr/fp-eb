@@ -64,3 +64,9 @@ class InDesignExportResponse(BaseModel):
     proposal_id: str
     export_path: str
     download_url: str
+
+
+class JsxExportRequest(BaseModel):
+    cv_assignments: dict[str, str] = Field(default_factory=dict)
+    experience_ids: list[str] = Field(default_factory=list)
+    template_id: str = "commercial"

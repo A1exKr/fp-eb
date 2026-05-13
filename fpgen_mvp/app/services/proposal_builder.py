@@ -7,15 +7,28 @@ def _build_team_section(parsed: dict, fee_input: FeeInput | None) -> str:
     lines: list[str] = []
     seen_roles: set[str] = set()
 
+    # Principal and PM from new schema
+    team_info = parsed.get("team", {})
+    principal = team_info.get("principal", {})
+    pm = team_info.get("pm", {})
+    if principal.get("name"):
+        lines.append(f"- {principal['name']}, {principal.get('title', 'Principal')} (Project Principal)")
+        seen_roles.add(principal["name"])
+    if pm.get("name") and pm.get("name") != "TBD":
+        lines.append(f"- {pm['name']}, {pm.get('title', 'Project Manager')} (Project Manager)")
+        seen_roles.add(pm["name"])
+
     for role_input in (fee_input.roles if fee_input else []):
         if role_input.role not in seen_roles:
             seen_roles.add(role_input.role)
             lines.append(f"- {role_input.role}")
 
-    for discipline in parsed.get("required_disciplines", []):
-        if discipline not in seen_roles:
-            seen_roles.add(discipline)
-            lines.append(f"- {discipline}")
+    # Roles from parsed.fee.rates when no fee_input
+    if not fee_input:
+        for role in parsed.get("fee", {}).get("rates", {}):
+            if role not in seen_roles:
+                seen_roles.add(role)
+                lines.append(f"- {role}")
 
     for subconsultant in (fee_input.subconsultants if fee_input else []):
         label = "included" if subconsultant.included_in_lump_sum else "excluded"
@@ -29,14 +42,20 @@ def _build_team_section(parsed: dict, fee_input: FeeInput | None) -> str:
 
 def _build_schedule_section(parsed: dict, fee: dict) -> str:
     lines: list[str] = []
-    duration = parsed.get("project", {}).get("duration", "")
+    project = parsed.get("project", {})
+    duration = project.get("duration", "")
+    total_weeks = parsed.get("schedule", {}).get("totalWeeks", 0)
     currency = fee.get("currency", settings.default_currency)
     emitted_phases: set[str] = set()
 
     if duration:
         lines.append(f"Overall Duration: {duration}")
+    elif total_weeks:
+        lines.append(f"Overall Duration: {total_weeks} weeks")
 
-    phases = parsed.get("phases") or []
+    # Phases come from effortByPhase keys in new schema
+    ebp = parsed.get("fee", {}).get("effortByPhase") or {}
+    phases = list(ebp.keys()) if ebp else (parsed.get("phases") or [])
     phase_totals = fee.get("phase_totals", {})
     if phases:
         lines.append("Phase Plan:")
@@ -58,7 +77,7 @@ def _build_schedule_section(parsed: dict, fee: dict) -> str:
                 lines.append("Phase Plan:")
             lines.append(f"- {phase}: estimated labor fee {amount:.2f} {currency}")
 
-    milestones = parsed.get("milestones") or []
+    milestones = parsed.get("schedule", {}).get("milestones") or parsed.get("milestones") or []
     if milestones:
         lines.append("Milestones:")
         for milestone in milestones:
@@ -121,54 +140,76 @@ def _build_financial_section(fee: dict, fee_input: FeeInput | None) -> str:
 
 def _section_text(parsed: dict, fee: dict, relevant: list[dict], fee_input: FeeInput | None = None) -> dict:
     project = parsed.get("project", {})
-    project_name = project.get("project_name", "Project")
-    client_name = project.get("client_name", "Client")
+    project_name = project.get("name") or project.get("project_name") or "Project"
+    client_name = parsed.get("client", {}).get("name") or project.get("client_name") or "Client"
     location = project.get("location", "")
-    project_type = project.get("project_type", "")
-    site_area = project.get("site_area", "")
+    project_type = project.get("type") or project.get("project_type") or ""
+    site_area = project.get("siteArea") or project.get("site_area") or ""
 
-    disciplines = parsed.get("required_disciplines") or []
+    rates = parsed.get("fee", {}).get("rates", {})
+    disciplines = list(rates.keys()) if rates else (parsed.get("required_disciplines") or [])
     discipline_text = ", ".join(disciplines[:4]) if disciplines else "the required disciplines"
 
+    # Cover letter — Nikken template with Wataru TANAKA signature
     cover_letter = (
-        f"Dear {client_name},\n\n"
-        f"We appreciate the opportunity to submit our proposal for {project_name}. "
-        f"Our multidisciplinary team is prepared to deliver this {project_type} engagement"
-        f"{' in ' + location if location else ''}"
-        f"{' for the ' + site_area + ' site' if site_area else ''}.\n\n"
-        f"The proposed team brings together {discipline_text} under coordinated project leadership.\n\n"
-        "We commit senior oversight, rigorous coordination, and practical execution to meet your goals."
+        f"Dear Sirs,\n\n"
+        f"We are sincerely honored to be invited to submit our proposal for your esteemed project "
+        f"— {project_name}. Based on our in-depth understanding of the project, we believe we can "
+        f"establish a solid {project_type.lower() or 'design solution'} which would offer an "
+        f"attractive environment well-suited for {location or 'the site'}.\n\n"
+        f"To tackle the complex nature of this project, we have assembled a highly skilled "
+        f"multidisciplinary team of the finest experts under the leadership of our top management. "
+        f"Our team shall comprise members of {discipline_text}, supported by project management "
+        f"and regional support staff to ensure seamless cross-cultural and on-time communication. "
+        f"The project will be overseen personally by myself, Senior Executive Officer of Nikken Sekkei Ltd.\n\n"
+        f"We truly hope our proposal meets your expectations and look forward to serving you in the future.\n\n"
+        f"Sincerely yours,\n\n\nWataru TANAKA\nSenior Executive Officer\nNikken Sekkei Ltd."
     )
 
+    # Understanding — from AI executive summary
     project_understanding = (
-        parsed.get("scope_summary")
+        parsed.get("understanding", {}).get("understanding")
+        or parsed.get("scope_summary")
         or f"We understand that {project_name} requires a structured and outcome-focused approach."
     )
 
-    methodology_steps = parsed.get("phases") or ["Kick-off", "Analysis", "Delivery"]
-    methodology = "\n".join([f"- {step}" for step in methodology_steps])
+    # Methodology — use AI full text directly
+    methodology = (
+        parsed.get("methodology", {}).get("text")
+        or "\n".join(f"- {step}" for step in (parsed.get("phases") or ["Kick-off", "Analysis", "Delivery"]))
+    )
 
-    deliverables = parsed.get("deliverables") or []
-    scope_deliverables = "\n".join([f"- {item}" for item in deliverables])
-    if not scope_deliverables:
-        scope_deliverables = "- Scope items to be finalized during review."
+    # Scope and deliverables
+    deliverables = (
+        parsed.get("scope", {}).get("deliverablesList")
+        or parsed.get("deliverables")
+        or []
+    )
+    scope_items = (
+        parsed.get("scope", {}).get("scopeList")
+        or []
+    )
+    scope_parts = [f"- {item}" for item in scope_items] + [f"- {item}" for item in deliverables]
+    scope_deliverables = "\n".join(scope_parts) if scope_parts else "- Scope items to be finalized during review."
 
     schedule = _build_schedule_section(parsed=parsed, fee=fee)
     team = _build_team_section(parsed=parsed, fee_input=fee_input)
     financial = _build_financial_section(fee=fee, fee_input=fee_input)
 
-    relevant_lines = []
-    for item in relevant:
-        relevant_lines.append(
-            f"- {item.get('name')} ({item.get('location')}): {item.get('summary')}"
-        )
+    relevant_lines = [
+        f"- {item.get('name')} ({item.get('location')}): {item.get('summary')}"
+        for item in relevant
+    ]
     relevant_experience = "\n".join(relevant_lines) if relevant_lines else "- No relevant projects selected yet."
 
     assumptions_exclusions = (
-        "- Fees exclude taxes and levies unless stated otherwise.\n"
-        "- Travel is included only when explicitly listed in the financial breakdown.\n"
-        "- Optional services (animation/model) are excluded from lump sum.\n"
-        "- Specialty consultants not listed in included costs are excluded."
+        parsed.get("assumptions", {}).get("defaultText")
+        or (
+            "- Fees exclude taxes and levies unless stated otherwise.\n"
+            "- Travel is included only when explicitly listed in the financial breakdown.\n"
+            "- Optional services (animation/model) are excluded from lump sum.\n"
+            "- Specialty consultants not listed in included costs are excluded."
+        )
     )
 
     return {
@@ -185,7 +226,8 @@ def _section_text(parsed: dict, fee: dict, relevant: list[dict], fee_input: FeeI
 
 
 def _to_markdown(parsed: dict, sections: dict) -> str:
-    project_name = parsed.get("project", {}).get("project_name", "Untitled Project")
+    project = parsed.get("project", {})
+    project_name = project.get("name") or project.get("project_name") or "Untitled Project"
     ordered = [
         ("Cover Letter", "cover_letter"),
         ("Project Understanding", "project_understanding"),
@@ -229,6 +271,7 @@ def build_proposal_payload(
 
     return {
         "project": parsed.get("project", {}),
+        "client": parsed.get("client", {}),
         "parsed": parsed,
         "sections": sections,
         "financial": fee,

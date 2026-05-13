@@ -1,0 +1,19 @@
+﻿{
+  "cvs": {
+    "Urban Planner": "cv-urban-planner",
+    "Architect": "cv-architect",
+    "Landscape Architect": "cv-landscape-architect",
+    "Interior Designer": "cv-interior-designer",
+    "Structural Engineer": "cv-structural-engineer",
+    "MEP Engineer": "cv-mep-engineer",
+    "Project Manager": "cv-project-manager",
+    "Urban Designer": "cv-urban-designer",
+    "Transportation Planner": "cv-transportation-planner",
+    "Environmental Consultant": "cv-environmental-consultant"
+  },
+  "experience": {
+    "rp-001": "exp-central-district",
+    "rp-002": "exp-waterfront",
+    "rp-003": "exp-civic-center"
+  }
+}

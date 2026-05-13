@@ -1,0 +1,39 @@
+[
+  {
+    "id": "preset-master-plan",
+    "name": "Master Plan / Urban Design",
+    "types": ["Master Plan", "Urban Design", "Masterplan"],
+    "assignments": [
+      {"role": "Principal",               "person_id": "p-001", "rate": 350},
+      {"role": "Project Manager",         "person_id": "p-002", "rate": 250},
+      {"role": "Urban Planner",           "person_id": "p-004", "rate": 180},
+      {"role": "Transportation Planner",  "person_id": "p-006", "rate": 170},
+      {"role": "Landscape Architect",     "person_id": "p-005", "rate": 190}
+    ]
+  },
+  {
+    "id": "preset-commercial",
+    "name": "Commercial Architecture",
+    "types": ["Commercial", "Mixed-Use", "Residential", "Hospitality", "Hotel"],
+    "assignments": [
+      {"role": "Principal",          "person_id": "p-001", "rate": 350},
+      {"role": "Project Manager",    "person_id": "p-002", "rate": 250},
+      {"role": "Architect",          "person_id": "p-003", "rate": 200},
+      {"role": "Interior Designer",  "person_id": "p-007", "rate": 165},
+      {"role": "Landscape Architect","person_id": "p-005", "rate": 190}
+    ]
+  },
+  {
+    "id": "preset-technical",
+    "name": "Technical / Infrastructure",
+    "types": ["Technical", "Infrastructure", "Feasibility", "Industrial"],
+    "assignments": [
+      {"role": "Principal",                "person_id": "p-001", "rate": 350},
+      {"role": "Project Manager",          "person_id": "p-002", "rate": 250},
+      {"role": "Urban Planner",            "person_id": "p-004", "rate": 180},
+      {"role": "Structural Engineer",      "person_id": "p-008", "rate": 185},
+      {"role": "MEP Engineer",             "person_id": "p-009", "rate": 175},
+      {"role": "Environmental Consultant", "person_id": "p-010", "rate": 160}
+    ]
+  }
+]

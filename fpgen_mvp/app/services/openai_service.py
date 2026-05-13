@@ -1,4 +1,5 @@
 import json
+import httpx
 
 from openai import OpenAI
 
@@ -20,9 +21,11 @@ class OpenAIService:
         self.enabled = bool(self.api_key)
         self.client = None
         if self.enabled:
-            client_kwargs = {"api_key": self.api_key}
+            client_kwargs: dict = {"api_key": self.api_key}
             if self.base_url:
                 client_kwargs["base_url"] = self.base_url
+            if not settings.openai_ssl_verify:
+                client_kwargs["http_client"] = httpx.Client(verify=False)
             self.client = OpenAI(**client_kwargs)
 
     def _missing_credentials_error(self) -> str:
@@ -43,7 +46,9 @@ class OpenAIService:
             response_format={"type": "json_object"},
             temperature=0.2,
         )
-        content = response.choices[0].message.content
+        content = response.choices[0].message.content or ""
+        if not content.strip():
+            raise ValueError("OpenAI returned an empty response for json_completion")
         return json.loads(content)
 
     def text_completion(self, system_prompt: str, user_prompt: str) -> str:
