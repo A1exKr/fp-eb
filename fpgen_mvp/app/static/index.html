@@ -14,7 +14,8 @@
     }
     *,*::before,*::after{box-sizing:border-box}
     html{font-size:14px}
-    html,body{overflow-x:hidden}
+    html{overflow-x:auto}
+    body{overflow-x:auto;min-width:320px}
     body{margin:0;color:var(--ink);font-family:var(--font);background:#e8edf5;min-height:100vh}
     button,input,textarea,select{font:inherit}
     /* Header */
@@ -437,7 +438,7 @@ ge("addMbr").addEventListener("click",function(){
 /* ---- FEE CALCULATOR ---- */
 function renderFee(){
   var ph=getPhases();
-  var h="<tr><th>Role</th><th>Name</th><th>Rate</th>";
+  var h="<tr><th>Role</th><th>Name</th><th style='min-width:70px'>Rate</th>";
   ph.forEach(function(p,pi){h+="<th class='phd-th'><span class='phd' contenteditable='true' data-pi='"+pi+"'>"+esc(p)+"</span></th>"});
   h+="<th>Total</th></tr>";ge("feeH").innerHTML=h;
   var b="";
@@ -446,7 +447,7 @@ function renderFee(){
     var tot=ph.reduce(function(s,p){return s+num(r.hrs[p]||0)*num(r.rate)},0);
     b+="<tr><td style='font-size:11px;min-width:110px;white-space:nowrap'>"+esc(r.role||"—")+"</td>"+
        "<td style='font-size:11px;min-width:130px;white-space:nowrap'>"+esc(r.name||"—")+"</td>"+
-       "<td><input type='number' class='frate' data-ri='"+ri+"' step='5' value='"+num(r.rate)+"' style='max-width:65px'></td>";
+       "<td><input type='number' class='frate' data-ri='"+ri+"' step='5' value='"+num(r.rate)+"' style='width:65px'></td>";
     ph.forEach(function(p){b+="<td><input type='number' step='1' class='fh' data-ri='"+ri+"' data-p='"+esc(p)+"' value='"+(r.hrs[p]||0)+"' style='max-width:68px'></td>"});
     b+="<td class='tc' id='rt"+ri+"'>"+fm(tot)+"</td></tr>";
   });
