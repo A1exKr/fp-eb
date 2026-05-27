@@ -91,7 +91,8 @@
     .pbar label{margin:0;white-space:nowrap}
     .pbar select{flex:1}
     /* Phase header editable */
-    .phd{display:inline-block;min-width:55px;outline:none}
+    .phd-th{white-space:normal!important;vertical-align:bottom;width:58px;min-width:58px;padding:4px 4px 6px;text-align:center}
+    .phd{writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;font-size:9px;letter-spacing:.05em;max-height:88px;overflow:hidden;outline:none;text-overflow:ellipsis;text-transform:uppercase;color:var(--muted)}
     .phd:focus{border-bottom:1px dashed var(--accent)}
     /* Proposal link */
     .plink{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 14px;background:var(--soft);border-radius:6px;border:1px solid rgba(31,42,48,.1)}
@@ -445,10 +446,10 @@ function renderFee(){
   teamRows.forEach(function(r,ri){
     if(!r.hrs)r.hrs={};
     var tot=ph.reduce(function(s,p){return s+num(r.hrs[p]||0)*num(r.rate)},0);
-    b+="<tr><td style='font-size:11px;min-width:110px;white-space:nowrap'>"+esc(r.role||"—")+"</td>"+
-       "<td style='font-size:11px;min-width:130px;white-space:nowrap'>"+esc(r.name||"—")+"</td>"+
+    b+="<tr><td style='font-size:11px;min-width:90px;white-space:nowrap'>"+esc(r.role||"—")+"</td>"+
+       "<td style='font-size:11px;min-width:90px;white-space:nowrap'>"+esc(r.name||"—")+"</td>"+
        "<td><input type='number' class='frate' data-ri='"+ri+"' step='5' value='"+num(r.rate)+"' style='width:65px'></td>";
-    ph.forEach(function(p){b+="<td><input type='number' step='1' class='fh' data-ri='"+ri+"' data-p='"+esc(p)+"' value='"+(r.hrs[p]||0)+"' style='max-width:68px'></td>"});
+    ph.forEach(function(p){b+="<td style='text-align:center;padding:4px'><input type='number' step='1' class='fh' data-ri='"+ri+"' data-p='"+esc(p)+"' value='"+(r.hrs[p]||0)+"' style='width:50px;text-align:center'></td>"}); 
     b+="<td class='tc' id='rt"+ri+"'>"+fm(tot)+"</td></tr>";
   });
   ge("feeB").innerHTML=b;
