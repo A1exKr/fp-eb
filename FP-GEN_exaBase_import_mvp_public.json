@@ -6,24 +6,24 @@
     },
     "authorizedIps": {},
     "variables": {
-      "vAppUrl": {
+      "vFpgenApiUrl": {
         "_order": "a0000",
         "name": "FPGEN_API_URL",
-        "value": "http://fpgen-mvp-api:8080"
+        "value": "http://fpgen-mvp-public-fpgen-mvp-api:8080"
       }
     },
     "documents": {}
   },
   "edgesMap": {},
   "nodesMap": {
-    "wMvp": {
+    "wMvpPublic": {
       "type": "workspace",
-      "id": "wMvp",
-      "width": 1100,
-      "height": 700,
+      "id": "wMvpPublic",
+      "width": 1320,
+      "height": 760,
       "data": {
-        "id": "fpgen-mvp",
-        "name": "FP-GEN MVP (OpenAI + JSON)",
+        "id": "fpgen-mvp-public",
+        "name": "FP-GEN MVP Public Proxy",
         "authorizedIpSetting": {
           "allowAll": false,
           "inherit": true
@@ -89,21 +89,9 @@
           },
           "envRefs": {
             "key": "FPGEN_REFERENCE_PROJECTS",
-            "value": "/app/appdata/reference_projects.json",
+            "value": "/app/data/reference_projects.json",
             "_id": "envRefs",
             "_order": "a0007"
-          },
-          "envPersonnel": {
-            "key": "FPGEN_PERSONNEL",
-            "value": "/app/appdata/personnel.json",
-            "_id": "envPersonnel",
-            "_order": "a0008"
-          },
-          "envTeamPresets": {
-            "key": "FPGEN_TEAM_PRESETS",
-            "value": "/app/appdata/team_presets.json",
-            "_id": "envTeamPresets",
-            "_order": "a0009"
           },
           "envInddDisabled": {
             "key": "FPGEN_ENABLE_INDD_EXPORT",
@@ -127,28 +115,71 @@
       },
       "position": {
         "x": 40,
-        "y": 80
+        "y": 90
       },
-      "parentId": "wMvp"
+      "parentId": "wMvpPublic"
+    },
+    "nProxy": {
+      "type": "sideapp",
+      "id": "nProxy",
+      "width": 250,
+      "data": {
+        "id": "nginx",
+        "name": "FP-GEN Public Proxy",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/nginx_v1_29:1.0.2",
+        "environment": {
+          "envProxyApiUrl": {
+            "key": "ENV_FPGEN_API_URL",
+            "value": "$[[FPGEN_API_URL]]",
+            "_id": "envProxyApiUrl",
+            "_order": "a0000"
+          }
+        },
+        "injection": {
+          "proxyTemplate": {
+            "path": "/app/template.conf",
+            "data": "user nginx;\nworker_processes auto;\nevents { worker_connections 1024; }\nhttp {\n  include /etc/nginx/mime.types;\n  default_type application/octet-stream;\n  client_max_body_size 1G;\n  keepalive_timeout 180;\n  proxy_connect_timeout 180s;\n  proxy_send_timeout 180s;\n  proxy_read_timeout 180s;\n\n  server {\n    listen 8080;\n    server_name localhost;\n    port_in_redirect off;\n    absolute_redirect off;\n\n    proxy_set_header Host $http_host;\n    proxy_set_header X-Real-IP $remote_addr;\n    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;\n    proxy_http_version 1.1;\n    proxy_set_header Upgrade $http_upgrade;\n    proxy_set_header Connection \"upgrade\";\n\n    location = / {\n      proxy_pass ${ENV_FPGEN_API_URL}/;\n    }\n\n    location / {\n      proxy_pass ${ENV_FPGEN_API_URL}/;\n    }\n  }\n}\n",
+            "_id": "proxyTemplate",
+            "_order": "a0000",
+            "lang": "nginx"
+          }
+        },
+        "storage": {
+          "proxyTempMount": {
+            "path": "/tmp/mnt",
+            "_id": "proxyTempMount",
+            "_order": "a0000"
+          }
+        },
+        "_order": "a0300",
+        "replicas": 1,
+        "size": "xxs",
+        "showDescription": false
+      },
+      "position": {
+        "x": 380,
+        "y": 90
+      },
+      "parentId": "wMvpPublic"
     },
     "nSticky": {
       "type": "sticky",
       "id": "nSticky",
       "position": {
-        "x": 380,
+        "x": 680,
         "y": 90
       },
       "data": {
         "id": "",
         "name": "",
-        "text": "First import target: FP-GEN API sideapp only.\n\nImage:\n ghcr.io/a1exkr/fpgen-mvp-api:latest\n\nRequired secret:\n OPENAI_API_KEY\n\nHealth check after deploy:\n GET /health\n\nMain endpoints:\n /v1/parse\n /v1/fee/calculate\n /v1/proposals/generate\n /v1/proposals/{id}",
+        "text": "This import adds a public nginx proxy in front of the healthy FP-GEN API sideapp.\n\nExpected browser checks after deploy:\n - /health\n - /v1/parse\n - /ui\n\nIf exaBase exposes the proxy sideapp URL, use that URL instead of the internal fpgen-mvp-api hostname.",
         "fill": "blue",
-        "_order": "a0300"
+        "_order": "a0400"
       },
-      "parentId": "wMvp",
-      "width": 620
+      "parentId": "wMvpPublic",
+      "width": 540
     }
   },
-  "projectName": "FP-GEN MVP exaBase Import",
-  "projectId": "fpgen-exabase-mvp"
+  "projectName": "FP-GEN MVP Public Proxy Import",
+  "projectId": "fpgen-exabase-mvp-public"
 }

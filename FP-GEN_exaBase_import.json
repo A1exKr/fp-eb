@@ -1283,7 +1283,7 @@
       "data": {
         "id": "api",
         "name": "FP-GEN MVP Runtime (Single Internal Service)",
-        "image": "ghcr.io/verv0lk/fpgen-mvp-api:latest",
+        "image": "ghcr.io/a1exkr/fpgen-mvp-api:latest",
         "environment": {
           "e5W4qfoSiYbzMjVLEm7b": {
             "key": "LLM_PROVIDER",

@@ -1,0 +1,84 @@
+constructorApiVersion: v1alpha70
+metadata:
+  name: fp-gen-test2
+workspaces:
+  - id: fpgen-app
+    metadata:
+      name: FP-GEN App
+    endpoints:
+      - uri: /
+        type: io.ebstudio.core.sideapp
+        port: 8080
+        path: /
+        target: nginx
+        authorizedIps:
+          - 165.85.1.206/32
+    entities: []
+    triggers: []
+    pipelines: []
+    sideapps:
+      - id: api
+        metadata:
+          name: FP-GEN MVP Runtime
+        type: io.ebstudio.core.sideapp.service
+        image: ghcr.io/a1exkr/fpgen-mvp-api:latest
+        size: m
+        environment:
+          LLM_PROVIDER: openai
+          OPENAI_API_KEY: ${{SECRET.OPENAI_API_KEY}}
+          OPENAI_MODEL: gpt-4.1-mini
+          FPGEN_ENABLE_INDD_EXPORT: 'false'
+          DEFAULT_CURRENCY: USD
+          DEFAULT_OVERHEAD_PCT: '0.10'
+          TRAVEL_UNIT_COST_USD: '6000'
+          FPGEN_STORAGE_DIR: /app/data/proposals
+          FPGEN_REFERENCE_PROJECTS: /app/appdata/reference_projects.json
+        storage:
+          - path: /app/data
+        injection: []
+        replicas: 1
+      - id: nginx
+        metadata:
+          name: FP-GEN Reverse Proxy
+        type: io.ebstudio.core.sideapp.service
+        image: 534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/nginx_v1_29:1.0.2
+        size: xxs
+        environment:
+          ENV_FPGEN_API_URL: http://fpgen-app-api:8080
+        storage:
+          - path: /tmp/mnt
+        injection:
+          - path: /app/template.conf
+            data: |
+              user nginx;
+              worker_processes auto;
+              events { worker_connections 1024; }
+              http {
+                include /etc/nginx/mime.types;
+                default_type application/octet-stream;
+                client_max_body_size 1G;
+                keepalive_timeout 180;
+                proxy_connect_timeout 180s;
+                proxy_send_timeout 180s;
+                proxy_read_timeout 180s;
+
+                server {
+                  listen 8080;
+                  server_name localhost;
+                  port_in_redirect off;
+                  absolute_redirect off;
+
+                  proxy_set_header Host $http_host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection "upgrade";
+
+                  location / {
+                    proxy_pass ${ENV_FPGEN_API_URL}/;
+                  }
+                }
+              }
+        replicas: 1

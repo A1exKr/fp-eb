@@ -10,3 +10,7 @@ fpgen_mvp/data/proposals/
 fpgen_mvp/data/exports/
 
 .env
+
+# Large reference material (not part of the app)
+General/
+General.zip

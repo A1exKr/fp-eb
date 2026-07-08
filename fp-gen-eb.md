@@ -1,3 +1,14 @@
+# FP-GEN exaBase Architecture
+
+> **MVP status (May 2026):** The exaBase MVP is deployed and running.
+> Two pods live in the `fpgen-app` workspace: `fpgen-app-api` (FastAPI/Uvicorn) and `fpgen-app-nginx` (reverse proxy).
+> Image: `ghcr.io/a1exkr/fpgen-mvp-api:latest` — built via GitHub Actions from https://github.com/A1exKr/fp-eb.
+> Import file: `FP-GEN_exaBase_import_v2.json` — API + nginx only, no auth stack, no DB, no LiteLLM.
+>
+> The Notion review layer and InDesign export described below are future phases, not yet implemented.
+
+---
+
 Here is the best **Option 1 scheme** for FP-GEN, where the custom logic is developed and sits **inside the exaBase-centered environment**, with **Notion** for review and **InDesign** for final publishing.
 
 ## Recommended target scheme

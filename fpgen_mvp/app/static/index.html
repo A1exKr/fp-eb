@@ -91,8 +91,8 @@
     .pbar label{margin:0;white-space:nowrap}
     .pbar select{flex:1}
     /* Phase header editable */
-    .phd-th{white-space:normal!important;vertical-align:bottom;width:58px;min-width:58px;padding:4px 4px 6px;text-align:center}
-    .phd{writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;font-size:9px;letter-spacing:.05em;max-height:88px;overflow:hidden;outline:none;text-overflow:ellipsis;text-transform:uppercase;color:var(--muted)}
+    .phd-th{white-space:nowrap;min-width:50px;padding:5px 6px;text-align:center}
+    .phd{display:inline-block;outline:none;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:default}
     .phd:focus{border-bottom:1px dashed var(--accent)}
     /* Proposal link */
     .plink{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 14px;background:var(--soft);border-radius:6px;border:1px solid rgba(31,42,48,.1)}
@@ -178,6 +178,7 @@
         </table>
       </div>
       <div class="ar"><button id="addPhBtn" class="bg bsm">+ Add Phase</button></div>
+      <p id="phaseLegend" class="hint" style="font-size:10px;margin-top:6px;line-height:1.6"></p>
     </div>
 
   </section>
@@ -282,6 +283,9 @@
 "use strict";
 var CUR={USD:1,JPY:150,SGD:1.35,AED:3.67,EUR:0.92,GBP:0.79};
 var schRows=[], teamRows=[], selRef={}, allRef=[], personnel=[], presets=[], curType="All";
+var lastEbp={};
+var PHASE_ABBR={"pre-design":"PD","schematic design":"SD","design development":"DD","construction documents":"CD","construction document":"CD","bid phase":"BID","bidding":"BID","bidding & negotiation":"BID","construction administration":"CA","construction admin":"CA","construction":"CA","post-completion":"PC","post completion":"PC","post-design services":"PDS","inception":"INC","feasibility":"FEAS","master plan":"MP","concept design":"CON","concept":"CON","tender":"TEN","planning":"PLN","documentation":"DOC","procurement":"PRO","detailed design":"DD","basic design":"BD","kick-off":"KO","kick off":"KO","site analysis":"SA","design":"DES","technical design":"TD"};
+function abbrevPhase(n){var k=(n||'').toLowerCase().trim();if(PHASE_ABBR[k])return PHASE_ABBR[k];var w=n.trim().split(/[\s\-\/]+/).filter(Boolean);if(w.length===1)return n.slice(0,4).toUpperCase();return w.map(function(x){return x[0].toUpperCase()}).join('')}
 function ge(id){return document.getElementById(id)}
 function num(v){var n=parseFloat(v);return isFinite(n)?n:0}
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
@@ -306,20 +310,26 @@ function renderSch(){
   });
 }
 function getPhases(){return schRows.map(function(r){return r.phase}).filter(Boolean)}
+function renderSchAndLegend(){renderSch();updatePhaseLegend()}
+function updatePhaseLegend(){
+  var lg=ge("phaseLegend");if(!lg)return;
+  var pairs=schRows.map(function(r){return r.phase?abbrevPhase(r.phase)+" = "+r.phase:null}).filter(Boolean);
+  lg.textContent=pairs.length?"Abbr: "+pairs.join(" \u00b7 "):"";
+}
 ge("schBody").addEventListener("input",function(e){
   var t=e.target,i=parseInt(t.dataset.i,10);if(!schRows[i])return;
-  if(t.classList.contains("sp")){schRows[i].phase=t.value;syncFeePhases()}
+  if(t.classList.contains("sp")){schRows[i].phase=t.value;syncFeePhases();updatePhaseLegend()}
   if(t.classList.contains("ss"))schRows[i].sw=num(t.value);
   if(t.classList.contains("sd"))schRows[i].dur=num(t.value);
   if(t.classList.contains("sdl"))schRows[i].del=t.value;
 });
 ge("schBody").addEventListener("click",function(e){
   if(!e.target.classList.contains("del-sch"))return;
-  schRows.splice(parseInt(e.target.dataset.i,10),1);renderSch();syncFeePhases();
+  schRows.splice(parseInt(e.target.dataset.i,10),1);renderSch();updatePhaseLegend();syncFeePhases();
 });
 ge("addPhBtn").addEventListener("click",function(){
   var lw=schRows.length?schRows[schRows.length-1].sw+schRows[schRows.length-1].dur:1;
-  schRows.push({phase:"New Phase",sw:lw,dur:2,del:""});renderSch();syncFeePhases();
+  schRows.push({phase:"New Phase",sw:lw,dur:2,del:""});renderSch();updatePhaseLegend();syncFeePhases();
 });
 function syncFeePhases(){
   var ph=getPhases();
@@ -396,7 +406,16 @@ ge("applyPre").addEventListener("click",function(){
   var ph=getPhases();
   teamRows=prs.assignments.map(function(a){
     var per=personnel.find(function(p){return p.id===a.person_id})||{};
-    var hrs={};ph.forEach(function(p){hrs[p]=0});
+    var hrs={};
+    ph.forEach(function(p){
+      var phData=lastEbp[p]||{};
+      var v=0;
+      Object.keys(phData).forEach(function(k){
+        if(!v&&(k.toLowerCase().indexOf(a.role.toLowerCase())>-1||a.role.toLowerCase().indexOf(k.toLowerCase())>-1))
+          v=parseFloat(phData[k])||0;
+      });
+      hrs[p]=v;
+    });
     return{role:a.role,name:per.name||"",pid:a.person_id,rate:a.rate,hrs:hrs};
   });
   renderTeam();renderFee();unlock(6);
@@ -439,9 +458,9 @@ ge("addMbr").addEventListener("click",function(){
 /* ---- FEE CALCULATOR ---- */
 function renderFee(){
   var ph=getPhases();
-  var h="<tr><th>Role</th><th>Name</th><th style='min-width:70px'>Rate</th>";
-  ph.forEach(function(p,pi){h+="<th class='phd-th'><span class='phd' contenteditable='true' data-pi='"+pi+"'>"+esc(p)+"</span></th>"});
-  h+="<th>Total</th></tr>";ge("feeH").innerHTML=h;
+  var h="<tr><th>Role</th><th>Name</th><th style='min-width:65px'>Rate</th>";
+  ph.forEach(function(p,pi){h+="<th class='phd-th' title='"+esc(p)+"'><span class='phd' data-pi='"+pi+"'>"+esc(abbrevPhase(p))+"</span></th>"});
+  h+="<th style='min-width:80px'>Total</th></tr>";ge("feeH").innerHTML=h;
   var b="";
   teamRows.forEach(function(r,ri){
     if(!r.hrs)r.hrs={};
@@ -560,6 +579,7 @@ function applyParsed(p){
 
   /* Schedule */
   var fee=p.fee||{},ebp=fee.effortByPhase||{},phases=Object.keys(ebp);
+  lastEbp=ebp;
   var totalWks=(p.schedule&&p.schedule.totalWeeks)||16;
   if(phases.length){
     var sw=1;
@@ -570,7 +590,7 @@ function applyParsed(p){
     var ms=p.schedule.milestones,sw=1,dd=Math.max(1,Math.round(totalWks/ms.length));
     schRows=ms.map(function(m){var row={phase:m,sw:sw,dur:dd,del:""};sw+=dd;return row});
   }
-  renderSch();
+  renderSch();updatePhaseLegend();
 
   /* Team from fee.rates + personnel */
   var rates=fee.rates||{};
@@ -648,7 +668,7 @@ ge("clearBtn").addEventListener("click",function(){
   ge("rfpFile").value="";ge("rfpText").value="";ge("fm").textContent="Supported: .txt .md .pdf .docx";
   ["projName","clientName","projType","location","siteArea","summary"].forEach(function(id){ge(id).value=""});
   schRows=[];teamRows=[];selRef={};
-  renderSch();renderTeam();renderFee();renderRef();
+  renderSch();updatePhaseLegend();renderTeam();renderFee();renderRef();
   ge("subRows").innerHTML="";
   [2,3,4,5,6].forEach(function(n){var e=ge("sc"+n);if(e)e.classList.add("locked")});
   ge("genBtn").disabled=true;ge("plinkWrap").style.display="none";

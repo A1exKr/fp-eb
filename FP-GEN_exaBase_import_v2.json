@@ -1,0 +1,285 @@
+{
+  "schemaVersion": "5.0",
+  "canvasProperties": {
+    "authorizedIpSetting": {
+      "allowAll": true
+    },
+    "authorizedIps": {},
+    "variables": {
+      "vDefaultCurrency": {
+        "_order": "a0000",
+        "name": "DEFAULT_CURRENCY",
+        "value": "USD"
+      },
+      "vDefaultOverhead": {
+        "_order": "a0001",
+        "name": "DEFAULT_OVERHEAD_PCT",
+        "value": "0.10"
+      },
+      "vTravelCost": {
+        "_order": "a0002",
+        "name": "TRAVEL_UNIT_COST_USD",
+        "value": "6000"
+      },
+      "vFpgenApiUrl": {
+        "_order": "a0003",
+        "name": "FPGEN_API_URL",
+        "value": "http://fpgen-app-api:8080"
+      },
+      "vFpgenStorageDir": {
+        "_order": "a0004",
+        "name": "FPGEN_STORAGE_DIR",
+        "value": "/app/data/proposals"
+      },
+      "vFpgenRefsPath": {
+        "_order": "a0005",
+        "name": "FPGEN_REFERENCE_PROJECTS_PATH",
+        "value": "/app/data/reference_projects.json"
+      }
+    },
+    "documents": {}
+  },
+  "edgesMap": {
+    "gEndpointToNginx": {
+      "id": "gEndpointToNginx",
+      "source": "eAppEndpoint",
+      "sourceHandle": "eAppEndpoint.bottom",
+      "target": "nNginx",
+      "targetHandle": "nNginx.top",
+      "type": "flow",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    },
+    "gNginxToApi": {
+      "id": "gNginxToApi",
+      "source": "nNginx",
+      "sourceHandle": "nNginx.right",
+      "target": "nApi",
+      "targetHandle": "nApi.left",
+      "type": "memo",
+      "markerEnd": {
+        "type": "arrowclosed"
+      }
+    }
+  },
+  "nodesMap": {
+    "wFpgenApp": {
+      "type": "workspace",
+      "id": "wFpgenApp",
+      "width": 1200,
+      "height": 700,
+      "data": {
+        "id": "fpgen-app",
+        "name": "FP-GEN App",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0100"
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "eAppEndpoint": {
+      "type": "endpoint",
+      "id": "eAppEndpoint",
+      "width": 250,
+      "position": {
+        "x": 250,
+        "y": 30
+      },
+      "data": {
+        "bind": "ReadWrite",
+        "port": 8080,
+        "uri": "/",
+        "authorizedIpSetting": {
+          "allowAll": false,
+          "inherit": true
+        },
+        "authorizedIps": {},
+        "_order": "a0110"
+      },
+      "parentId": "wFpgenApp"
+    },
+    "nNginx": {
+      "type": "sideapp",
+      "id": "nNginx",
+      "width": 280,
+      "data": {
+        "id": "nginx",
+        "name": "FP-GEN Reverse Proxy",
+        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/nginx_v1_29:1.0.2",
+        "environment": {
+          "eNginxApiUrl": {
+            "key": "ENV_FPGEN_API_URL",
+            "value": "$[[FPGEN_API_URL]]",
+            "_id": "eNginxApiUrl",
+            "_order": "a0000"
+          }
+        },
+        "injection": {
+          "jNginxConf": {
+            "path": "/app/template.conf",
+            "data": "user nginx;\nworker_processes auto;\nevents { worker_connections 1024; }\nhttp {\n  include /etc/nginx/mime.types;\n  default_type application/octet-stream;\n  client_max_body_size 1G;\n  keepalive_timeout 180;\n  proxy_connect_timeout 180s;\n  proxy_send_timeout 180s;\n  proxy_read_timeout 180s;\n\n  server {\n    listen 8080;\n    server_name localhost;\n    port_in_redirect off;\n    absolute_redirect off;\n\n    proxy_set_header Host $http_host;\n    proxy_set_header X-Real-IP $remote_addr;\n    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;\n    proxy_http_version 1.1;\n    proxy_set_header Upgrade $http_upgrade;\n    proxy_set_header Connection \"upgrade\";\n\n    location / {\n      proxy_pass ${ENV_FPGEN_API_URL}/;\n    }\n  }\n}\n",
+            "_id": "jNginxConf",
+            "_order": "a0000",
+            "lang": "nginx"
+          }
+        },
+        "storage": {
+          "sNginxTmp": {
+            "path": "/tmp/mnt",
+            "_id": "sNginxTmp",
+            "_order": "a0000"
+          }
+        },
+        "_order": "a0200",
+        "replicas": 1,
+        "size": "xxs",
+        "showDescription": false
+      },
+      "position": {
+        "x": 150,
+        "y": 150
+      },
+      "parentId": "wFpgenApp"
+    },
+    "nApi": {
+      "type": "sideapp",
+      "id": "nApi",
+      "width": 280,
+      "data": {
+        "id": "api",
+        "name": "FP-GEN MVP Runtime",
+        "image": "ghcr.io/a1exkr/fpgen-mvp-api:latest",
+        "environment": {
+          "eApiLlmProvider": {
+            "key": "LLM_PROVIDER",
+            "value": "openai",
+            "_id": "eApiLlmProvider",
+            "_order": "a0000"
+          },
+          "eApiOpenAiKey": {
+            "key": "OPENAI_API_KEY",
+            "value": "${{SECRET.OPENAI_API_KEY}}",
+            "_id": "eApiOpenAiKey",
+            "_order": "a0001"
+          },
+          "eApiOpenAiModel": {
+            "key": "OPENAI_MODEL",
+            "value": "gpt-4.1-mini",
+            "_id": "eApiOpenAiModel",
+            "_order": "a0002"
+          },
+          "eApiInddDisabled": {
+            "key": "FPGEN_ENABLE_INDD_EXPORT",
+            "value": "false",
+            "_id": "eApiInddDisabled",
+            "_order": "a0003"
+          },
+          "eApiCurrency": {
+            "key": "DEFAULT_CURRENCY",
+            "value": "$[[DEFAULT_CURRENCY]]",
+            "_id": "eApiCurrency",
+            "_order": "a0004"
+          },
+          "eApiOverhead": {
+            "key": "DEFAULT_OVERHEAD_PCT",
+            "value": "$[[DEFAULT_OVERHEAD_PCT]]",
+            "_id": "eApiOverhead",
+            "_order": "a0005"
+          },
+          "eApiTravel": {
+            "key": "TRAVEL_UNIT_COST_USD",
+            "value": "$[[TRAVEL_UNIT_COST_USD]]",
+            "_id": "eApiTravel",
+            "_order": "a0006"
+          },
+          "eApiStorageDir": {
+            "key": "FPGEN_STORAGE_DIR",
+            "value": "$[[FPGEN_STORAGE_DIR]]",
+            "_id": "eApiStorageDir",
+            "_order": "a0007"
+          },
+          "eApiRefsPath": {
+            "key": "FPGEN_REFERENCE_PROJECTS",
+            "value": "$[[FPGEN_REFERENCE_PROJECTS_PATH]]",
+            "_id": "eApiRefsPath",
+            "_order": "a0008"
+          }
+        },
+        "injection": {},
+        "storage": {
+          "sApiData": {
+            "path": "/app/data",
+            "_id": "sApiData",
+            "_order": "a0000"
+          }
+        },
+        "_order": "a0300",
+        "replicas": 1,
+        "size": "m",
+        "showDescription": false
+      },
+      "position": {
+        "x": 600,
+        "y": 150
+      },
+      "parentId": "wFpgenApp"
+    },
+    "tSetup": {
+      "type": "sticky",
+      "id": "tSetup",
+      "position": {
+        "x": -480,
+        "y": 0
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "FP-GEN exaBase canvas v2<br><br>Required secret<br>• OPENAI_API_KEY<br><br>Canvas variables (edit before deploy)<br>• DEFAULT_CURRENCY (default: USD)<br>• DEFAULT_OVERHEAD_PCT (default: 0.10)<br>• TRAVEL_UNIT_COST_USD (default: 6000)<br><br>No auth, no DB, no LiteLLM required.",
+        "fill": "pink",
+        "_order": "a0010"
+      },
+      "width": 420
+    },
+    "tEndpoints": {
+      "type": "sticky",
+      "id": "tEndpoints",
+      "position": {
+        "x": -480,
+        "y": 280
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "API endpoints (via proxy at /):<br>• GET /health — status check<br>• GET /ui — browser UI<br>• POST /v1/parse — extract RFP text<br>• POST /v1/parse/file — upload RFP file<br>• POST /v1/fee/calculate — compute fees<br>• POST /v1/proposals/generate — generate proposal<br>• GET /v1/proposals/{id} — retrieve proposal<br>• PUT /v1/proposals/{id} — update proposal",
+        "fill": "gray",
+        "_order": "a0020"
+      },
+      "width": 420
+    },
+    "tSections": {
+      "type": "sticky",
+      "id": "tSections",
+      "position": {
+        "x": 150,
+        "y": 530
+      },
+      "data": {
+        "id": "",
+        "name": "",
+        "text": "Default proposal sections<br>1 Cover Letter<br>2 Project Understanding<br>3 Methodology<br>4 Scope &amp; Deliverables<br>5 Schedule<br>6 Team Structure<br>7 Financial Proposal<br>8 Relevant Experience<br>9 Assumptions &amp; Exclusions",
+        "fill": "gray",
+        "_order": "a0030"
+      },
+      "width": 340
+    }
+  },
+  "projectName": "FP-GEN exaBase Import v2",
+  "projectId": "fpgen-exabase-v2"
+}

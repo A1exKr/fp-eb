@@ -1,8 +1,8 @@
 # FP-GEN MVP for exaBase
 
 > **Status: deployed and running.**
-> Image: `ghcr.io/verv0lk/fpgen-mvp-api:latest`
-> Repo: https://github.com/verv0lk/fp-eb
+> Image: `ghcr.io/a1exkr/fpgen-mvp-api:latest`
+> Repo: https://github.com/A1exKr/fp-eb
 > Pods: `fpgen-app-api` + `fpgen-app-nginx` — both Running.
 > Recommended import: `../FP-GEN_exaBase_import_v2.json`
 
@@ -317,9 +317,9 @@ What the workflow does:
 - runs on `push` to `main` or `master`
 - can also be started manually with `workflow_dispatch`
 - builds from `fpgen_mvp/`
-- publishes to GitHub Container Registry as `ghcr.io/verv0lk/fpgen-mvp-api`
+- publishes to GitHub Container Registry as `ghcr.io/a1exkr/fpgen-mvp-api`
 
-Repo: https://github.com/verv0lk/fp-eb
+Repo: https://github.com/A1exKr/fp-eb
 
 What you need in GitHub:
 
@@ -330,19 +330,19 @@ What you need in GitHub:
 Published image tags:
 
 ```text
-ghcr.io/verv0lk/fpgen-mvp-api:latest
-ghcr.io/verv0lk/fpgen-mvp-api:main
-ghcr.io/verv0lk/fpgen-mvp-api:sha-<commit>
+ghcr.io/a1exkr/fpgen-mvp-api:latest
+ghcr.io/a1exkr/fpgen-mvp-api:main
+ghcr.io/a1exkr/fpgen-mvp-api:sha-<commit>
 ```
 
-exaBase pulls from the published image. GitHub Actions builds and pushes it. The package must be set to public in GHCR for exaBase to pull without credentials.
+exaBase pulls from the published image. The GHCR package is kept **private** (not visible to anyone else). Because it is private, exaBase Studio must authenticate to GHCR with a `read:packages` pull credential configured as an image pull secret in the workspace — see `DEPLOY.md`, Option A, Step 6. The recommended build path is now a local Docker Engine (WSL2) build; GitHub Actions remains a fallback and also publishes a private package.
 
 ## What to paste into exaBase
 
 The image is already set in all import files:
 
 ```text
-ghcr.io/verv0lk/fpgen-mvp-api:latest
+ghcr.io/a1exkr/fpgen-mvp-api:latest
 ```
 
 The `api` sideapp receives these envs (all already configured in `FP-GEN_exaBase_import_v2.json`):
@@ -418,7 +418,7 @@ This canvas contains only the two components needed: the FastAPI runtime and an 
 The checked-in import files currently point to:
 
 ```text
-ghcr.io/verv0lk/fpgen-mvp-api:latest
+ghcr.io/a1exkr/fpgen-mvp-api:latest
 ```
 
 That is acceptable for a first import.
@@ -426,7 +426,7 @@ That is acceptable for a first import.
 If you want a pinned image for a stable deployment, replace it with the published SHA tag before import, for example:
 
 ```text
-ghcr.io/verv0lk/fpgen-mvp-api:sha-97f661b
+ghcr.io/a1exkr/fpgen-mvp-api:sha-97f661b
 ```
 
 ### 3. Prepare exaBase secrets
@@ -454,7 +454,7 @@ In exaBase Studio:
 
 For the v2 import, the `api` sideapp should already contain:
 
-- `image=ghcr.io/verv0lk/fpgen-mvp-api:latest`
+- `image=ghcr.io/a1exkr/fpgen-mvp-api:latest`
 - `LLM_PROVIDER=openai`
 - `OPENAI_API_KEY=${{SECRET.OPENAI_API_KEY}}`
 - `OPENAI_MODEL=gpt-4.1-mini`
@@ -545,7 +545,7 @@ For MVP testing, none of these are needed.
 
 If import succeeds but deploy fails, check these first:
 
-- the sideapp image tag exists and is public in GHCR
+- the sideapp image tag exists in GHCR and the workspace has a valid GHCR pull credential (private image)
 - `OPENAI_API_KEY` secret exists and is spelled exactly the same as in the JSON
 - `/app/data` storage is attached
 - the sideapp logs show the container started and bound to port `8080`
