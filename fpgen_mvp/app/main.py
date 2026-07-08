@@ -1,11 +1,18 @@
 import json
 import traceback
+from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy.orm import Session
 
 from app.config import settings
+from app.db import IS_SQLITE, get_db, init_db
+from app import repositories
+from app.auth import CurrentUser, get_current_user
+from app.routers import admin
 from app.schemas import (
     FileParseResponse,
     GenerateRequest,
@@ -24,11 +31,29 @@ from app.services.parser import parse_rfp
 from app.services.proposal_builder import build_proposal_payload, update_proposal_sections
 from app.services.relevant_selector import select_relevant_projects
 from app.services.rfp_file_service import extract_rfp_text
-from app.services.storage import load_proposal, save_proposal, update_proposal
 
 
-app = FastAPI(title="FP-GEN MVP API", version="0.1.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Local/dev convenience: ensure SQLite tables exist. On exaBase PostgreSQL,
+    # Alembic migrations manage the schema at container startup.
+    if IS_SQLITE:
+        init_db()
+    yield
+
+
+app = FastAPI(title="FP-GEN MVP API", version="0.1.0", lifespan=lifespan)
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+ADMIN_DIR = STATIC_DIR / "admin"
+
+app.include_router(admin.router)
+if ADMIN_DIR.is_dir():
+    app.mount("/admin", StaticFiles(directory=str(ADMIN_DIR), html=True), name="admin")
+
+
+@app.get("/v1/me")
+def whoami(user: CurrentUser = Depends(get_current_user)) -> dict:
+    return {"user": user.user, "email": user.email, "groups": user.groups}
 
 
 @app.exception_handler(Exception)
@@ -68,24 +93,18 @@ def capabilities() -> dict:
 
 
 @app.get("/v1/reference-projects")
-def reference_projects() -> list:
-    if not settings.reference_projects_path.exists():
-        return []
-    return json.loads(settings.reference_projects_path.read_text(encoding="utf-8"))
+def reference_projects(db: Session = Depends(get_db)) -> list:
+    return repositories.list_reference_projects(db)
 
 
 @app.get("/v1/personnel")
-def personnel_endpoint() -> list:
-    if not settings.personnel_path.exists():
-        return []
-    return json.loads(settings.personnel_path.read_text(encoding="utf-8"))
+def personnel_endpoint(db: Session = Depends(get_db)) -> list:
+    return repositories.list_personnel(db)
 
 
 @app.get("/v1/team-presets")
-def team_presets_endpoint() -> list:
-    if not settings.team_presets_path.exists():
-        return []
-    return json.loads(settings.team_presets_path.read_text(encoding="utf-8"))
+def team_presets_endpoint(db: Session = Depends(get_db)) -> list:
+    return repositories.list_team_presets(db)
 
 
 @app.get("/proposals/{proposal_id}/review")
@@ -155,7 +174,7 @@ def fee_endpoint(fee_input: FeeInput) -> dict:
 
 
 @app.post("/v1/proposals/generate", response_model=ProposalResponse)
-def generate_endpoint(req: GenerateRequest) -> ProposalResponse:
+def generate_endpoint(req: GenerateRequest, db: Session = Depends(get_db)) -> ProposalResponse:
     parsed = parse_rfp(rfp_text=req.rfp_text, project_hint=req.overrides.get("project_name") or req.overrides.get("name"))
 
     if req.overrides:
@@ -174,14 +193,14 @@ def generate_endpoint(req: GenerateRequest) -> ProposalResponse:
             cli["name"] = v
 
     fee = calculate_fee(req.fee_input)
-    relevant = select_relevant_projects(parsed, req.selected_reference_ids)
+    relevant = select_relevant_projects(db, parsed, req.selected_reference_ids)
     proposal_payload = build_proposal_payload(
         parsed=parsed,
         fee=fee,
         relevant=relevant,
         fee_input=req.fee_input,
     )
-    proposal_id, _ = save_proposal(proposal_payload)
+    proposal_id, _ = repositories.save_proposal(db, proposal_payload)
 
     return ProposalResponse(proposal_id=proposal_id, proposal=proposal_payload)
 
@@ -192,6 +211,7 @@ def generate_file_endpoint(
     fee_input_json: str = Form(default="{}"),
     selected_reference_ids_json: str = Form(default="[]"),
     overrides_json: str = Form(default="{}"),
+    db: Session = Depends(get_db),
 ) -> ProposalResponse:
     try:
         _, extracted_text = extract_rfp_text(rfp_file)
@@ -221,45 +241,36 @@ def generate_file_endpoint(
             cli["name"] = v
 
     fee = calculate_fee(fee_input)
-    relevant = select_relevant_projects(parsed, selected_reference_ids)
+    relevant = select_relevant_projects(db, parsed, selected_reference_ids)
     proposal_payload = build_proposal_payload(
         parsed=parsed,
         fee=fee,
         relevant=relevant,
         fee_input=fee_input,
     )
-    proposal_id, _ = save_proposal(proposal_payload)
+    proposal_id, _ = repositories.save_proposal(db, proposal_payload)
 
     return ProposalResponse(proposal_id=proposal_id, proposal=proposal_payload)
 
 
 @app.get("/v1/proposals/{proposal_id}", response_model=ProposalResponse)
-def get_proposal(proposal_id: str) -> ProposalResponse:
-    proposal = load_proposal(proposal_id)
-    if not proposal:
-        raise HTTPException(status_code=404, detail="Proposal not found")
-    return ProposalResponse(
-        proposal_id=proposal["proposal_id"],
-        proposal=proposal["payload"],
-    )
-
-
-@app.get("/v1/proposals/{proposal_id}", response_model=ProposalResponse)
-def get_proposal_endpoint(proposal_id: str) -> ProposalResponse:
-    proposal = load_proposal(proposal_id)
+def get_proposal(proposal_id: str, db: Session = Depends(get_db)) -> ProposalResponse:
+    proposal = repositories.load_proposal(db, proposal_id)
     if not proposal:
         raise HTTPException(status_code=404, detail="Proposal not found")
     return ProposalResponse(proposal_id=proposal_id, proposal=proposal["payload"])
 
 
 @app.put("/v1/proposals/{proposal_id}", response_model=ProposalResponse)
-def update_proposal_endpoint(proposal_id: str, req: ProposalUpdateRequest) -> ProposalResponse:
-    proposal = load_proposal(proposal_id)
+def update_proposal_endpoint(
+    proposal_id: str, req: ProposalUpdateRequest, db: Session = Depends(get_db)
+) -> ProposalResponse:
+    proposal = repositories.load_proposal(db, proposal_id)
     if not proposal:
         raise HTTPException(status_code=404, detail="Proposal not found")
 
     updated_payload = update_proposal_sections(proposal["payload"], req.sections)
-    wrapped = update_proposal(proposal_id=proposal_id, payload=updated_payload)
+    wrapped = repositories.update_proposal(db, proposal_id, updated_payload)
     if not wrapped:
         raise HTTPException(status_code=404, detail="Proposal not found")
 
@@ -267,8 +278,8 @@ def update_proposal_endpoint(proposal_id: str, req: ProposalUpdateRequest) -> Pr
 
 
 @app.post("/v1/proposals/{proposal_id}/export/jsx")
-def export_jsx(proposal_id: str, req: JsxExportRequest) -> StreamingResponse:
-    proposal = load_proposal(proposal_id)
+def export_jsx(proposal_id: str, req: JsxExportRequest, db: Session = Depends(get_db)) -> StreamingResponse:
+    proposal = repositories.load_proposal(db, proposal_id)
     if not proposal:
         raise HTTPException(status_code=404, detail="Proposal not found")
 
@@ -290,8 +301,8 @@ def export_jsx(proposal_id: str, req: JsxExportRequest) -> StreamingResponse:
 
 
 @app.post("/v1/proposals/{proposal_id}/export/indd", response_model=InDesignExportResponse)
-def export_indd(proposal_id: str) -> InDesignExportResponse:
-    proposal = load_proposal(proposal_id)
+def export_indd(proposal_id: str, db: Session = Depends(get_db)) -> InDesignExportResponse:
+    proposal = repositories.load_proposal(db, proposal_id)
     if not proposal:
         raise HTTPException(status_code=404, detail="Proposal not found")
 
@@ -308,8 +319,8 @@ def export_indd(proposal_id: str) -> InDesignExportResponse:
 
 
 @app.get("/v1/proposals/{proposal_id}/export/indd/download")
-def download_indd(proposal_id: str) -> FileResponse:
-    proposal = load_proposal(proposal_id)
+def download_indd(proposal_id: str, db: Session = Depends(get_db)) -> FileResponse:
+    proposal = repositories.load_proposal(db, proposal_id)
     if not proposal:
         raise HTTPException(status_code=404, detail="Proposal not found")
 

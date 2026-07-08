@@ -1,37 +1,23 @@
-import json
-import uuid
-from datetime import datetime, timezone
+"""Proposal storage — now backed by the database.
 
-from app.config import settings
+Thin wrappers kept for backward compatibility with non-request callers
+(scripts, tests). FastAPI endpoints use ``app.repositories`` directly with the
+request-scoped session. Each function here opens a short-lived session.
+"""
+from app import repositories
+from app.db import SessionLocal
 
 
 def save_proposal(payload: dict) -> tuple[str, dict]:
-    settings.storage_dir.mkdir(parents=True, exist_ok=True)
-    proposal_id = str(uuid.uuid4())
-    wrapped = {
-        "proposal_id": proposal_id,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "payload": payload,
-    }
-    out_file = settings.storage_dir / f"{proposal_id}.json"
-    out_file.write_text(json.dumps(wrapped, ensure_ascii=False, indent=2), encoding="utf-8")
-    return proposal_id, wrapped
+    with SessionLocal() as db:
+        return repositories.save_proposal(db, payload)
 
 
 def load_proposal(proposal_id: str) -> dict | None:
-    in_file = settings.storage_dir / f"{proposal_id}.json"
-    if not in_file.exists():
-        return None
-    return json.loads(in_file.read_text(encoding="utf-8"))
+    with SessionLocal() as db:
+        return repositories.load_proposal(db, proposal_id)
 
 
 def update_proposal(proposal_id: str, payload: dict) -> dict | None:
-    in_file = settings.storage_dir / f"{proposal_id}.json"
-    if not in_file.exists():
-        return None
-
-    wrapped = json.loads(in_file.read_text(encoding="utf-8"))
-    wrapped["payload"] = payload
-    wrapped["updated_at"] = datetime.now(timezone.utc).isoformat()
-    in_file.write_text(json.dumps(wrapped, ensure_ascii=False, indent=2), encoding="utf-8")
-    return wrapped
+    with SessionLocal() as db:
+        return repositories.update_proposal(db, proposal_id, payload)

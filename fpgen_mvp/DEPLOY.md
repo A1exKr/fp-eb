@@ -136,10 +136,14 @@ In exaBase Studio, go to workspace `fpgen-app` and restart the `fpgen-app-api` p
 | Changed area | Files |
 |---|---|
 | Frontend UI | `app/static/index.html`, `app/static/review.html` |
-| Backend routes | `app/main.py` |
+| Admin / setup UI | `app/static/admin/*` |
+| Backend routes | `app/main.py`, `app/routers/*.py` |
 | Config / env | `app/config.py` |
+| Database layer | `app/db.py`, `app/models.py`, `app/repositories.py`, `app/auth.py` |
+| Migrations | `alembic.ini`, `alembic/**` |
 | Services | `app/services/*.py` |
-| Data files | `data/personnel.json`, `data/team_presets.json`, `data/reference_projects.json` |
+| Seed / startup | `scripts/import_json_to_db.py`, `entrypoint.sh` |
+| Data files | `data/personnel.json`, `data/team_presets.json`, `data/reference_projects.json`, `data/assets_registry.json` |
 | Dependencies | `requirements.txt` |
 
 ---
@@ -150,15 +154,33 @@ Set these in the `fpgen-app-api` pod environment (NOT committed to the repo):
 
 | Variable | Description |
 |---|---|
-| `OPENAI_API_KEY` | OpenAI API key |
-| `LLM_PROVIDER` | `openai` |
-| `OPENAI_MODEL` | `gpt-4.1-mini` |
+| `DATABASE_URL` | `postgresql+psycopg://<user>:<pass>@fpgen-app-rdb:8080/postgres` (exaBase PostgreSQL). If unset, falls back to a local SQLite file — dev only. |
+| `FPGEN_DB_SCHEMA` | `fpgen` |
+| `FPGEN_AUTH_ENABLED` | `true` in the full (Keycloak/oauth2-proxy) topology; `false` for no-auth deployments |
+| `FPGEN_SEED_ON_START` | `true` **once** to load master data from JSON on first start; unset afterwards so admin edits are not overwritten |
+| `FPGEN_ASSET_STORAGE_DIR` | `/app/data/asset_files` (CV/experience uploads on the persistent volume) |
+| `OPENAI_API_KEY` | OpenAI API key (used by the LiteLLM gateway) |
+| `LLM_PROVIDER` | `litellm` to route via the exaBase gateway (or `openai` for direct) |
+| `LITELLM_URL` | `http://fpgen-ai-litellm:8080` (when `LLM_PROVIDER=litellm`) |
+| `LITELLM_MASTER_KEY` | LiteLLM master key secret |
+| `OPENAI_MODEL` | `gpt-4.1-mini` (must match a `model_name` in the LiteLLM `config.yaml`) |
 | `ENABLE_OPENAI_SYNTHESIS` | `true` |
 | `OPENAI_SSL_VERIFY` | `false` (corporate proxy) |
 | `DEFAULT_CURRENCY` | `USD` |
 | `DEFAULT_OVERHEAD_PCT` | `0.10` |
 | `TRAVEL_UNIT_COST_USD` | `6000` |
 | `FPGEN_ENABLE_INDD_EXPORT` | `false` (Linux — no COM) |
+
+---
+
+## Database & migrations
+
+Master data (personnel, unit rates, team presets, reference projects, CV/asset metadata) and proposals are stored in the exaBase **PostgreSQL** (`rdb`) sideapp, schema `fpgen`.
+
+- **Migrations run automatically on startup.** The container entrypoint (`entrypoint.sh`) runs `alembic upgrade head` before starting uvicorn, with retry so concurrent replicas no-op safely.
+- **Seed once.** To load the initial master data from the bundled JSON files, set `FPGEN_SEED_ON_START=true` for the first deploy (then unset it), or run `python scripts/import_json_to_db.py` inside the pod. The seed is idempotent (upserts).
+- **Setup pages.** Manage unit rates, team members, presets, reference projects, and CV/asset uploads at `/admin/` — auth-gated (`fpgen_admin`; the `Finance` group may also edit rates).
+- **Rollback.** The pre-migration snapshot is the branch `fpgen/checkpoint-2026-07-08`.
 
 ---
 

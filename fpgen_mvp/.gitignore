@@ -1,3 +1,11 @@
 .venv/
+.venv-wsl/
 __pycache__/
 *.pyc
+
+# Local runtime artifacts (SQLite dev DB, uploaded asset files, env)
+data/*.db
+data/asset_files/
+data/proposals/
+data/exports/
+.env

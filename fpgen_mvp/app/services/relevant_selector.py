@@ -1,19 +1,16 @@
-import json
+from sqlalchemy.orm import Session
 
-from app.config import settings
-
-
-def _load_projects() -> list[dict]:
-    if not settings.reference_projects_path.exists():
-        return []
-    try:
-        return json.loads(settings.reference_projects_path.read_text(encoding="utf-8"))
-    except Exception:
-        return []
+from app import repositories
 
 
-def select_relevant_projects(parsed: dict, selected_ids: list[str], limit: int = 3) -> list[dict]:
-    projects = _load_projects()
+def _load_projects(db: Session) -> list[dict]:
+    return repositories.list_reference_projects(db)
+
+
+def select_relevant_projects(
+    db: Session, parsed: dict, selected_ids: list[str], limit: int = 3
+) -> list[dict]:
+    projects = _load_projects(db)
     if not projects:
         return []
 

@@ -70,3 +70,54 @@ class JsxExportRequest(BaseModel):
     cv_assignments: dict[str, str] = Field(default_factory=dict)
     experience_ids: list[str] = Field(default_factory=list)
     template_id: str = "commercial"
+
+
+# --------------------------------------------------------------------------- #
+# Admin / setup payloads
+# --------------------------------------------------------------------------- #
+class PersonnelIn(BaseModel):
+    id: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    title: str = ""
+    roles: list[str] = Field(default_factory=list)
+    cv_asset_id: str | None = None
+
+
+class UnitRateIn(BaseModel):
+    role: str = Field(min_length=1)
+    rate: float = Field(ge=0)
+    currency: str = "USD"
+    effective_from: str | None = None
+
+
+class TeamAssignmentIn(BaseModel):
+    role: str = Field(min_length=1)
+    person_id: str | None = None
+    rate: float | None = None
+
+
+class TeamPresetIn(BaseModel):
+    id: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    types: list[str] = Field(default_factory=list)
+    assignments: list[TeamAssignmentIn] = Field(default_factory=list)
+
+
+class ReferenceProjectIn(BaseModel):
+    id: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    project_type: str = ""
+    location: str = ""
+    keywords: list[str] = Field(default_factory=list)
+    summary: str = ""
+
+
+class AssetIn(BaseModel):
+    id: str = Field(min_length=1)
+    kind: str = "cv"
+    role: str | None = None
+    reference_project_id: str | None = None
+    filename: str | None = None
+    storage_ref: str | None = None
+    mime_type: str | None = None
+    size_bytes: int | None = None

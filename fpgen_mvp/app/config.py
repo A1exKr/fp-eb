@@ -39,5 +39,25 @@ class Settings:
     travel_unit_cost_usd: float = float(os.getenv("TRAVEL_UNIT_COST_USD", "6000"))
     openai_ssl_verify: bool = os.getenv("OPENAI_SSL_VERIFY", "true").lower() != "false"
 
+    # --- Database (exaBase PostgreSQL; SQLite fallback for local dev) ---
+    database_url: str = os.getenv(
+        "DATABASE_URL", f"sqlite:///{(ROOT_DIR / 'data' / 'fpgen.db').as_posix()}"
+    )
+    db_schema: str = os.getenv("FPGEN_DB_SCHEMA", "fpgen")
+    db_echo: bool = os.getenv("FPGEN_DB_ECHO", "false").lower() == "true"
+
+    # --- Auth (exaBase oauth2-proxy + Keycloak forwarded headers) ---
+    auth_enabled: bool = os.getenv("FPGEN_AUTH_ENABLED", "false").lower() == "true"
+    auth_dev_user: str = os.getenv("FPGEN_AUTH_DEV_USER", "dev-admin@example.com")
+    auth_dev_groups: str = os.getenv("FPGEN_AUTH_DEV_GROUPS", "fpgen_admin,Finance")
+    admin_roles: str = os.getenv("FPGEN_ADMIN_ROLES", "fpgen_admin")
+    finance_roles: str = os.getenv("FPGEN_FINANCE_ROLES", "fpgen_admin,Finance")
+
+    # --- Asset files (CVs / experience): File Manager if configured, else local volume ---
+    file_manager_url: str = os.getenv("FPGEN_FILE_MANAGER_URL", "")
+    asset_storage_dir: Path = Path(
+        os.getenv("FPGEN_ASSET_STORAGE_DIR", ROOT_DIR / "data" / "asset_files")
+    )
+
 
 settings = Settings()
