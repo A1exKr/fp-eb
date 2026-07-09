@@ -49,7 +49,7 @@
       "vfpgenapi001": {
         "_order": "a0008",
         "name": "FPGEN_API_URL",
-        "value": "http://fpgen-mvp-api:8080"
+        "value": "http://fpgen-admin-api:8080"
       },
       "vfpgenlitellm001": {
         "_order": "a0009",
@@ -64,7 +64,7 @@
       "vfpgenrefs001": {
         "_order": "a000B",
         "name": "FPGEN_REFERENCE_PROJECTS_PATH",
-        "value": "/app/data/reference_projects.json"
+        "value": "/app/appdata/reference_projects.json"
       }
     },
     "documents": {}
