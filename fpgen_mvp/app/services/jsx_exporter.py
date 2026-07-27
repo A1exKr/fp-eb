@@ -370,18 +370,24 @@ def build_jsx_bundle(
         + "\n]"
     )
 
-    jsx_content = _JSX_TEMPLATE.format(
-        generated_date=generated_date,
-        project_name_js=_js_string(project_name),
-        client_name_js=_js_string(client_name),
-        location_js=_js_string(location),
-        today_js=_js_string(today),
-        fee_snapshot_js=_js_string(_fee_snapshot(proposal)),
-        template_filename=template_filename,
-        cv_manifest_js=cv_manifest_js,
-        exp_manifest_js=exp_manifest_js,
-        sections_js=_js_array_of_pairs(sections_pairs),
-    )
+    # The JSX template contains literal ``{``/``}`` from the ExtendScript body (and
+    # ``$`` from ``$.fileName``), so neither ``str.format`` nor ``string.Template``
+    # can render it. Substitute only the known ``{token}`` markers in a single pass;
+    # replacement values are inserted verbatim and never re-scanned.
+    jsx_substitutions = {
+        "{generated_date}": generated_date,
+        "{project_name_js}": _js_string(project_name),
+        "{client_name_js}": _js_string(client_name),
+        "{location_js}": _js_string(location),
+        "{today_js}": _js_string(today),
+        "{fee_snapshot_js}": _js_string(_fee_snapshot(proposal)),
+        "{template_filename}": template_filename,
+        "{cv_manifest_js}": cv_manifest_js,
+        "{exp_manifest_js}": exp_manifest_js,
+        "{sections_js}": _js_array_of_pairs(sections_pairs),
+    }
+    _jsx_pattern = re.compile("|".join(re.escape(marker) for marker in jsx_substitutions))
+    jsx_content = _jsx_pattern.sub(lambda m: jsx_substitutions[m.group(0)], _JSX_TEMPLATE)
 
     # Build README asset status
     asset_lines: list[str] = []
