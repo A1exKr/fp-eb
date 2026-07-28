@@ -1,6 +1,36 @@
 #!/bin/sh
-# Container entrypoint: apply DB migrations, optionally seed, then serve.
+# Container entrypoint: wait for DB, apply migrations, optionally seed, then serve.
 set -e
+
+# --- Wait for the database to accept connections before migrating. The rdb
+# (Postgres) sideapp cold start can take ~30s (permission init + WAL recovery);
+# without this the api races ahead, fails `alembic upgrade head`, and the whole
+# app 502s until a retry happens to land after Postgres is finally ready.
+echo "[entrypoint] Waiting for the database to become ready..."
+python - <<'PY'
+import sys
+import time
+
+from sqlalchemy import text
+
+from app.db import engine
+
+deadline = time.time() + 180
+attempt = 0
+while True:
+    attempt += 1
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        print(f"[entrypoint] Database ready (after {attempt} check(s)).", flush=True)
+        break
+    except Exception as exc:  # noqa: BLE001 - any connect error means "not ready yet"
+        if time.time() >= deadline:
+            print(f"[entrypoint] Database not ready after 180s: {exc}", file=sys.stderr)
+            sys.exit(1)
+        print("[entrypoint] Database not ready yet; retrying in 3s...", flush=True)
+        time.sleep(3)
+PY
 
 echo "[entrypoint] Applying database migrations (alembic upgrade head)..."
 # Retry to tolerate concurrent first-run migrations across replicas: once one
