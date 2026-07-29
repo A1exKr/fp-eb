@@ -33,7 +33,10 @@ class Base(DeclarativeBase):
     metadata = metadata_obj
 
 
-_connect_args = {"check_same_thread": False} if IS_SQLITE else {}
+# On PostgreSQL, bound each connect attempt (libpq connect_timeout) so a stale/
+# not-yet-ready rdb endpoint fails fast and the startup DB-wait loop re-resolves
+# and retries instead of hanging the whole 180s budget on one attempt.
+_connect_args = {"check_same_thread": False} if IS_SQLITE else {"connect_timeout": 10}
 
 engine = create_engine(
     settings.database_url,
