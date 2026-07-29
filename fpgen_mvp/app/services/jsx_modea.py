@@ -35,6 +35,9 @@ main();
 
 function main() {
     ROOT = File($.fileName).parent;
+    // Optional override injected by the deploy script so a copy living in InDesign's
+    // Scripts Panel can still resolve the bundle's assets/ from another folder.
+    try { if (typeof ASSET_ROOT !== "undefined" && ASSET_ROOT) ROOT = new Folder(String(ASSET_ROOT)); } catch (e) {}
     app.scriptPreferences.userInteractionLevel = UserInteractionLevels.NEVER_INTERACT;
 
     DOC = app.documents.add();
@@ -395,7 +398,8 @@ function appendPages() {
 /* ----------------------------------------------------------------------- */
 
 function outFile() {
-    var name = (DATA.output_name || "proposal").replace(/[^A-Za-z0-9._\- ]/g, "_");
+    var base = (typeof OUT_NAME !== "undefined" && OUT_NAME) ? OUT_NAME : (DATA.output_name || "proposal");
+    var name = String(base).replace(/[^A-Za-z0-9._\- ]/g, "_");
     return new File(ROOT + "/" + name + ".indd");
 }
 

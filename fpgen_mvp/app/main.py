@@ -1,6 +1,7 @@
 import json
 import traceback
 from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
@@ -292,7 +293,8 @@ def export_jsx(proposal_id: str, req: JsxExportRequest, db: Session = Depends(ge
     )
     project_name = proposal["payload"].get("project", {}).get("name", proposal_id)
     safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in project_name).strip() or "proposal"
-    filename = f"{safe[:60]}_bundle.zip"
+    stamp = datetime.now().strftime("%Y%m%d_%H%M")
+    filename = f"{safe[:60]}_{stamp}.zip"
     return StreamingResponse(
         iter([zip_bytes]),
         media_type="application/zip",
