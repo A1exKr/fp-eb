@@ -29,7 +29,7 @@ import json
 # ExtendScript body (pure JS; consumes the injected CONFIG + DATA globals)
 # --------------------------------------------------------------------------- #
 _JSX_BODY = r"""
-var DOC, ROOT, TA;
+var DOC, ROOT, TA, FIRST_USED = false;
 
 main();
 
@@ -61,6 +61,7 @@ function main() {
         }
     }
     try { appendPages(); } catch (e) {}
+    try { cleanView(); } catch (e) {}
 
     saveDoc();
     app.scriptPreferences.userInteractionLevel = UserInteractionLevels.INTERACT_WITH_ALERTS;
@@ -171,7 +172,14 @@ function PS(name) {
 /* Page + frame helpers                                                     */
 /* ----------------------------------------------------------------------- */
 
-function addPage() { return DOC.pages.add(); }
+function addPage() {
+    var p;
+    if (!FIRST_USED && DOC.pages.length === 1) { p = DOC.pages.item(0); FIRST_USED = true; }
+    else { p = DOC.pages.add(); }
+    // Detach from any master so an inherited layout/frame grid does not show.
+    try { p.appliedMaster = NothingEnum.NOTHING; } catch (e) {}
+    return p;
+}
 
 function frameAt(page, t, l, b, r) {
     var tf = page.textFrames.add();
@@ -396,6 +404,23 @@ function appendPages() {
 /* ----------------------------------------------------------------------- */
 /* Save                                                                     */
 /* ----------------------------------------------------------------------- */
+
+function cleanView() {
+    // Grids/guides are non-printing, but hide them so Normal view reads cleanly.
+    try { DOC.gridPreferences.gridsInBack = true; } catch (e) {}
+    var names = [
+        "$ID/Hide Document Grid", "Hide Document Grid",
+        "$ID/Hide Baseline Grid", "Hide Baseline Grid",
+        "$ID/Hide Layout Grid", "Hide Layout Grid",
+        "$ID/Hide Frame Grid", "Hide Frame Grid"
+    ];
+    for (var i = 0; i < names.length; i++) {
+        try {
+            var a = app.menuActions.itemByName(names[i]);
+            if (a && a.isValid && a.enabled) a.invoke();
+        } catch (e) {}
+    }
+}
 
 function outFile() {
     var base = (typeof OUT_NAME !== "undefined" && OUT_NAME) ? OUT_NAME : (DATA.output_name || "proposal");

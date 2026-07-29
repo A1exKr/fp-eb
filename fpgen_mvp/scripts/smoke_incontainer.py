@@ -123,6 +123,16 @@ def dump_jsx() -> int:
         "/v1/proposals/generate",
         json={
             "rfp_text": "Client requests a commercial mixed-use proposal in Bermuda over 16 weeks with concept options and a final report.",
+            "fee_input": {
+                "roles": [
+                    {"role": "Urban Planner", "rate": 180, "hours_by_phase": {"Kick-off": 30, "Concept Development": 80, "Finalization": 40}},
+                    {"role": "Architect", "rate": 200, "hours_by_phase": {"Kick-off": 20, "Concept Development": 70, "Finalization": 35}},
+                ],
+                "overhead_pct": 0.1,
+                "subconsultants": [{"name": "Local Traffic Consultant", "fee": 12000, "included_in_lump_sum": True}],
+                "travel": {"trips": 2, "people_per_trip": 2, "unit_cost": 6000, "include_in_lump_sum": True},
+                "misc_reimbursables": 3000,
+            },
             "overrides": {"project_name": "Morgans Point Development", "client_name": "MPDC"},
         },
     )
