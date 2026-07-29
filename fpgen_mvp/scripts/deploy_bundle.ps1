@@ -38,8 +38,13 @@ param(
     [string]$BundleZip,
     [string]$BaseUrl,
     [string]$Name,
-    [string]$TestDataDir = 'C:\Users\03669\Desktop\Trud\matls\created\FP-GEN\exaBase\test data',
-    [string]$ScriptsPanelDir = 'C:\Users\03669\AppData\Roaming\Adobe\InDesign\Version 17.0-J\ja_JP\Scripts\Scripts Panel'
+    [string]$TestDataDir = '\\tsclient\C\Users\03669\Desktop\Trud\matls\created\FP-GEN\exaBase\test data',
+    [string]$ScriptsPanelDir = '\\tsclient\C\Users\03669\AppData\Roaming\Adobe\InDesign\Version 17.0-J\ja_JP\Scripts\Scripts Panel',
+    # RDP drive redirection: files are written from this session via the \\tsclient\C
+    # UNC path, but on the outer PC (where InDesign runs) they live on its local C:.
+    # ASSET_ROOT injected into the JSX must therefore use the outer PC's LOCAL path.
+    [string]$ClientDrivePrefix = '\\tsclient\C',
+    [string]$ClientLocalDrive = 'C:'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -96,7 +101,13 @@ Expand-Fresh $zipDest $extractDir
 # 5. Install the JSX into the Scripts Panel with injected globals --------------
 $jsxSrc = Join-Path $extractDir 'assemble_proposal.jsx'
 if (-not (Test-Path $jsxSrc)) { throw "assemble_proposal.jsx not found in the bundle." }
-$assetRootJs = ($extractDir -replace '\\', '/')
+# The JSX runs in InDesign on the OUTER PC, where the bundle lives on its local drive.
+# Map the \\tsclient\C write path back to that local path for ASSET_ROOT.
+$runtimeExtract = $extractDir
+if ($ClientDrivePrefix -and $extractDir.StartsWith($ClientDrivePrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+    $runtimeExtract = $ClientLocalDrive + $extractDir.Substring($ClientDrivePrefix.Length)
+}
+$assetRootJs = ($runtimeExtract -replace '\\', '/')
 $lines = @(Get-Content -LiteralPath $jsxSrc)
 $inject = @("var ASSET_ROOT = `"$assetRootJs`";", "var OUT_NAME = `"$stamped`";")
 # Keep '#target indesign' as the first line; inject the globals right after it.
@@ -108,5 +119,6 @@ Write-Host "Deployed ($stamp):" -ForegroundColor Green
 Write-Host "  ZIP archive : $zipDest"
 Write-Host "  Extracted   : $extractDir"
 Write-Host "  JSX (panel) : $jsxDest"
+Write-Host "  Asset root  : $assetRootJs  (path as seen by InDesign on the outer PC)"
 Write-Host ""
 Write-Host "In InDesign: Window > Utilities > Scripts > User > $stamped.jsx  (double-click to run)."
