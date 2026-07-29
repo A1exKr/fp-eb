@@ -29,6 +29,9 @@ class Settings:
         os.getenv("FPGEN_REFERENCE_PROJECTS", ROOT_DIR / "data" / "reference_projects.json")
     )
     assets_dir: Path = Path(os.getenv("FPGEN_ASSETS_DIR", ROOT_DIR / "data" / "assets"))
+    brand_assets_dir: Path = Path(
+        os.getenv("FPGEN_BRAND_ASSETS_DIR", ROOT_DIR / "data" / "brand")
+    )
     assets_registry_path: Path = Path(
         os.getenv("FPGEN_ASSETS_REGISTRY", ROOT_DIR / "data" / "assets_registry.json")
     )

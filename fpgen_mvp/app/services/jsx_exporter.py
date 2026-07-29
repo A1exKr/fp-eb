@@ -24,6 +24,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+from app.config import settings
+from app.services.design_profile import get_profile
+from app.services.jsx_modea import render_modea_jsx
+
 
 # ---------------------------------------------------------------------------
 # AssetStore interface
@@ -288,6 +292,126 @@ def _fee_snapshot(proposal: dict) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Mode A data shaping (parse sections -> styled blocks, compute fee tables)
+# ---------------------------------------------------------------------------
+
+def _fmt(value) -> str:
+    try:
+        return f"{float(value):,.2f}"
+    except (TypeError, ValueError):
+        return "0.00"
+
+
+def _clean(text: str) -> str:
+    return (text or "").replace("**", "").replace("__", "").replace("`", "").strip()
+
+
+def _parse_blocks(md: str) -> list[dict]:
+    """Split a markdown/plain section string into styled paragraph blocks."""
+    blocks: list[dict] = []
+    for raw in (md or "").splitlines():
+        stripped = raw.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("###"):
+            blocks.append({"text": _clean(stripped.lstrip("#")), "style": "Caption"})
+        elif stripped.startswith("#"):
+            blocks.append({"text": _clean(stripped.lstrip("#")), "style": "SectionHeading"})
+        elif re.match(r"^[-*+]\s+", stripped):
+            blocks.append({"text": _clean(re.sub(r"^[-*+]\s+", "", stripped)), "style": "ListItem"})
+        elif re.match(r"^\d+[.)]\s+", stripped):
+            blocks.append({"text": _clean(stripped), "style": "ListItem"})
+        else:
+            blocks.append({"text": _clean(stripped), "style": "Body"})
+    return blocks
+
+
+def _fee_tables(financial: dict) -> dict:
+    """Pre-compute formatted fee tables from the ``financial`` block."""
+    currency = financial.get("currency", "USD")
+    amount_col = f"Amount ({currency})"
+    overhead_pct = financial.get("overhead_pct") or 0
+
+    summary_rows = [
+        ["Professional Fees (Labour)", _fmt(financial.get("labor_total", 0))],
+        [f"Overhead ({round(overhead_pct * 100)}%)", _fmt(financial.get("overhead_total", 0))],
+    ]
+    if financial.get("subconsultants_included_total"):
+        summary_rows.append(["Subconsultants (included)", _fmt(financial["subconsultants_included_total"])])
+    summary_rows.append(["Reimbursables", _fmt(financial.get("reimbursables_total", 0))])
+
+    tables: dict = {
+        "summary": {
+            "title": "Fee Summary",
+            "columns": ["Item", amount_col],
+            "rows": summary_rows,
+            "total": ["LUMP SUM FEE", _fmt(financial.get("lump_sum_total", 0))],
+        },
+        "breakdown": None,
+        "travel": None,
+        "payment_schedule": None,
+    }
+
+    phase_totals = financial.get("phase_totals") or {}
+    phase_sum = sum(phase_totals.values())
+    if phase_totals and phase_sum:
+        tables["breakdown"] = {
+            "title": "Fee Breakdown by Stage",
+            "columns": ["Stage", amount_col, "% of Total"],
+            "rows": [[phase, _fmt(amt), f"{round(amt / phase_sum * 100)}%"] for phase, amt in phase_totals.items()],
+            "total": ["Total", _fmt(phase_sum), "100%"],
+        }
+        cumulative = 0
+        payment_rows = []
+        for phase, amt in phase_totals.items():
+            pct = round(amt / phase_sum * 100)
+            cumulative += pct
+            payment_rows.append([phase, f"{pct}%", _fmt(amt), f"{cumulative}%"])
+        tables["payment_schedule"] = {
+            "title": "Payment Schedule",
+            "columns": ["Milestone", "%", amount_col, "Cumulative"],
+            "rows": payment_rows,
+            "total": None,
+        }
+
+    travel = financial.get("travel") or {}
+    if travel.get("trips"):
+        tables["travel"] = {
+            "title": "Travel Expenses",
+            "columns": ["Item", "Trips", "People/Trip", "Unit Cost", amount_col],
+            "rows": [[
+                "Site visits / meetings",
+                str(travel.get("trips", 0)),
+                str(travel.get("people_per_trip", 0)),
+                _fmt(travel.get("unit_cost", 0)),
+                _fmt(travel.get("total", 0)),
+            ]],
+            "total": ["Travel total", "", "", "", _fmt(travel.get("total", 0))],
+        }
+    return tables
+
+
+def _experience_items(proposal: dict) -> list[dict]:
+    items: list[dict] = []
+    for rp in proposal.get("relevant_experience", []) or []:
+        meta = " \u00b7 ".join([m for m in (rp.get("project_type", ""), rp.get("location", "")) if m])
+        items.append({
+            "name": rp.get("name", "Project"),
+            "meta": meta,
+            "summary_blocks": _parse_blocks(rp.get("summary", "")),
+        })
+    return items
+
+
+def _signatory(proposal: dict) -> dict:
+    principal = ((proposal.get("parsed", {}) or {}).get("team", {}) or {}).get("principal", {}) or {}
+    return {
+        "name": principal.get("name") or "Wataru Tanaka",
+        "title": principal.get("title") or "Senior Executive Officer",
+    }
+
+
+# ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
 
@@ -307,108 +431,96 @@ def build_jsx_bundle(
     project = proposal.get("project", {})
     project_name = project.get("name") or project.get("project_name") or "Proposal"
     client_name = proposal.get("client", {}).get("name") or project.get("client_name") or "Client"
-    location = project.get("location", "")
     safe_name = _safe_stem(project_name)
+    financial = proposal.get("financial", {})
+    currency = financial.get("currency", "USD")
+    sections = proposal.get("sections", {})
 
-    # Template
-    template_filename = f"{template_id}.indd"
-    template_bytes = store.get_file("template", template_id)
-
-    # Sections
-    sections_dict = proposal.get("sections", {})
-    section_order = [
-        ("Cover Letter",           "cover_letter"),
-        ("Project Understanding",  "project_understanding"),
-        ("Methodology",            "methodology"),
-        ("Scope and Deliverables", "scope_deliverables"),
-        ("Schedule",               "schedule"),
-        ("Team Structure",         "team"),
-        ("Financial Proposal",     "financial"),
-        ("Relevant Experience",    "relevant_experience"),
-        ("Assumptions and Exclusions", "assumptions_exclusions"),
-    ]
-    sections_pairs = [(title, sections_dict.get(key, "")) for title, key in section_order]
-
-    # CV manifest
-    cv_manifest_entries: list[dict] = []
+    # CV / experience .indd pages appended whole (pre-designed Mode B assets).
+    cv_entries: list[dict] = []
     for role, asset_id in cv_assignments.items():
-        cv_bytes = store.get_file("cvs", asset_id) if asset_id else None
-        cv_manifest_entries.append({
-            "role": role,
+        data_bytes = store.get_file("cvs", asset_id) if asset_id else None
+        cv_entries.append({
             "asset_id": asset_id,
-            "file": f"{asset_id}.indd" if cv_bytes else None,
-            "label": role,
-            "bytes": cv_bytes,
+            "file": f"assets/cvs/{asset_id}.indd" if data_bytes else None,
+            "label": f"CV: {role}",
+            "bytes": data_bytes,
         })
-
-    # Experience manifest
-    exp_manifest_entries: list[dict] = []
+    exp_entries: list[dict] = []
     for exp_id in experience_ids:
-        exp_bytes = store.get_file("experience", exp_id)
-        exp_manifest_entries.append({
+        data_bytes = store.get_file("experience", exp_id)
+        exp_entries.append({
             "id": exp_id,
-            "file": f"{exp_id}.indd" if exp_bytes else None,
-            "label": exp_id,
-            "bytes": exp_bytes,
+            "file": f"assets/experience/{exp_id}.indd" if data_bytes else None,
+            "label": f"Experience: {exp_id}",
+            "bytes": data_bytes,
         })
+    append_pages = [{"file": e["file"], "label": e["label"]} for e in (cv_entries + exp_entries)]
 
-    # Build JSX
-    cv_manifest_js = (
-        "[\n"
-        + ",\n".join(
-            f'  {{file: {_js_string(e["file"]) if e["file"] else "null"}, label: {_js_string(e["label"])}}}'
-            for e in cv_manifest_entries
-        )
-        + "\n]"
-    )
-    exp_manifest_js = (
-        "[\n"
-        + ",\n".join(
-            f'  {{file: {_js_string(e["file"]) if e["file"] else "null"}, label: {_js_string(e["label"])}}}'
-            for e in exp_manifest_entries
-        )
-        + "\n]"
+    # Design profile + bundled brand assets (disposition = bundle-with-jsx).
+    profile = get_profile(template_id)
+    brand_dir = settings.brand_assets_dir
+    brand_map: dict[str, str] = {}
+    brand_files: dict[str, bytes] = {}
+    for role, filename in (profile.get("brand_assets") or {}).items():
+        candidate = (brand_dir / filename) if brand_dir else None
+        if candidate and candidate.is_file():
+            rel = f"assets/brand/{filename}"
+            brand_map[role] = rel
+            brand_files[rel] = candidate.read_bytes()
+
+    signatory = _signatory(proposal)
+    letter_blocks = (
+        [{"text": today, "style": "Body"},
+         {"text": f"Re: Commercial Proposal \u2014 {project_name}", "style": "Caption"}]
+        + _parse_blocks(sections.get("cover_letter", ""))
+        + [{"text": signatory["name"], "style": "Caption"},
+           {"text": signatory["title"], "style": "Body"}]
     )
 
-    # The JSX template contains literal ``{``/``}`` from the ExtendScript body (and
-    # ``$`` from ``$.fileName``), so neither ``str.format`` nor ``string.Template``
-    # can render it. Substitute only the known ``{token}`` markers in a single pass;
-    # replacement values are inserted verbatim and never re-scanned.
-    jsx_substitutions = {
-        "{generated_date}": generated_date,
-        "{project_name_js}": _js_string(project_name),
-        "{client_name_js}": _js_string(client_name),
-        "{location_js}": _js_string(location),
-        "{today_js}": _js_string(today),
-        "{fee_snapshot_js}": _js_string(_fee_snapshot(proposal)),
-        "{template_filename}": template_filename,
-        "{cv_manifest_js}": cv_manifest_js,
-        "{exp_manifest_js}": exp_manifest_js,
-        "{sections_js}": _js_array_of_pairs(sections_pairs),
+    data = {
+        "generated_date": generated_date,
+        "today": today,
+        "output_name": safe_name,
+        "currency": currency,
+        "project": {
+            "name": project_name,
+            "type": project.get("type", ""),
+            "location": project.get("location", ""),
+            "siteArea": project.get("siteArea", ""),
+        },
+        "client": {"name": client_name},
+        "signatory": signatory,
+        "assets": {
+            "logo": brand_map.get("logo"),
+            "signature": brand_map.get("signature"),
+            "divider": brand_map.get("divider"),
+            "client_logo": None,
+        },
+        "letter_blocks": letter_blocks,
+        "section_blocks": {
+            key: _parse_blocks(sections.get(key, ""))
+            for key in ("project_understanding", "methodology", "scope_deliverables",
+                        "schedule", "team", "financial", "assumptions_exclusions")
+        },
+        "fee_tables": _fee_tables(financial),
+        "experience": _experience_items(proposal),
+        "append_pages": append_pages,
     }
-    _jsx_pattern = re.compile("|".join(re.escape(marker) for marker in jsx_substitutions))
-    jsx_content = _jsx_pattern.sub(lambda m: jsx_substitutions[m.group(0)], _JSX_TEMPLATE)
 
-    # Build README asset status
-    asset_lines: list[str] = []
-    if template_bytes:
-        asset_lines.append(f"  [OK]     template/{template_filename}")
-    else:
-        asset_lines.append(f"  [MISSING] template/{template_filename}  → fallback blank document")
-    for e in cv_manifest_entries:
-        status = "[OK]    " if e["bytes"] else "[MISSING]"
-        asset_lines.append(f"  {status} cvs/{e['asset_id']}.indd  ({e['label']})")
-    for e in exp_manifest_entries:
-        status = "[OK]    " if e["bytes"] else "[MISSING]"
-        asset_lines.append(f"  {status} experience/{e['id']}.indd")
+    jsx_content = render_modea_jsx(profile, data)
 
+    # README asset status
+    asset_lines: list[str] = [f"  [OK]     {rel}" for rel in sorted(brand_files)]
+    for e in cv_entries + exp_entries:
+        asset_lines.append(f"  {'[OK]    ' if e['bytes'] else '[MISSING]'} {e.get('file') or e['label']}")
     readme_content = _README_TEMPLATE.format(
         generated_date=generated_date,
         project_name=project_name,
         client_name=client_name,
         safe_name=safe_name,
-        template_filename=template_filename,
-        asset_status="\n".join(asset_lines) if asset_lines else "  (no assets selected)",
+        template_filename=f"{template_id}.indd",
+        asset_status="\n".join(asset_lines) if asset_lines else "  (no assets bundled)",
     )
 
     # Package ZIP
@@ -417,15 +529,12 @@ def build_jsx_bundle(
         zf.writestr("assemble_proposal.jsx", jsx_content.encode("utf-8"))
         zf.writestr("proposal_data.json", json.dumps(proposal, indent=2, default=str).encode("utf-8"))
         zf.writestr("README.txt", readme_content.encode("utf-8"))
-
-        if template_bytes:
-            zf.writestr(f"assets/template/{template_filename}", template_bytes)
-
-        for e in cv_manifest_entries:
+        for rel, data_bytes in brand_files.items():
+            zf.writestr(rel, data_bytes)
+        for e in cv_entries:
             if e["bytes"]:
                 zf.writestr(f"assets/cvs/{e['asset_id']}.indd", e["bytes"])
-
-        for e in exp_manifest_entries:
+        for e in exp_entries:
             if e["bytes"]:
                 zf.writestr(f"assets/experience/{e['id']}.indd", e["bytes"])
 

@@ -113,7 +113,44 @@ def verify_persist() -> int:
     return 1 if _failed else 0
 
 
+def dump_jsx() -> int:
+    """Generate a proposal, export the JSX bundle, and print its structure."""
+    import io
+    import zipfile
+
+    client = httpx.Client(base_url=BASE, timeout=60.0)
+    gen = client.post(
+        "/v1/proposals/generate",
+        json={
+            "rfp_text": "Client requests a commercial mixed-use proposal in Bermuda over 16 weeks with concept options and a final report.",
+            "overrides": {"project_name": "Morgans Point Development", "client_name": "MPDC"},
+        },
+    )
+    pid = gen.json().get("proposal_id", "") if gen.status_code == 200 else ""
+    r = client.post(
+        f"/v1/proposals/{pid}/export/jsx",
+        json={"cv_assignments": {}, "experience_ids": [], "template_id": "commercial"},
+    )
+    print(f"export/jsx -> status={r.status_code} type={r.headers.get('content-type')} bytes={len(r.content)}")
+    if r.status_code != 200:
+        print(r.text[:400])
+        return 1
+    zf = zipfile.ZipFile(io.BytesIO(r.content))
+    print("ZIP entries:", zf.namelist())
+    jsx = zf.read("assemble_proposal.jsx").decode("utf-8", "replace")
+    print(f"JSX length: {len(jsx)}")
+    print("----- JSX head -----")
+    for line in jsx.splitlines()[:8]:
+        print(line[:160])
+    with open("/tmp/fpgen_bundle.zip", "wb") as fh:
+        fh.write(r.content)
+    print("saved /tmp/fpgen_bundle.zip")
+    return 0
+
+
 if __name__ == "__main__":
     if "--verify-persist" in sys.argv:
         sys.exit(verify_persist())
+    if "--dump-jsx" in sys.argv:
+        sys.exit(dump_jsx())
     sys.exit(main())
