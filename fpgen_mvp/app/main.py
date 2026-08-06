@@ -1,3 +1,4 @@
+import copy
 import json
 import traceback
 from contextlib import asynccontextmanager
@@ -12,9 +13,20 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.db import IS_SQLITE, get_db, init_db
 from app import repositories
-from app.auth import CurrentUser, get_current_user, require_setup, user_can_setup
+from app.auth import (
+    CurrentUser,
+    get_current_user,
+    require_admin,
+    require_finance,
+    require_setup,
+    user_can_recalculate_fee,
+    user_can_regenerate,
+    user_can_setup,
+)
 from app.routers import admin
 from app.schemas import (
+    ExperienceReselectRequest,
+    FeeRecalculateRequest,
     FileParseResponse,
     GenerateRequest,
     InDesignExportResponse,
@@ -23,13 +35,27 @@ from app.schemas import (
     ParseResponse,
     ProposalResponse,
     ProposalUpdateRequest,
+    RegenerationResponse,
+    SectionRegenerateRequest,
     FeeInput,
 )
 from app.services.indd_exporter import InDesignExportError, export_proposal_to_indd, get_indd_export_capability
 from app.services.fee_engine import calculate_fee
 from app.services.jsx_exporter import build_jsx_bundle
 from app.services.parser import parse_rfp
-from app.services.proposal_builder import build_proposal_payload, update_proposal_sections
+from app.services.proposal_builder import (
+    INSTRUCTION_LOCKED_SECTIONS,
+    SECTION_KEYS,
+    apply_input_patch,
+    build_proposal_payload,
+    payload_fee_input,
+    propose_input_patch,
+    rebuild_markdown,
+    rebuild_section,
+    regenerate_cover_letter,
+    update_proposal_sections,
+    validate_input_patch,
+)
 from app.services.relevant_selector import select_relevant_projects
 from app.services.rfp_file_service import extract_rfp_text
 
@@ -72,6 +98,8 @@ def whoami(user: CurrentUser = Depends(get_current_user)) -> dict:
         "email": user.email,
         "groups": user.groups,
         "can_setup": user_can_setup(user),
+        "can_regenerate": user_can_regenerate(user),
+        "can_recalculate_fee": user_can_recalculate_fee(user),
     }
 
 
@@ -127,7 +155,7 @@ def team_presets_endpoint(db: Session = Depends(get_db)) -> list:
 
 
 @app.get("/proposals/{proposal_id}/review")
-def review_page(proposal_id: str) -> FileResponse:
+def review_page(proposal_id: str, _: CurrentUser = Depends(get_current_user)) -> FileResponse:
     return FileResponse(STATIC_DIR / "review.html")
 
 
@@ -193,7 +221,11 @@ def fee_endpoint(fee_input: FeeInput) -> dict:
 
 
 @app.post("/v1/proposals/generate", response_model=ProposalResponse)
-def generate_endpoint(req: GenerateRequest, db: Session = Depends(get_db)) -> ProposalResponse:
+def generate_endpoint(
+    req: GenerateRequest,
+    db: Session = Depends(get_db),
+    _user: CurrentUser = Depends(get_current_user),
+) -> ProposalResponse:
     parsed = parse_rfp(rfp_text=req.rfp_text, project_hint=req.overrides.get("project_name") or req.overrides.get("name"))
 
     if req.overrides:
@@ -231,6 +263,7 @@ def generate_file_endpoint(
     selected_reference_ids_json: str = Form(default="[]"),
     overrides_json: str = Form(default="{}"),
     db: Session = Depends(get_db),
+    _user: CurrentUser = Depends(get_current_user),
 ) -> ProposalResponse:
     try:
         _, extracted_text = extract_rfp_text(rfp_file)
@@ -273,7 +306,11 @@ def generate_file_endpoint(
 
 
 @app.get("/v1/proposals/{proposal_id}", response_model=ProposalResponse)
-def get_proposal(proposal_id: str, db: Session = Depends(get_db)) -> ProposalResponse:
+def get_proposal(
+    proposal_id: str,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(get_current_user),
+) -> ProposalResponse:
     proposal = repositories.load_proposal(db, proposal_id)
     if not proposal:
         raise HTTPException(status_code=404, detail="Proposal not found")
@@ -282,7 +319,10 @@ def get_proposal(proposal_id: str, db: Session = Depends(get_db)) -> ProposalRes
 
 @app.put("/v1/proposals/{proposal_id}", response_model=ProposalResponse)
 def update_proposal_endpoint(
-    proposal_id: str, req: ProposalUpdateRequest, db: Session = Depends(get_db)
+    proposal_id: str,
+    req: ProposalUpdateRequest,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(get_current_user),
 ) -> ProposalResponse:
     proposal = repositories.load_proposal(db, proposal_id)
     if not proposal:
@@ -296,8 +336,148 @@ def update_proposal_endpoint(
     return ProposalResponse(proposal_id=proposal_id, proposal=wrapped["payload"])
 
 
+# --------------------------------------------------------------------------- #
+# Regeneration (Phase 1 / Option C+)
+# --------------------------------------------------------------------------- #
+def _working_payload(db: Session, proposal_id: str) -> dict:
+    """Detached copy of a stored proposal, safe to mutate before an optional commit."""
+    proposal = repositories.load_proposal(db, proposal_id)
+    if not proposal:
+        raise HTTPException(status_code=404, detail="Proposal not found")
+    return copy.deepcopy(proposal["payload"])
+
+
+def _finalize(
+    db: Session,
+    proposal_id: str,
+    payload: dict,
+    changed_sections: list[str],
+    commit: bool,
+    input_patch: dict | None = None,
+    notice: str | None = None,
+) -> RegenerationResponse:
+    payload["markdown"] = rebuild_markdown(payload)
+    if commit:
+        wrapped = repositories.update_proposal(db, proposal_id, payload)
+        if not wrapped:
+            raise HTTPException(status_code=404, detail="Proposal not found")
+        payload = wrapped["payload"]
+    return RegenerationResponse(
+        proposal_id=proposal_id,
+        committed=commit,
+        changed_sections=changed_sections,
+        proposal=payload,
+        input_patch=input_patch or None,
+        notice=notice,
+    )
+
+
+@app.post("/v1/proposals/{proposal_id}/sections/{section_key}/regenerate", response_model=RegenerationResponse)
+def regenerate_section_endpoint(
+    proposal_id: str,
+    section_key: str,
+    req: SectionRegenerateRequest,
+    db: Session = Depends(get_db),
+    _user: CurrentUser = Depends(require_admin),
+) -> RegenerationResponse:
+    if section_key not in SECTION_KEYS:
+        raise HTTPException(status_code=404, detail=f"Unknown section '{section_key}'")
+    if req.instruction and section_key in INSTRUCTION_LOCKED_SECTIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"'{section_key}' cannot be changed by instruction; use its dedicated endpoint.",
+        )
+
+    payload = _working_payload(db, proposal_id)
+    fee = payload.get("financial", {}) or {}
+    relevant = payload.get("relevant_experience", []) or []
+    fee_input = payload_fee_input(payload)
+    notice: str | None = None
+    applied_patch: dict = {}
+
+    if section_key == "cover_letter":
+        if req.apply_text is not None:
+            text = req.apply_text
+        else:
+            base = rebuild_section("cover_letter", payload.get("parsed", {}), fee, relevant, fee_input)
+            text, notice = regenerate_cover_letter(base, req.instruction)
+    else:
+        if req.input_patch is not None:
+            try:
+                applied_patch = validate_input_patch(section_key, req.input_patch)
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+        elif req.instruction:
+            applied_patch, notice = propose_input_patch(section_key, payload.get("parsed", {}), req.instruction)
+
+        if applied_patch:
+            parsed = apply_input_patch(payload.get("parsed", {}), applied_patch)
+            payload["parsed"] = parsed
+            payload["project"] = parsed.get("project", {})
+            payload["client"] = parsed.get("client", {})
+
+        text = rebuild_section(section_key, payload.get("parsed", {}), fee, relevant, fee_input)
+
+    payload.setdefault("sections", {})[section_key] = text
+    return _finalize(db, proposal_id, payload, [section_key], req.commit, applied_patch, notice)
+
+
+@app.post("/v1/proposals/{proposal_id}/experience/reselect", response_model=RegenerationResponse)
+def reselect_experience_endpoint(
+    proposal_id: str,
+    req: ExperienceReselectRequest,
+    db: Session = Depends(get_db),
+    _user: CurrentUser = Depends(require_admin),
+) -> RegenerationResponse:
+    payload = _working_payload(db, proposal_id)
+    parsed = payload.get("parsed", {})
+    selected_ids = [] if req.auto else req.selected_reference_ids
+
+    relevant = select_relevant_projects(db, parsed, selected_ids, limit=req.limit)
+    payload["relevant_experience"] = relevant
+    payload.setdefault("sections", {})["relevant_experience"] = rebuild_section(
+        "relevant_experience",
+        parsed,
+        payload.get("financial", {}) or {},
+        relevant,
+        payload_fee_input(payload),
+    )
+
+    notice = None if relevant else "No reference projects matched — the section is now empty."
+    return _finalize(db, proposal_id, payload, ["relevant_experience"], req.commit, None, notice)
+
+
+@app.post("/v1/proposals/{proposal_id}/fee/recalculate", response_model=RegenerationResponse)
+def recalculate_fee_endpoint(
+    proposal_id: str,
+    req: FeeRecalculateRequest,
+    db: Session = Depends(get_db),
+    _user: CurrentUser = Depends(require_finance),
+) -> RegenerationResponse:
+    payload = _working_payload(db, proposal_id)
+    parsed = payload.get("parsed", {})
+    relevant = payload.get("relevant_experience", []) or []
+
+    fee = calculate_fee(req.fee_input)
+    payload["financial"] = fee
+    payload["fee_input"] = req.fee_input.model_dump()
+
+    # Team and schedule quote fee figures, so they are rebuilt alongside the money section.
+    changed = ["financial", "schedule", "team"]
+    sections = payload.setdefault("sections", {})
+    for key in changed:
+        sections[key] = rebuild_section(key, parsed, fee, relevant, req.fee_input)
+
+    return _finalize(db, proposal_id, payload, changed, req.commit)
+
+
 @app.post("/v1/proposals/{proposal_id}/export/jsx")
-def export_jsx(proposal_id: str, req: JsxExportRequest, db: Session = Depends(get_db)) -> StreamingResponse:
+def export_jsx(
+    proposal_id: str,
+    req: JsxExportRequest,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(get_current_user),
+) -> StreamingResponse:
     proposal = repositories.load_proposal(db, proposal_id)
     if not proposal:
         raise HTTPException(status_code=404, detail="Proposal not found")
@@ -321,7 +501,11 @@ def export_jsx(proposal_id: str, req: JsxExportRequest, db: Session = Depends(ge
 
 
 @app.post("/v1/proposals/{proposal_id}/export/indd", response_model=InDesignExportResponse)
-def export_indd(proposal_id: str, db: Session = Depends(get_db)) -> InDesignExportResponse:
+def export_indd(
+    proposal_id: str,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(get_current_user),
+) -> InDesignExportResponse:
     proposal = repositories.load_proposal(db, proposal_id)
     if not proposal:
         raise HTTPException(status_code=404, detail="Proposal not found")
@@ -339,7 +523,11 @@ def export_indd(proposal_id: str, db: Session = Depends(get_db)) -> InDesignExpo
 
 
 @app.get("/v1/proposals/{proposal_id}/export/indd/download")
-def download_indd(proposal_id: str, db: Session = Depends(get_db)) -> FileResponse:
+def download_indd(
+    proposal_id: str,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(get_current_user),
+) -> FileResponse:
     proposal = repositories.load_proposal(db, proposal_id)
     if not proposal:
         raise HTTPException(status_code=404, detail="Proposal not found")

@@ -10,6 +10,7 @@ Usage (from the workspace root, via WSL Docker):
     docker cp fpgen_mvp/scripts/smoke_incontainer.py fpgen-local:/tmp/smoke.py
     docker exec fpgen-local python /tmp/smoke.py
 """
+import json
 import sys
 
 import httpx
@@ -158,9 +159,145 @@ def dump_jsx() -> int:
     return 0
 
 
+def regen_smoke() -> int:
+    """Phase 1 (Option C+): fee_input persistence + the three regeneration endpoints."""
+    client = httpx.Client(base_url=BASE, timeout=120.0)
+    fee_input = {
+        "roles": [
+            {"role": "Urban Planner", "rate": 180, "hours_by_phase": {"Kick-off": 30, "Concept Development": 80}},
+            {"role": "Architect", "rate": 200, "hours_by_phase": {"Kick-off": 20, "Concept Development": 70}},
+        ],
+        "overhead_pct": 0.1,
+        "subconsultants": [{"name": "Local Traffic Consultant", "fee": 12000, "included_in_lump_sum": True}],
+        "travel": {"trips": 2, "people_per_trip": 2, "unit_cost": 6000, "include_in_lump_sum": True},
+        "misc_reimbursables": 3000,
+    }
+    gen = client.post(
+        "/v1/proposals/generate",
+        json={
+            "rfp_text": "Client requests a mixed-use master plan in Ho Chi Minh City over 16 weeks, with concept options and a final master plan report.",
+            "fee_input": fee_input,
+            "overrides": {"project_name": "Regen Smoke", "client_name": "Example Client"},
+        },
+    )
+    check("generate -> 200", gen.status_code == 200, gen.text[:200])
+    if gen.status_code != 200:
+        print(f"\nPASS={_passed} FAIL={_failed}")
+        return 1
+    pid = gen.json()["proposal_id"]
+    payload = gen.json()["proposal"]
+
+    # 1. fee_input is now persisted with the proposal
+    check("payload carries fee_input", isinstance(payload.get("fee_input"), dict), str(payload.get("fee_input"))[:120])
+    stored = client.get(f"/v1/proposals/{pid}").json()["proposal"]
+    check("fee_input survives a reload", (stored.get("fee_input") or {}).get("roles") is not None)
+
+    # 2. exports must be unchanged for an untouched proposal
+    jsx_before = client.post(
+        f"/v1/proposals/{pid}/export/jsx",
+        json={"cv_assignments": {}, "experience_ids": [], "template_id": "commercial"},
+    ).content
+
+    # 3. section regeneration: preview must not write
+    baseline_schedule = stored["sections"]["schedule"]
+    prev = client.post(f"/v1/proposals/{pid}/sections/schedule/regenerate", json={"commit": False})
+    check("section preview -> 200", prev.status_code == 200, prev.text[:200])
+    check("preview reports committed=false", prev.status_code == 200 and prev.json()["committed"] is False)
+    after_preview = client.get(f"/v1/proposals/{pid}").json()["proposal"]
+    check("preview did not write to the DB", after_preview["sections"]["schedule"] == baseline_schedule)
+
+    # 4. instruction is refused on the fee/experience sections
+    locked = client.post(f"/v1/proposals/{pid}/sections/financial/regenerate", json={"instruction": "make it cheaper", "commit": False})
+    check("instruction locked on financial -> 400", locked.status_code == 400, str(locked.status_code))
+
+    bad = client.post(f"/v1/proposals/{pid}/sections/not_a_section/regenerate", json={"commit": False})
+    check("unknown section -> 404", bad.status_code == 404, str(bad.status_code))
+
+    # 5. an allowlisted input patch changes the source data, section re-renders deterministically
+    patched = client.post(
+        f"/v1/proposals/{pid}/sections/schedule/regenerate",
+        json={"input_patch": {"project.duration": "30 weeks", "schedule.milestones": ["Design review — week 12"], "lump_sum_total": 1}, "commit": True},
+    )
+    check("input_patch commit -> 200", patched.status_code == 200, patched.text[:200])
+    if patched.status_code == 200:
+        body = patched.json()
+        check("out-of-allowlist key dropped", "lump_sum_total" not in (body.get("input_patch") or {}), str(body.get("input_patch")))
+        check("schedule text reflects the patch", "30 weeks" in body["proposal"]["sections"]["schedule"], body["proposal"]["sections"]["schedule"][:160])
+        check("parsed source data updated", body["proposal"]["parsed"]["project"]["duration"] == "30 weeks")
+        check("markdown rebuilt", "30 weeks" in body["proposal"]["markdown"])
+
+    # 6. cover letter: falls back to the deterministic template when no LLM is configured
+    cover = client.post(f"/v1/proposals/{pid}/sections/cover_letter/regenerate", json={"commit": False})
+    check("cover_letter regenerate -> 200", cover.status_code == 200, cover.text[:200])
+    if cover.status_code == 200:
+        cj = cover.json()
+        check("cover_letter text non-empty", bool(cj["proposal"]["sections"]["cover_letter"].strip()))
+        print(f"    notice: {cj.get('notice')}")
+
+    # 7. experience reselect
+    refs = client.get("/v1/reference-projects").json()
+    resel = client.post(f"/v1/proposals/{pid}/experience/reselect", json={"auto": True, "limit": 2, "commit": True})
+    check("experience reselect -> 200", resel.status_code == 200, resel.text[:200])
+    if resel.status_code == 200:
+        rel = resel.json()["proposal"]["relevant_experience"]
+        check("reselect honours limit", len(rel) <= 2, str(len(rel)))
+        check("reselect matches available references", len(rel) == min(2, len(refs)), f"{len(rel)} vs {len(refs)}")
+
+    if refs:
+        manual = client.post(
+            f"/v1/proposals/{pid}/experience/reselect",
+            json={"selected_reference_ids": [refs[0]["id"]], "limit": 3, "commit": True},
+        )
+        check("manual reselect -> 200", manual.status_code == 200, manual.text[:200])
+        if manual.status_code == 200:
+            chosen = manual.json()["proposal"]["relevant_experience"]
+            check("manual reselect picks the chosen id", len(chosen) == 1 and chosen[0]["id"] == refs[0]["id"], str(chosen)[:160])
+
+    # 8. fee recalculation must equal the fee engine exactly
+    new_fee = json.loads(json.dumps(fee_input))
+    new_fee["roles"][0]["hours_by_phase"]["Concept Development"] = 120
+    new_fee["misc_reimbursables"] = 4500
+    expected = client.post("/v1/fee/calculate", json=new_fee).json()["fee"]
+    recalc = client.post(f"/v1/proposals/{pid}/fee/recalculate", json={"fee_input": new_fee, "commit": True})
+    check("fee recalculate -> 200", recalc.status_code == 200, recalc.text[:200])
+    if recalc.status_code == 200:
+        rb = recalc.json()
+        check("financial equals calculate_fee output", rb["proposal"]["financial"] == expected,
+              f"{rb['proposal']['financial'].get('lump_sum_total')} vs {expected.get('lump_sum_total')}")
+        check("fee_input persisted on recalculate", rb["proposal"]["fee_input"]["misc_reimbursables"] == 4500)
+        check("dependent sections rebuilt", set(rb["changed_sections"]) == {"financial", "schedule", "team"}, str(rb["changed_sections"]))
+        check("financial section quotes the new total",
+              f"{expected['lump_sum_total']:.2f}" in rb["proposal"]["sections"]["financial"])
+        reloaded = client.get(f"/v1/proposals/{pid}").json()["proposal"]
+        check("recalculated fee persisted", reloaded["financial"]["lump_sum_total"] == expected["lump_sum_total"])
+
+    # 9. an untouched proposal still exports byte-identical JSX
+    control = client.post(
+        "/v1/proposals/generate",
+        json={
+            "rfp_text": "Client requests a mixed-use master plan in Ho Chi Minh City over 16 weeks, with concept options and a final master plan report.",
+            "fee_input": fee_input,
+            "overrides": {"project_name": "Regen Smoke", "client_name": "Example Client"},
+        },
+    )
+    if control.status_code == 200:
+        cpid = control.json()["proposal_id"]
+        jsx_control = client.post(
+            f"/v1/proposals/{cpid}/export/jsx",
+            json={"cv_assignments": {}, "experience_ids": [], "template_id": "commercial"},
+        ).content
+        check("untouched proposal exports a JSX bundle of the same size", len(jsx_control) == len(jsx_before),
+              f"{len(jsx_control)} vs {len(jsx_before)}")
+
+    print(f"\nPASS={_passed} FAIL={_failed}")
+    return 1 if _failed else 0
+
+
 if __name__ == "__main__":
     if "--verify-persist" in sys.argv:
         sys.exit(verify_persist())
     if "--dump-jsx" in sys.argv:
         sys.exit(dump_jsx())
+    if "--regen" in sys.argv:
+        sys.exit(regen_smoke())
     sys.exit(main())

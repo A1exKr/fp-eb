@@ -54,6 +54,36 @@ class ProposalUpdateRequest(BaseModel):
     sections: dict[str, str] = Field(default_factory=dict)
 
 
+class SectionRegenerateRequest(BaseModel):
+    instruction: str | None = Field(default=None, max_length=2000)
+    # Echoed back from a preview response so Apply commits the previewed result
+    # without spending a second LLM call.
+    input_patch: dict[str, Any] | None = None
+    apply_text: str | None = None
+    commit: bool = False
+
+
+class ExperienceReselectRequest(BaseModel):
+    selected_reference_ids: list[str] = Field(default_factory=list)
+    auto: bool = False
+    limit: int = Field(default=3, ge=1, le=10)
+    commit: bool = False
+
+
+class FeeRecalculateRequest(BaseModel):
+    fee_input: FeeInput
+    commit: bool = False
+
+
+class RegenerationResponse(BaseModel):
+    proposal_id: str
+    committed: bool
+    changed_sections: list[str] = Field(default_factory=list)
+    proposal: dict[str, Any]
+    input_patch: dict[str, Any] | None = None
+    notice: str | None = None
+
+
 class FileParseResponse(BaseModel):
     filename: str
     extracted_text: str

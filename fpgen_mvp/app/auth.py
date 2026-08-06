@@ -95,3 +95,14 @@ def user_can_setup(user: CurrentUser) -> bool:
     """
     allowed = set(_split(settings.admin_roles)) | set(_split(settings.finance_roles))
     return user.has_any(allowed)
+
+
+def user_can_regenerate(user: CurrentUser) -> bool:
+    """True when the user may re-run pipeline stages on a saved proposal."""
+    return user.has_any(set(_split(settings.admin_roles)))
+
+
+def user_can_recalculate_fee(user: CurrentUser) -> bool:
+    """True when the user may re-run the fee engine on a saved proposal."""
+    return user.has_any(set(_split(settings.finance_roles)))
+

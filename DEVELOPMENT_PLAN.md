@@ -3,7 +3,7 @@
 Purpose: single source of truth for what we build next in `fpgen_mvp/`, in what order, and what each
 step depends on. Platform-side asks are tracked separately in `EXABASE_REQUESTS.md` (EB-xxx).
 
-Last updated: 2026-08-05
+Last updated: 2026-08-06
 
 ---
 
@@ -45,12 +45,12 @@ RFP text/file -> parser -> fee_engine -> relevant_selector -> proposal_builder -
 
 ## 3. Roadmap
 
-| Phase | Scope | Depends on |
-|-------|-------|-----------|
-| **0** | Platform asks: org-managed credential, gateway routes, budgets | EB-001 |
-| **1** | **Option C+** — managed LLM connection *and* admin-triggered regeneration on the review page | EB-001 for production; buildable now against the current provider |
-| **2** | Tool layer over `fee_engine` / `relevant_selector` / exporters / repositories | Phase 1 |
-| **3** | Decision: Claude Agent SDK in-app (**B2**) vs exaWizards Agent Dashboard (**A-hybrid**) | EB-001 answers |
+| Phase | Scope | Depends on | Status |
+|-------|-------|-----------|--------|
+| **0** | Platform asks: org-managed credential, gateway routes, budgets | EB-001 | Open |
+| **1** | **Option C+** — managed LLM connection *and* admin-triggered regeneration on the review page | EB-001 for production; buildable now against the current provider | **4b done**; 4a blocked on EB-001 |
+| **2** | Tool layer over `fee_engine` / `relevant_selector` / exporters / repositories | Phase 1 | Optional |
+| **3** | Decision: Claude Agent SDK in-app (**B2**) vs exaWizards Agent Dashboard (**A-hybrid**) | EB-001 answers | Deferred |
 
 Phases 2 and 3 are optional. Phase 1 is the committed work.
 
@@ -114,6 +114,51 @@ reselect projects, redo the cover letter, recalculate and rebuild — without ad
 without requiring Claude models on the gateway, and without giving a model tool access while untrusted
 RFP text is in its context. The LLM stays a text function; the human is the loop.
 
+### 4c. As built (2026-08-06)
+
+Delivered on branch `fpgen/postgres-llm-auth`. Decisions taken during implementation:
+
+| Decision | Resolution |
+|---|---|
+| Legacy proposals with no `fee_input` | **No back-fill.** `fee_input` is persisted from now on; older proposals show an empty fee panel with a note. Existing rows are test data. |
+| LLM unavailable or failing on a regenerate click | **Silent deterministic fallback** plus a `notice` string surfaced in the review status bar and the preview dialog. Never a hard failure. |
+| Preview → Apply | **Apply commits server-side immediately.** The UI warns first if there are unsaved manual edits. The preview response is echoed back on Apply (`apply_text` / `input_patch`) so no second LLM call is made. |
+| Free-text instruction on deterministic sections | The instruction is converted into an **allowlisted JSON patch of the section's source inputs in `parsed`**, type-checked server-side, then the section is re-rendered deterministically. A model can never write fee arithmetic or an unlisted field. `financial` and `relevant_experience` reject instructions outright (HTTP 400) — they have dedicated endpoints. |
+| Auth | All `/v1/proposals/*` now require an authenticated user (previously completely open). Section/experience regeneration requires `fpgen_admin`; fee recalculation additionally allows `Finance`. `/v1/me` gained `can_regenerate` and `can_recalculate_fee`. |
+
+Allowlisted instruction-editable inputs, by section (`SECTION_INPUT_FIELDS` in `services/proposal_builder.py`):
+`project_understanding` → `understanding.understanding`; `methodology` → `methodology.text`;
+`scope_deliverables` → `scope.scopeList`, `scope.deliverablesList`;
+`schedule` → `project.duration`, `schedule.totalWeeks`, `schedule.milestones`;
+`team` → `team.principal.name/title`, `team.pm.name/title`;
+`assumptions_exclusions` → `assumptions.defaultText`.
+
+**Verification** (WSL Docker, `fpgen-mvp-api:local` against `fpgen-pg`):
+
+- `docker exec fpgen-local python /tmp/smoke.py --regen` → **27/27 pass**
+  (source: `fpgen_mvp/scripts/smoke_incontainer.py --regen`). Covers `fee_input` persistence and reload,
+  preview not writing to the DB, out-of-allowlist patch keys being dropped, `parsed` + section + markdown
+  all updating together, instruction rejection on `financial`, unknown-section 404, auto and manual
+  experience reselection, and `financial == calculate_fee(fee_input)` after recalculation.
+- RBAC with `FPGEN_AUTH_ENABLED=true` and forwarded-header identities:
+
+  | Identity | GET proposal | section regen | experience | fee | export JSX |
+  |---|---|---|---|---|---|
+  | anonymous | 401 | 401 | 401 | 401 | 401 |
+  | `fpgen_admin` | 200 | 200 | 200 | 200 | 200 |
+  | `Finance` | 200 | **403** | **403** | 200 | 200 |
+  | other group | 200 | **403** | **403** | **403** | 200 |
+
+- Browser walkthrough of `review.html`: no console errors; 9 per-section Regenerate controls; reference
+  checkbox list populated; fee panel hydrated from the persisted `fee_input`; a misc-reimbursables change
+  previewed 80,580.00 → 86,580.00 USD and persisted correctly to `financial`, `fee_input`, the Financial
+  section and the markdown.
+- An untouched proposal still exports an identical JSX bundle.
+
+**Still outstanding for production:** 4a (`LLM_PROVIDER=litellm` + scoped virtual key) remains blocked on
+EB-001. Until then every regeneration takes the deterministic path and reports the "No LLM connection is
+configured" notice.
+
 ---
 
 ## 5. Phase 2 — tool layer (optional, low-regret)
@@ -166,6 +211,11 @@ remotely. Requires the dashboard to be deployable for our tenant and able to rea
 
 ## 8. Changelog
 
+- 2026-08-06: Phase 1 **4b shipped** — `fee_input` persisted in the proposal payload; three regeneration
+  endpoints (`sections/{key}/regenerate`, `experience/reselect`, `fee/recalculate`) with preview/commit
+  semantics and role gating; review-page regeneration controls, reference-project panel, fee panel and
+  preview dialog; authentication added to all `/v1/proposals/*`. Verified in WSL Docker (27/27 smoke,
+  RBAC matrix, browser walkthrough). See §4c. 4a still blocked on EB-001.
 - 2026-08-05: Plan created. Option C revised to **C+** (managed LLM connection plus admin-triggered
   regeneration on the review page) and committed as Phase 1. A-pure and B1 retired; B2 and A-hybrid
   deferred to Phase 3 pending platform answers.
