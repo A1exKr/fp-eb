@@ -1,0 +1,398 @@
+# =====================================================================================
+# FP-GEN — FULL KEYCLOAK/OIDC GATE blueprint  (prepared 2026-07-30)
+# -------------------------------------------------------------------------------------
+# Restores the login gate that was removed from the MVP on 2026-07-16 (see
+# EXABASE_REQUESTS.md / EB-006). Request flow when deployed:
+#
+#     Browser --> nginx (auth_request) --not logged in--> oauth2-proxy --> Keycloak login
+#             \--logged in, nginx injects X-Forwarded-User/Email/groups--> FP-GEN API
+#
+# The FP-GEN app itself renders NO login page; it only trusts the X-Forwarded-*
+# identity headers that oauth2-proxy (via nginx) sets. That is why the app alone with
+# FPGEN_AUTH_ENABLED=true returns a bare 401 — this blueprint supplies the missing gate.
+#
+# DO NOT deploy this until EB-006 is satisfied. Before deploying, provide these secrets
+# in the workspace secret store (Studio):
+#   - DB_USER, DB_PASSWORD                (already used by the current blueprint)
+#   - OPENAI_API_KEY                      (already used)
+#   - KC_BOOTSTRAP_ADMIN_PASSWORD         (Keycloak master admin bootstrap password)
+#   - KEYCLOAK_OIDC_CLIENT_SECRET         (shared secret for the fpgen-oidc client;
+#                                          the Keycloak post-start hook AND oauth2-proxy
+#                                          must receive the SAME value)
+#   - OAUTH2_COOKIE_SECRET                (32-byte base64/hex, e.g.
+#                                          `python -c "import os,base64;print(base64.urlsafe_b64encode(os.urandom(32)).decode())"`)
+# And these workspace variables (Studio "変数"):
+#   - APP_URL   = the fpgen-app endpoint URL (must end with '/')
+#   - AUTH_URL  = the fpgen-auth (Keycloak) endpoint URL (must end with '/')
+#
+# Role mapping: the app gates on GROUP names. Keycloak groups `fpgen_admin` and `Finance`
+# below map 1:1 to the app's FPGEN_ADMIN_ROLES / FPGEN_FINANCE_ROLES. The groups protocol
+# mapper (claim name "groups", full.path=false) is what populates X-Auth-Request-Groups.
+#
+# INTERIM (un-break the current deployment NOW, before this is ready): on the running
+# `fpgen-app-api` pod set FPGEN_AUTH_ENABLED=false (or remove it) and restart the pod.
+# =====================================================================================
+constructorApiVersion: v1alpha70
+metadata:
+  name: fp-gen-oidc
+workspaces:
+  # -----------------------------------------------------------------------------------
+  # AUTH workspace: self-hosted Keycloak (Identity Provider). Public endpoint = AUTH_URL.
+  # Keycloak shares the app workspace's PostgreSQL (schema `keycloak`).
+  # -----------------------------------------------------------------------------------
+  - id: fpgen-auth
+    metadata:
+      name: FP-GEN Auth
+    endpoints:
+      - uri: /
+        type: io.ebstudio.core.sideapp
+        port: 8080
+        path: /
+        target: keycloak
+        # NOTE: users log in against this endpoint from their browsers. Ensure the IP
+        # allowlist (if any) includes every user egress IP, or omit it for open login.
+    entities: []
+    triggers: []
+    pipelines: []
+    sideapps:
+      - id: keycloak
+        metadata:
+          name: Identity Provider (Keycloak)
+        type: io.ebstudio.core.sideapp.service
+        image: 534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/keycloak:1.0.1
+        size: l
+        environment:
+          KC_HOSTNAME: $[[AUTH_URL]]
+          KEYCLOAK_REALM: fpgen
+          KC_DB: postgres
+          # Reuse the app workspace PostgreSQL (cross-workspace internal DNS).
+          KC_DB_URL: jdbc:postgresql://fpgen-app-rdb:8080/postgres
+          KC_DB_USERNAME: ${{SECRET.DB_USER}}
+          KC_DB_PASSWORD: ${{SECRET.DB_PASSWORD}}
+          KC_DB_SCHEMA: keycloak
+          KC_PROXY_HEADERS: xforwarded
+          KC_HTTP_ENABLED: 'true'
+          KC_BOOTSTRAP_ADMIN_USERNAME: admin
+          KC_BOOTSTRAP_ADMIN_PASSWORD: ${{SECRET.KC_BOOTSTRAP_ADMIN_PASSWORD}}
+          # Consumed by the post-start hook to create/refresh the fpgen-oidc client secret.
+          KEYCLOAK_OIDC_CLIENT_SECRET: ${{SECRET.KEYCLOAK_OIDC_CLIENT_SECRET}}
+          POST_START_HOOK: /opt/keycloak/hooks/post-start.sh
+        injection:
+          # Realm bootstrap: realm + roles + groups + one temporary admin. The OIDC client
+          # and the groups mapper are created by the post-start hook (keeps the client
+          # secret out of this file / in the secret store).
+          - path: /opt/keycloak/data/import/fpgen-realm.json
+            data: |
+              {
+                "realm": "fpgen",
+                "displayName": "FP-GEN",
+                "enabled": true,
+                "sslRequired": "none",
+                "loginWithEmailAllowed": true,
+                "registrationAllowed": false,
+                "resetPasswordAllowed": true,
+                "editUsernameAllowed": false,
+                "bruteForceProtected": true,
+                "permanentLockout": false,
+                "failureFactor": 30,
+                "ssoSessionIdleTimeout": 86400,
+                "ssoSessionMaxLifespan": 86400,
+                "roles": {
+                  "realm": [
+                    { "name": "fpgen_admin", "description": "FP-GEN administrator (full setup/admin console)" },
+                    { "name": "fpgen_proposal_manager", "description": "Create and edit proposals" },
+                    { "name": "fpgen_reviewer", "description": "Review proposals" },
+                    { "name": "fpgen_viewer", "description": "Read-only access" }
+                  ]
+                },
+                "groups": [
+                  { "name": "fpgen_admin", "realmRoles": ["fpgen_admin"] },
+                  { "name": "Finance", "realmRoles": ["fpgen_viewer"] },
+                  { "name": "Proposal Managers", "realmRoles": ["fpgen_proposal_manager"] },
+                  { "name": "Reviewers", "realmRoles": ["fpgen_reviewer"] }
+                ],
+                "users": [
+                  {
+                    "username": "fpgen-admin",
+                    "enabled": true,
+                    "email": "fpgen-admin@example.com",
+                    "emailVerified": true,
+                    "firstName": "FP-GEN",
+                    "lastName": "Admin",
+                    "credentials": [
+                      { "type": "password", "value": "ChangeMe_2026!", "temporary": true }
+                    ],
+                    "requiredActions": ["UPDATE_PASSWORD"],
+                    "groups": ["/fpgen_admin"]
+                  }
+                ]
+              }
+          # Idempotent post-start: ensure the fpgen-oidc confidential client exists with the
+          # shared secret, and that it carries a `groups` claim so oauth2-proxy can forward
+          # group membership. Runs after the admin API is up and kcadm.sh is authenticated.
+          - path: /opt/keycloak/hooks/post-start.sh
+            data: |
+              #!/bin/bash
+              set -e
+              REALM=fpgen
+              CLIENT_ID=fpgen-oidc
+              CLIENT_SECRET="${KEYCLOAK_OIDC_CLIENT_SECRET:?KEYCLOAK_OIDC_CLIENT_SECRET is required}"
+              KCADM=/opt/keycloak/bin/kcadm.sh
+
+              if ! "$KCADM" get "realms/${REALM}" >/dev/null 2>&1; then
+                echo "post-start: realm ${REALM} not present yet (fresh --import-realm path); nothing to do"
+                exit 0
+              fi
+
+              # --- ensure client: fpgen-oidc -------------------------------------------------
+              CID=$("$KCADM" get clients -r "$REALM" -q "clientId=${CLIENT_ID}" \
+                    --fields id --format csv --noquotes 2>/dev/null | head -n 1)
+              if [ -z "$CID" ]; then
+                echo "post-start: creating client ${CLIENT_ID}"
+                CID=$("$KCADM" create clients -r "$REALM" \
+                  -s "clientId=${CLIENT_ID}" \
+                  -s 'name=FP-GEN OIDC Client' \
+                  -s 'enabled=true' \
+                  -s 'protocol=openid-connect' \
+                  -s 'publicClient=false' \
+                  -s 'clientAuthenticatorType=client-secret' \
+                  -s "secret=${CLIENT_SECRET}" \
+                  -s 'standardFlowEnabled=true' \
+                  -s 'directAccessGrantsEnabled=false' \
+                  -s 'frontchannelLogout=true' \
+                  -s 'redirectUris=["https://*","http://*"]' \
+                  -s 'webOrigins=["/*"]' \
+                  -i)
+              else
+                echo "post-start: refreshing secret on existing client ${CLIENT_ID}"
+                "$KCADM" update "clients/${CID}" -r "$REALM" -s "secret=${CLIENT_SECRET}"
+              fi
+
+              # --- ensure groups protocol mapper (claim name: groups) ------------------------
+              HAS_GROUPS=$("$KCADM" get "clients/${CID}/protocol-mappers/models" -r "$REALM" \
+                    --fields name --format csv --noquotes 2>/dev/null | grep -cx 'groups' || true)
+              if [ "$HAS_GROUPS" = "0" ]; then
+                echo "post-start: adding groups mapper to ${CLIENT_ID}"
+                "$KCADM" create "clients/${CID}/protocol-mappers/models" -r "$REALM" \
+                  -s 'name=groups' \
+                  -s 'protocol=openid-connect' \
+                  -s 'protocolMapper=oidc-group-membership-mapper' \
+                  -s 'config."claim.name"=groups' \
+                  -s 'config."full.path"=false' \
+                  -s 'config."id.token.claim"=true' \
+                  -s 'config."access.token.claim"=true' \
+                  -s 'config."userinfo.token.claim"=true'
+              fi
+
+              echo "post-start: fpgen-oidc client + groups mapper ensured"
+        replicas: 1
+
+  # -----------------------------------------------------------------------------------
+  # APP workspace: FP-GEN API + PostgreSQL, fronted by nginx (auth_request) + oauth2-proxy.
+  # Public endpoint = APP_URL.
+  # -----------------------------------------------------------------------------------
+  - id: fpgen-app
+    metadata:
+      name: FP-GEN App
+    endpoints:
+      - uri: /
+        type: io.ebstudio.core.sideapp
+        port: 8080
+        path: /
+        target: nginx
+        authorizedIps:
+          - 165.85.1.206/32   # existing office allowlist — widen/remove as needed
+    entities: []
+    triggers: []
+    pipelines: []
+    sideapps:
+      - id: api
+        metadata:
+          name: FP-GEN MVP Runtime
+        type: io.ebstudio.core.sideapp.service
+        image: ghcr.io/a1exkr/fpgen-mvp-api:latest
+        size: m
+        environment:
+          LLM_PROVIDER: openai
+          OPENAI_API_KEY: ${{SECRET.OPENAI_API_KEY}}
+          OPENAI_MODEL: gpt-4.1-mini
+          FPGEN_ENABLE_INDD_EXPORT: 'false'
+          DEFAULT_CURRENCY: USD
+          DEFAULT_OVERHEAD_PCT: '0.10'
+          TRAVEL_UNIT_COST_USD: '6000'
+          FPGEN_STORAGE_DIR: /app/data/proposals
+          FPGEN_REFERENCE_PROJECTS: /app/appdata/reference_projects.json
+          DATABASE_URL: postgresql+psycopg://${{SECRET.DB_USER}}:${{SECRET.DB_PASSWORD}}@fpgen-app-rdb:8080/postgres
+          FPGEN_DB_SCHEMA: fpgen
+          FPGEN_ASSET_STORAGE_DIR: /app/data/asset_files
+          # --- AUTH: trust the identity headers injected by nginx/oauth2-proxy ---
+          FPGEN_AUTH_ENABLED: 'true'
+          FPGEN_ADMIN_ROLES: fpgen_admin
+          FPGEN_FINANCE_ROLES: fpgen_admin,Finance
+        storage:
+          - path: /app/data
+        injection: []
+        replicas: 1
+
+      - id: oauth2-proxy
+        metadata:
+          name: OAuth2 Proxy (OIDC)
+        type: io.ebstudio.core.sideapp.service
+        image: 534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/oauth2_proxy:1.1.3
+        size: s
+        environment:
+          KEYCLOAK_URL: $[[AUTH_URL]]
+          KEYCLOAK_REALM: fpgen
+          KEYCLOAK_INTERNAL_URL: http://fpgen-auth-keycloak:8080
+          REDIRECT_BASE_URL: $[[APP_URL]]
+          KEYCLOAK_OIDC_CLIENT_ID: fpgen-oidc
+          KEYCLOAK_OIDC_CLIENT_SECRET: ${{SECRET.KEYCLOAK_OIDC_CLIENT_SECRET}}
+          COOKIE_EXPIRE: 24h
+          COOKIE_SECRET: ${{SECRET.OAUTH2_COOKIE_SECRET}}
+          # Post-login redirect safety list. Set to your app host (e.g. the APP_URL host).
+          WHITELIST_DOMAIN: '*.studio.exabase.ai'
+        injection:
+          - path: /app/config/template-oauth2-proxy.cfg
+            data: |
+              http_address = "0.0.0.0:8080"
+              reverse_proxy = false
+
+              provider = "oidc"
+              skip_oidc_discovery = true
+              insecure_oidc_skip_issuer_verification = true
+
+              email_domains = [
+                  "*"
+              ]
+
+              skip_auth_preflight = true
+              skip_provider_button = true
+              pass_user_headers = true
+              set_xauthrequest = true
+              pass_access_token = true
+
+              client_id = "${KEYCLOAK_OIDC_CLIENT_ID}"
+              client_secret = "${KEYCLOAK_OIDC_CLIENT_SECRET}"
+
+              login_url = "${KEYCLOAK_URL}realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth"
+              redeem_url = "${KEYCLOAK_INTERNAL_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token"
+              oidc_jwks_url = "${KEYCLOAK_INTERNAL_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/certs"
+              profile_url = "${KEYCLOAK_INTERNAL_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/userinfo"
+              oidc_issuer_url = "${KEYCLOAK_INTERNAL_URL}/realms/${KEYCLOAK_REALM}"
+
+              redirect_url = "${REDIRECT_BASE_URL}oauth2/callback"
+
+              cookie_expire = "${COOKIE_EXPIRE}"
+
+              whitelist_domains = [
+                  "${WHITELIST_DOMAIN}"
+              ]
+
+              cookie_secret = "${COOKIE_SECRET}"
+        replicas: 1
+
+      - id: nginx
+        metadata:
+          name: FP-GEN Reverse Proxy
+        type: io.ebstudio.core.sideapp.service
+        image: 534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/nginx_v1_29:1.0.2
+        size: xxs
+        environment:
+          # Only ${ENV_*} braces are substituted by the image; nginx $vars are preserved.
+          ENV_FPGEN_API_URL: http://fpgen-app-api:8080
+          ENV_OAUTH2_PROXY_URL: http://fpgen-app-oauth2-proxy:8080
+        storage:
+          - path: /tmp/mnt
+        injection:
+          - path: /app/template.conf
+            data: |
+              user nginx;
+              worker_processes auto;
+              events { worker_connections 1024; }
+              http {
+                include /etc/nginx/mime.types;
+                default_type application/octet-stream;
+                client_max_body_size 1G;
+                keepalive_timeout 180;
+                proxy_connect_timeout 180s;
+                proxy_send_timeout 180s;
+                proxy_read_timeout 180s;
+
+                # oauth2-proxy sets large auth cookies/headers.
+                proxy_buffer_size 32k;
+                proxy_buffers 8 16k;
+                proxy_busy_buffers_size 64k;
+
+                server {
+                  listen 8080;
+                  server_name localhost;
+                  port_in_redirect off;
+                  absolute_redirect off;
+
+                  access_log /dev/stdout;
+                  error_log  /dev/stderr;
+
+                  # ---- oauth2-proxy endpoints (login, callback, sign_out, auth) ----
+                  location /oauth2/ {
+                    proxy_pass       ${ENV_OAUTH2_PROXY_URL};
+                    proxy_set_header Host                    $http_host;
+                    proxy_set_header X-Real-IP               $remote_addr;
+                    proxy_set_header X-Forwarded-For         $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto       $http_x_forwarded_proto;
+                    proxy_set_header X-Auth-Request-Redirect $request_uri;
+                  }
+
+                  # ---- internal subrequest used by auth_request ----
+                  location = /oauth2/auth {
+                    internal;
+                    proxy_pass              ${ENV_OAUTH2_PROXY_URL};
+                    proxy_set_header        Host             $http_host;
+                    proxy_set_header        X-Real-IP        $remote_addr;
+                    proxy_set_header        X-Forwarded-Proto $http_x_forwarded_proto;
+                    proxy_pass_request_body off;
+                    proxy_set_header        Content-Length   "";
+                  }
+
+                  # ---- everything else: require auth, then forward identity to the API ----
+                  location / {
+                    auth_request /oauth2/auth;
+                    error_page 401 = /oauth2/start?rd=$scheme://$http_host$request_uri;
+
+                    auth_request_set $auth_user  $upstream_http_x_auth_request_user;
+                    auth_request_set $auth_email $upstream_http_x_auth_request_email;
+                    auth_request_set $groups     $upstream_http_x_auth_request_groups;
+
+                    proxy_set_header X-Forwarded-User   $auth_user;
+                    proxy_set_header X-Forwarded-Email  $auth_email;
+                    proxy_set_header X-Forwarded-groups $groups;
+
+                    proxy_set_header Host              $http_host;
+                    proxy_set_header X-Real-IP         $remote_addr;
+                    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+                    proxy_http_version 1.1;
+
+                    proxy_pass ${ENV_FPGEN_API_URL}/;
+                  }
+                }
+              }
+        replicas: 1
+
+      - id: rdb
+        metadata:
+          name: PostgreSQL DB server
+        type: io.ebstudio.core.sideapp.service
+        image: 534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/rdb_postgresql_17:1.2.1
+        size: m
+        environment:
+          POSTGRES_USER: ${{SECRET.DB_USER}}
+          POSTGRES_PASSWORD: ${{SECRET.DB_PASSWORD}}
+          POSTGRES_MAX_CONNECTIONS: '300'
+        injection:
+          - path: /docker-entrypoint-initdb.d/initial_fpgen.sql
+            data: |
+              CREATE SCHEMA IF NOT EXISTS fpgen;
+              CREATE SCHEMA IF NOT EXISTS keycloak;
+        storage:
+          - path: /var/lib/postgresql/data
+        replicas: 1

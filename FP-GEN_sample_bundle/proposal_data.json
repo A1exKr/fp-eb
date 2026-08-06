@@ -1,0 +1,120 @@
+{
+  "client": {
+    "name": "MPDC"
+  },
+  "parsed": {
+    "fee": {
+      "rates": {
+        "Architect": 200,
+        "Urban Planner": 180
+      },
+      "travel": {
+        "trips": 2,
+        "unitCostUSD": 6000,
+        "peoplePerTrip": 2,
+        "includedInLumpSum": true
+      },
+      "currency": "USD",
+      "overheadPct": 0.1,
+      "effortByPhase": {
+        "Finalization": {
+          "Architect": 20,
+          "Urban Planner": 20
+        },
+        "Concept Development": {
+          "Architect": 20,
+          "Urban Planner": 20
+        }
+      },
+      "subconsultants": []
+    },
+    "team": {
+      "pm": {
+        "name": "TBD",
+        "title": "Project Manager"
+      },
+      "principal": {
+        "name": "Wataru Tanaka",
+        "title": "Senior Executive Officer"
+      }
+    },
+    "scope": {
+      "scopeList": [
+        "Site analysis",
+        "Concept design",
+        "Final deliverables"
+      ],
+      "deliverablesList": [
+        "Proposal document",
+        "Presentation materials"
+      ]
+    },
+    "client": {
+      "name": "MPDC"
+    },
+    "project": {
+      "name": "Morgans Point Development",
+      "type": "General Consulting",
+      "location": "TBD",
+      "siteArea": ""
+    },
+    "schedule": {
+      "milestones": [
+        "Concept Development",
+        "Finalization"
+      ],
+      "totalWeeks": 16
+    },
+    "experience": [],
+    "assumptions": {
+      "defaultText": "Fees exclude all applicable taxes and levies unless stated otherwise. Travel costs are included only when explicitly listed in the financial breakdown. Optional services such as animation and physical models are excluded from the lump sum. Specialty consultants not listed under included costs are excluded from this fee."
+    },
+    "methodology": {
+      "text": "1. Kick-off\n2. Analysis\n3. Concept Development\n4. Refinement\n5. Finalization\n6. Quality Control"
+    },
+    "understanding": {
+      "understanding": "Client requests a commercial mixed-use proposal in Bermuda over 16 weeks with concept options and a final report."
+    },
+    "cv_suggestions": [],
+    "template_suggestion": "commercial",
+    "suggested_reference_ids": []
+  },
+  "project": {
+    "name": "Morgans Point Development",
+    "type": "General Consulting",
+    "location": "TBD",
+    "siteArea": ""
+  },
+  "markdown": "# Fee Proposal: Morgans Point Development\n\n## Cover Letter\nDear Sirs,\n\nWe are sincerely honored to be invited to submit our proposal for your esteemed project \u2014 Morgans Point Development. Based on our in-depth understanding of the project, we believe we can establish a solid general consulting which would offer an attractive environment well-suited for TBD.\n\nTo tackle the complex nature of this project, we have assembled a highly skilled multidisciplinary team of the finest experts under the leadership of our top management. Our team shall comprise members of Urban Planner, Architect, supported by project management and regional support staff to ensure seamless cross-cultural and on-time communication. The project will be overseen personally by myself, Senior Executive Officer of Nikken Sekkei Ltd.\n\nWe truly hope our proposal meets your expectations and look forward to serving you in the future.\n\nSincerely yours,\n\n\nWataru TANAKA\nSenior Executive Officer\nNikken Sekkei Ltd.\n\n## Project Understanding\nClient requests a commercial mixed-use proposal in Bermuda over 16 weeks with concept options and a final report.\n\n## Methodology\n1. Kick-off\n2. Analysis\n3. Concept Development\n4. Refinement\n5. Finalization\n6. Quality Control\n\n## Scope and Deliverables\n- Site analysis\n- Concept design\n- Final deliverables\n- Proposal document\n- Presentation materials\n\n## Schedule\nOverall Duration: 16 weeks\nPhase Plan:\n- Concept Development\n- Finalization\nMilestones:\n- Concept Development\n- Finalization\n\n## Team Structure\n- Wataru Tanaka, Senior Executive Officer (Project Principal)\n\n## Financial Proposal\nFee Breakdown:\n- Labor: 0.00 USD\n- Overhead (10.0%): 0.00 USD\n- Included Subconsultants: 0.00 USD\n- Travel: 0.00 USD (0 trips x 0 people x 6000.00; included in lump sum)\n- Other Reimbursables: 0.00 USD\n- Total Reimbursables Included: 0.00 USD\n- Total Lump Sum Fee: 0.00 USD\nCommercial Notes:\n- Fees exclude taxes and levies unless stated otherwise.\n- Payment terms and invoicing schedule to be confirmed during commercial review.\n\n## Relevant Experience\n- No relevant projects selected yet.\n\n## Assumptions and Exclusions\nFees exclude all applicable taxes and levies unless stated otherwise. Travel costs are included only when explicitly listed in the financial breakdown. Optional services such as animation and physical models are excluded from the lump sum. Specialty consultants not listed under included costs are excluded from this fee.",
+  "sections": {
+    "team": "- Wataru Tanaka, Senior Executive Officer (Project Principal)",
+    "schedule": "Overall Duration: 16 weeks\nPhase Plan:\n- Concept Development\n- Finalization\nMilestones:\n- Concept Development\n- Finalization",
+    "financial": "Fee Breakdown:\n- Labor: 0.00 USD\n- Overhead (10.0%): 0.00 USD\n- Included Subconsultants: 0.00 USD\n- Travel: 0.00 USD (0 trips x 0 people x 6000.00; included in lump sum)\n- Other Reimbursables: 0.00 USD\n- Total Reimbursables Included: 0.00 USD\n- Total Lump Sum Fee: 0.00 USD\nCommercial Notes:\n- Fees exclude taxes and levies unless stated otherwise.\n- Payment terms and invoicing schedule to be confirmed during commercial review.",
+    "methodology": "1. Kick-off\n2. Analysis\n3. Concept Development\n4. Refinement\n5. Finalization\n6. Quality Control",
+    "cover_letter": "Dear Sirs,\n\nWe are sincerely honored to be invited to submit our proposal for your esteemed project \u2014 Morgans Point Development. Based on our in-depth understanding of the project, we believe we can establish a solid general consulting which would offer an attractive environment well-suited for TBD.\n\nTo tackle the complex nature of this project, we have assembled a highly skilled multidisciplinary team of the finest experts under the leadership of our top management. Our team shall comprise members of Urban Planner, Architect, supported by project management and regional support staff to ensure seamless cross-cultural and on-time communication. The project will be overseen personally by myself, Senior Executive Officer of Nikken Sekkei Ltd.\n\nWe truly hope our proposal meets your expectations and look forward to serving you in the future.\n\nSincerely yours,\n\n\nWataru TANAKA\nSenior Executive Officer\nNikken Sekkei Ltd.",
+    "scope_deliverables": "- Site analysis\n- Concept design\n- Final deliverables\n- Proposal document\n- Presentation materials",
+    "relevant_experience": "- No relevant projects selected yet.",
+    "project_understanding": "Client requests a commercial mixed-use proposal in Bermuda over 16 weeks with concept options and a final report.",
+    "assumptions_exclusions": "Fees exclude all applicable taxes and levies unless stated otherwise. Travel costs are included only when explicitly listed in the financial breakdown. Optional services such as animation and physical models are excluded from the lump sum. Specialty consultants not listed under included costs are excluded from this fee."
+  },
+  "financial": {
+    "travel": {
+      "total": 0.0,
+      "trips": 0,
+      "unit_cost": 6000.0,
+      "people_per_trip": 0,
+      "included_in_lump_sum": true
+    },
+    "currency": "USD",
+    "labor_total": 0.0,
+    "overhead_pct": 0.1,
+    "phase_totals": {},
+    "lump_sum_total": 0.0,
+    "overhead_total": 0.0,
+    "misc_reimbursables": 0,
+    "reimbursables_total": 0.0,
+    "subconsultants_excluded": [],
+    "subconsultants_included_total": 0
+  },
+  "relevant_experience": []
+}

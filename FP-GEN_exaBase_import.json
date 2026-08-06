@@ -81,17 +81,6 @@
         "type": "arrowclosed"
       }
     },
-    "gXTufQST32o8WJsuXLIh": {
-      "id": "gXTufQST32o8WJsuXLIh",
-      "source": "n1vRyWIYcBtP84WyEO6w",
-      "sourceHandle": "n1vRyWIYcBtP84WyEO6w.right",
-      "target": "nluk62ytBcWokdwtpqg7",
-      "targetHandle": "nluk62ytBcWokdwtpqg7.left",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
     "gvFkSv4F8hKCl08sYmN3": {
       "id": "gvFkSv4F8hKCl08sYmN3",
       "source": "e9xxHq7JQeVLglQW519N",
@@ -99,17 +88,6 @@
       "target": "nAjOJlGSlXgDxp2Y3gOc",
       "targetHandle": "nAjOJlGSlXgDxp2Y3gOc.bottom",
       "type": "flow",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "g1ycpiIRh4WIX5Eg5YEI": {
-      "id": "g1ycpiIRh4WIX5Eg5YEI",
-      "source": "nAjOJlGSlXgDxp2Y3gOc",
-      "sourceHandle": "nAjOJlGSlXgDxp2Y3gOc.left",
-      "target": "nJ933G6QcO34r5zPaImt",
-      "targetHandle": "nJ933G6QcO34r5zPaImt.right",
-      "type": "memo",
       "markerEnd": {
         "type": "arrowclosed"
       }
@@ -132,303 +110,6 @@
       "target": "n1vRyWIYcBtP84WyEO6w",
       "targetHandle": "n1vRyWIYcBtP84WyEO6w.left",
       "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gonj7LjFhkptsgy3R6I4": {
-      "id": "gonj7LjFhkptsgy3R6I4",
-      "source": "nAjOJlGSlXgDxp2Y3gOc",
-      "sourceHandle": "nAjOJlGSlXgDxp2Y3gOc.right",
-      "target": "nHgzQayUSc2d7fZig8xH",
-      "targetHandle": "nHgzQayUSc2d7fZig8xH.left",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gO3og0jLyVgbkFnXcs0H": {
-      "id": "gO3og0jLyVgbkFnXcs0H",
-      "source": "nHgzQayUSc2d7fZig8xH",
-      "sourceHandle": "nHgzQayUSc2d7fZig8xH.right",
-      "target": "n1lf1sMfePmniDh2x50c",
-      "targetHandle": "n1lf1sMfePmniDh2x50c.left",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gaefurZP2C8ph1TniAQO": {
-      "id": "gaefurZP2C8ph1TniAQO",
-      "source": "n1lf1sMfePmniDh2x50c",
-      "sourceHandle": "n1lf1sMfePmniDh2x50c.right",
-      "target": "nuIzC1iKTqVIhknUqjbI",
-      "targetHandle": "nuIzC1iKTqVIhknUqjbI.left",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gfESh4zIwTBvpIrY280m": {
-      "id": "gfESh4zIwTBvpIrY280m",
-      "source": "n1lf1sMfePmniDh2x50c",
-      "sourceHandle": "n1lf1sMfePmniDh2x50c.bottom",
-      "target": "puhsX8PH2Q76c0Vl6ByS",
-      "targetHandle": "puhsX8PH2Q76c0Vl6ByS.top",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gBnXRd6UPOVOn1CRaa1O": {
-      "id": "gBnXRd6UPOVOn1CRaa1O",
-      "source": "puhsX8PH2Q76c0Vl6ByS",
-      "sourceHandle": "puhsX8PH2Q76c0Vl6ByS.right",
-      "target": "dHkHtJsDGNeQfoTiPQsG",
-      "targetHandle": "dHkHtJsDGNeQfoTiPQsG.left",
-      "type": "flow",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "g71i382TtGDdAZPUDHDQ": {
-      "id": "g71i382TtGDdAZPUDHDQ",
-      "source": "dHkHtJsDGNeQfoTiPQsG",
-      "sourceHandle": "dHkHtJsDGNeQfoTiPQsG.right",
-      "target": "p8GP7ztywpBZqAuS8809",
-      "targetHandle": "p8GP7ztywpBZqAuS8809.left",
-      "type": "flow",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gp0se17TQ4zkRF5W79Ly": {
-      "id": "gp0se17TQ4zkRF5W79Ly",
-      "source": "p8GP7ztywpBZqAuS8809",
-      "sourceHandle": "p8GP7ztywpBZqAuS8809.right",
-      "target": "duEZzrJZTsFxLAZmtbXR",
-      "targetHandle": "duEZzrJZTsFxLAZmtbXR.left",
-      "type": "flow",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gGOHOTjYm0nDAKBXOjCA": {
-      "id": "gGOHOTjYm0nDAKBXOjCA",
-      "source": "duEZzrJZTsFxLAZmtbXR",
-      "sourceHandle": "duEZzrJZTsFxLAZmtbXR.right",
-      "target": "pRUKquwiTUWnyJcEopFE",
-      "targetHandle": "pRUKquwiTUWnyJcEopFE.left",
-      "type": "flow",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gxW3gDZ8KhHuxI7HL8sr": {
-      "id": "gxW3gDZ8KhHuxI7HL8sr",
-      "source": "nuIzC1iKTqVIhknUqjbI",
-      "sourceHandle": "nuIzC1iKTqVIhknUqjbI.bottom",
-      "target": "pRUKquwiTUWnyJcEopFE",
-      "targetHandle": "pRUKquwiTUWnyJcEopFE.top",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gZSY5PjBfvcIvQCRHFEg": {
-      "id": "gZSY5PjBfvcIvQCRHFEg",
-      "source": "n1lf1sMfePmniDh2x50c",
-      "sourceHandle": "n1lf1sMfePmniDh2x50c.bottom",
-      "target": "nn2wBdjOaayJSIn3SdoR",
-      "targetHandle": "nn2wBdjOaayJSIn3SdoR.top",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gxdeY3dnfq0mBGVS0Hel": {
-      "id": "gxdeY3dnfq0mBGVS0Hel",
-      "source": "nn2wBdjOaayJSIn3SdoR",
-      "sourceHandle": "nn2wBdjOaayJSIn3SdoR.right",
-      "target": "pUwuht4tAcMk591oGu5j",
-      "targetHandle": "pUwuht4tAcMk591oGu5j.left",
-      "type": "flow",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gydKgajNwbJE1srYZwgV": {
-      "id": "gydKgajNwbJE1srYZwgV",
-      "source": "pUwuht4tAcMk591oGu5j",
-      "sourceHandle": "pUwuht4tAcMk591oGu5j.bottom",
-      "target": "d0YK7kj8vVWIwc5ra4gM",
-      "targetHandle": "d0YK7kj8vVWIwc5ra4gM.top",
-      "type": "flow",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "geA6cULLnZn6XNU5vfpm": {
-      "id": "geA6cULLnZn6XNU5vfpm",
-      "source": "esOv0EztZly5eopdvN4A",
-      "sourceHandle": "esOv0EztZly5eopdvN4A.top",
-      "target": "nn2wBdjOaayJSIn3SdoR",
-      "targetHandle": "nn2wBdjOaayJSIn3SdoR.bottom",
-      "type": "flow",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "g1BEYyfZ1YiOw2Jh3tCB": {
-      "id": "g1BEYyfZ1YiOw2Jh3tCB",
-      "source": "n1lf1sMfePmniDh2x50c",
-      "sourceHandle": "n1lf1sMfePmniDh2x50c.bottom",
-      "target": "nRvLv3Qz9M1oNL020AIp",
-      "targetHandle": "nRvLv3Qz9M1oNL020AIp.top",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gCUiCoaD5KD98EUiYqGV": {
-      "id": "gCUiCoaD5KD98EUiYqGV",
-      "source": "nRvLv3Qz9M1oNL020AIp",
-      "sourceHandle": "nRvLv3Qz9M1oNL020AIp.bottom",
-      "target": "nUMm237Gu7igWFP6RQnx",
-      "targetHandle": "nUMm237Gu7igWFP6RQnx.right",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gJa6YHcUzyHxJtB9T9YV": {
-      "id": "gJa6YHcUzyHxJtB9T9YV",
-      "source": "nyDochzWtbGvsZHYbHav",
-      "sourceHandle": "nyDochzWtbGvsZHYbHav.bottom",
-      "target": "nUMm237Gu7igWFP6RQnx",
-      "targetHandle": "nUMm237Gu7igWFP6RQnx.right",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gg50KYRu8qghXx9CX0eF": {
-      "id": "gg50KYRu8qghXx9CX0eF",
-      "source": "n1lf1sMfePmniDh2x50c",
-      "sourceHandle": "n1lf1sMfePmniDh2x50c.bottom",
-      "target": "nyDochzWtbGvsZHYbHav",
-      "targetHandle": "nyDochzWtbGvsZHYbHav.top",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gxEd2QUStZAGdAalK5o8": {
-      "id": "gxEd2QUStZAGdAalK5o8",
-      "source": "n1lf1sMfePmniDh2x50c",
-      "sourceHandle": "n1lf1sMfePmniDh2x50c.right",
-      "target": "nXKqHnTOCjGnCXtYw5PK",
-      "targetHandle": "nXKqHnTOCjGnCXtYw5PK.left",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gvNXuO89yJfnyLwveYN4": {
-      "id": "gvNXuO89yJfnyLwveYN4",
-      "source": "n1lf1sMfePmniDh2x50c",
-      "sourceHandle": "n1lf1sMfePmniDh2x50c.bottom",
-      "target": "n39XwWxuBPsHjfRYR1UZ",
-      "targetHandle": "n39XwWxuBPsHjfRYR1UZ.top",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "ggrmNmj3x3OLKKMyZEKc": {
-      "id": "ggrmNmj3x3OLKKMyZEKc",
-      "source": "n39XwWxuBPsHjfRYR1UZ",
-      "sourceHandle": "n39XwWxuBPsHjfRYR1UZ.right",
-      "target": "n0xWW66SeTN4OL20TNbj",
-      "targetHandle": "n0xWW66SeTN4OL20TNbj.left",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gMu7QYb4t3z5lm2yynOj": {
-      "id": "gMu7QYb4t3z5lm2yynOj",
-      "source": "nxk4yXX7FQJAyJYFnXdA",
-      "sourceHandle": "nxk4yXX7FQJAyJYFnXdA.top",
-      "target": "n39XwWxuBPsHjfRYR1UZ",
-      "targetHandle": "n39XwWxuBPsHjfRYR1UZ.bottom",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gF7OHehCjzuWdo5hrHFX": {
-      "id": "gF7OHehCjzuWdo5hrHFX",
-      "source": "nb8fZlxb4HemdEc32Zli",
-      "sourceHandle": "nb8fZlxb4HemdEc32Zli.right",
-      "target": "nm2GMJBUtFMiVFdu6W8O",
-      "targetHandle": "nm2GMJBUtFMiVFdu6W8O.left",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "glGv2EXzIStSwhxox2Nj": {
-      "id": "glGv2EXzIStSwhxox2Nj",
-      "source": "nm2GMJBUtFMiVFdu6W8O",
-      "sourceHandle": "nm2GMJBUtFMiVFdu6W8O.top",
-      "target": "npCZq6riaLxqc1CjqcL9",
-      "targetHandle": "npCZq6riaLxqc1CjqcL9.bottom",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gBEqYIp6cVQoZsJB5yoY": {
-      "id": "gBEqYIp6cVQoZsJB5yoY",
-      "source": "nRvLv3Qz9M1oNL020AIp",
-      "sourceHandle": "nRvLv3Qz9M1oNL020AIp.right",
-      "target": "n39XwWxuBPsHjfRYR1UZ",
-      "targetHandle": "n39XwWxuBPsHjfRYR1UZ.left",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gjQo9319dBXtu7oLehH2": {
-      "id": "gjQo9319dBXtu7oLehH2",
-      "source": "nyDochzWtbGvsZHYbHav",
-      "sourceHandle": "nyDochzWtbGvsZHYbHav.right",
-      "target": "nb8fZlxb4HemdEc32Zli",
-      "targetHandle": "nb8fZlxb4HemdEc32Zli.left",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gEtTOLYZaVFJCr6RHOxm": {
-      "id": "gEtTOLYZaVFJCr6RHOxm",
-      "source": "nn2wBdjOaayJSIn3SdoR",
-      "sourceHandle": "nn2wBdjOaayJSIn3SdoR.right",
-      "target": "n39XwWxuBPsHjfRYR1UZ",
-      "targetHandle": "n39XwWxuBPsHjfRYR1UZ.left",
-      "type": "memo",
-      "markerEnd": {
-        "type": "arrowclosed"
-      }
-    },
-    "gJ6RKLYqUyzkjQlMoy0V": {
-      "id": "gJ6RKLYqUyzkjQlMoy0V",
-      "source": "nUMm237Gu7igWFP6RQnx",
-      "sourceHandle": "nUMm237Gu7igWFP6RQnx.top",
-      "target": "eSwDdXCJ4PzKJTmfUy8D",
-      "targetHandle": "eSwDdXCJ4PzKJTmfUy8D.bottom",
-      "type": "flow",
       "markerEnd": {
         "type": "arrowclosed"
       }
@@ -506,26 +187,6 @@
         "y": 770
       }
     },
-    "wjbIiDUagLgMeOvDWZc7": {
-      "type": "workspace",
-      "id": "wjbIiDUagLgMeOvDWZc7",
-      "width": 620,
-      "height": 470,
-      "data": {
-        "id": "fpgen-docgen",
-        "name": "Document Generation & Export",
-        "authorizedIpSetting": {
-          "allowAll": false,
-          "inherit": true
-        },
-        "authorizedIps": {},
-        "_order": "a0400"
-      },
-      "position": {
-        "x": -40,
-        "y": 770
-      }
-    },
     "wtfMzKTcRVoF3BK15HD2": {
       "type": "workspace",
       "id": "wtfMzKTcRVoF3BK15HD2",
@@ -543,26 +204,6 @@
       },
       "position": {
         "x": 620,
-        "y": 770
-      }
-    },
-    "wtvAeJp7E6BieKNkB9Bf": {
-      "type": "workspace",
-      "id": "wtvAeJp7E6BieKNkB9Bf",
-      "width": 720,
-      "height": 470,
-      "data": {
-        "id": "fpgen-data",
-        "name": "Knowledge, Vector Search & Files",
-        "authorizedIpSetting": {
-          "allowAll": false,
-          "inherit": true
-        },
-        "authorizedIps": {},
-        "_order": "a0600"
-      },
-      "position": {
-        "x": 1100,
         "y": 770
       }
     },
@@ -655,48 +296,6 @@
         "_order": "a0510"
       },
       "parentId": "wtfMzKTcRVoF3BK15HD2"
-    },
-    "eSwDdXCJ4PzKJTmfUy8D": {
-      "type": "endpoint",
-      "id": "eSwDdXCJ4PzKJTmfUy8D",
-      "width": 250,
-      "position": {
-        "x": 300,
-        "y": 350
-      },
-      "data": {
-        "bind": "ReadWrite",
-        "port": 8080,
-        "uri": "/",
-        "authorizedIpSetting": {
-          "allowAll": false,
-          "inherit": true
-        },
-        "authorizedIps": {},
-        "_order": "a0310"
-      },
-      "parentId": "wCzakD8yeT8dw0WoW6Iq"
-    },
-    "esOv0EztZly5eopdvN4A": {
-      "type": "endpoint",
-      "id": "esOv0EztZly5eopdvN4A",
-      "width": 250,
-      "position": {
-        "x": 350,
-        "y": 350
-      },
-      "data": {
-        "bind": "ReadWrite",
-        "port": 8080,
-        "uri": "/exports",
-        "authorizedIpSetting": {
-          "allowAll": false,
-          "inherit": true
-        },
-        "authorizedIps": {},
-        "_order": "a0410"
-      },
-      "parentId": "wjbIiDUagLgMeOvDWZc7"
     },
     "nJGRtOwfFIhivgqMKcvP": {
       "type": "sideapp",
@@ -807,7 +406,7 @@
         "injection": {
           "jQV6hgFEADDpsfAAOb4F": {
             "path": "/app/template.conf",
-            "data": "user nginx;\nworker_processes auto;\nevents { worker_connections 1024; }\nhttp {\n  include /etc/nginx/mime.types;\n  default_type application/octet-stream;\n  client_max_body_size 1G;\n  keepalive_timeout 180;\n  proxy_connect_timeout 180s;\n  proxy_send_timeout 180s;\n  proxy_read_timeout 180s;\n\n  server {\n    listen 8080;\n    server_name localhost;\n    port_in_redirect off;\n    absolute_redirect off;\n\n    auth_request_set $auth_user $upstream_http_x_auth_request_user;\n    auth_request_set $auth_email $upstream_http_x_auth_request_email;\n    auth_request_set $groups $upstream_http_x_auth_request_groups;\n    auth_request_set $access_token $upstream_http_x_auth_request_access_token;\n    proxy_set_header X-Forwarded-User $auth_user;\n    proxy_set_header X-Forwarded-Email $auth_email;\n    proxy_set_header X-Forwarded-groups $groups;\n    proxy_set_header X-Forwarded-Access-Token $access_token;\n    proxy_set_header Host $http_host;\n    proxy_set_header X-Real-IP $remote_addr;\n    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;\n    proxy_http_version 1.1;\n    proxy_set_header Upgrade $http_upgrade;\n    proxy_set_header Connection \"upgrade\";\n\n    location /oauth2/ { proxy_pass ${ENV_OAUTH2_PROXY_URL}/oauth2/; }\n    location = /oauth2/auth { proxy_pass ${ENV_OAUTH2_PROXY_URL}/oauth2/auth; proxy_pass_request_body off; proxy_set_header Content-Length \"\"; proxy_set_header X-Original-URL $scheme://$http_host$request_uri; }\n    location = /oauth2/callback { proxy_pass ${ENV_OAUTH2_PROXY_URL}/oauth2/callback; }\n    location = /logout { return 302 ${ENV_AUTH_URL}realms/${ENV_KEYCLOAK_REALM}/protocol/openid-connect/logout?client_id=${ENV_KEYCLOAK_OIDC_CLIENT_ID}&post_logout_redirect_uri=${ENV_APP_URL}logout/after; }\n    location = /logout/after { return 302 ${ENV_APP_URL}oauth2/sign_out; }\n\n    location / { auth_request /oauth2/auth; error_page 401 = @error401; proxy_pass ${ENV_FPGEN_API_URL}/; }\n    location /review/ { auth_request /oauth2/auth; error_page 401 = @error401; proxy_pass http://fpgen-admin-review-ui:8080/; }\n    location /api/ { auth_request /oauth2/auth; error_page 401 = @error401; proxy_pass ${ENV_FPGEN_API_URL}/; }\n    location /files/ { auth_request /oauth2/auth; error_page 401 = @error401; proxy_pass http://fpgen-data-file-viewer:8080/files/; }\n    location /exports/ { auth_request /oauth2/auth; error_page 401 = @error401; proxy_pass ${ENV_FPGEN_API_URL}/v1/proposals/; }\n    location @error401 { return 302 /oauth2/start?rd=$scheme://$http_host$request_uri; }\n  }\n}\n",
+            "data": "user nginx;\nworker_processes auto;\nevents { worker_connections 1024; }\nhttp {\n  include /etc/nginx/mime.types;\n  default_type application/octet-stream;\n  client_max_body_size 1G;\n  keepalive_timeout 180;\n  proxy_connect_timeout 180s;\n  proxy_send_timeout 180s;\n  proxy_read_timeout 180s;\n\n  server {\n    listen 8080;\n    server_name localhost;\n    port_in_redirect off;\n    absolute_redirect off;\n\n    auth_request_set $auth_user $upstream_http_x_auth_request_user;\n    auth_request_set $auth_email $upstream_http_x_auth_request_email;\n    auth_request_set $groups $upstream_http_x_auth_request_groups;\n    auth_request_set $access_token $upstream_http_x_auth_request_access_token;\n    proxy_set_header X-Forwarded-User $auth_user;\n    proxy_set_header X-Forwarded-Email $auth_email;\n    proxy_set_header X-Forwarded-groups $groups;\n    proxy_set_header X-Forwarded-Access-Token $access_token;\n    proxy_set_header Host $http_host;\n    proxy_set_header X-Real-IP $remote_addr;\n    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;\n    proxy_http_version 1.1;\n    proxy_set_header Upgrade $http_upgrade;\n    proxy_set_header Connection \"upgrade\";\n\n    location /oauth2/ { proxy_pass ${ENV_OAUTH2_PROXY_URL}/oauth2/; }\n    location = /oauth2/auth { proxy_pass ${ENV_OAUTH2_PROXY_URL}/oauth2/auth; proxy_pass_request_body off; proxy_set_header Content-Length \"\"; proxy_set_header X-Original-URL $scheme://$http_host$request_uri; }\n    location = /oauth2/callback { proxy_pass ${ENV_OAUTH2_PROXY_URL}/oauth2/callback; }\n    location = /logout { return 302 ${ENV_AUTH_URL}realms/${ENV_KEYCLOAK_REALM}/protocol/openid-connect/logout?client_id=${ENV_KEYCLOAK_OIDC_CLIENT_ID}&post_logout_redirect_uri=${ENV_APP_URL}logout/after; }\n    location = /logout/after { return 302 ${ENV_APP_URL}oauth2/sign_out; }\n\n    location / { proxy_pass ${ENV_FPGEN_API_URL}/; }\n    location /api/ { proxy_pass ${ENV_FPGEN_API_URL}/; }\n    location /exports/ { proxy_pass ${ENV_FPGEN_API_URL}/v1/proposals/; }\n    location @error401 { return 302 /oauth2/start?rd=$scheme://$http_host$request_uri; }\n  }\n}\n",
             "_id": "jQV6hgFEADDpsfAAOb4F",
             "_order": "a0000"
           }
@@ -880,6 +479,138 @@
             "value": "24h",
             "_id": "eJF4L38Z52zWUjWJR5h3",
             "_order": "a0006"
+          },
+          "eOAP00": {
+            "key": "OAUTH2_PROXY_PROVIDER",
+            "value": "oidc",
+            "_id": "eOAP00",
+            "_order": "b000"
+          },
+          "eOAP01": {
+            "key": "OAUTH2_PROXY_CLIENT_ID",
+            "value": "fpgen-oidc",
+            "_id": "eOAP01",
+            "_order": "b001"
+          },
+          "eOAP02": {
+            "key": "OAUTH2_PROXY_CLIENT_SECRET",
+            "value": "fpgen-secret",
+            "_id": "eOAP02",
+            "_order": "b002"
+          },
+          "eOAP03": {
+            "key": "OAUTH2_PROXY_COOKIE_SECRET",
+            "value": "btezDJCO7nOYq6vta4vXpE3yBuc49LaRiDgD-Hw8gXk",
+            "_id": "eOAP03",
+            "_order": "b003"
+          },
+          "eOAP04": {
+            "key": "OAUTH2_PROXY_EMAIL_DOMAINS",
+            "value": "*",
+            "_id": "eOAP04",
+            "_order": "b004"
+          },
+          "eOAP05": {
+            "key": "OAUTH2_PROXY_OIDC_ISSUER_URL",
+            "value": "$[[AUTH_URL]]realms/fpgen",
+            "_id": "eOAP05",
+            "_order": "b005"
+          },
+          "eOAP06": {
+            "key": "OAUTH2_PROXY_SKIP_OIDC_DISCOVERY",
+            "value": "true",
+            "_id": "eOAP06",
+            "_order": "b006"
+          },
+          "eOAP07": {
+            "key": "OAUTH2_PROXY_LOGIN_URL",
+            "value": "$[[AUTH_URL]]realms/fpgen/protocol/openid-connect/auth",
+            "_id": "eOAP07",
+            "_order": "b007"
+          },
+          "eOAP08": {
+            "key": "OAUTH2_PROXY_REDEEM_URL",
+            "value": "http://fpgen-auth-keycloak:8080/realms/fpgen/protocol/openid-connect/token",
+            "_id": "eOAP08",
+            "_order": "b008"
+          },
+          "eOAP09": {
+            "key": "OAUTH2_PROXY_OIDC_JWKS_URL",
+            "value": "http://fpgen-auth-keycloak:8080/realms/fpgen/protocol/openid-connect/certs",
+            "_id": "eOAP09",
+            "_order": "b009"
+          },
+          "eOAP10": {
+            "key": "OAUTH2_PROXY_REDIRECT_URL",
+            "value": "$[[APP_URL]]oauth2/callback",
+            "_id": "eOAP10",
+            "_order": "b010"
+          },
+          "eOAP11": {
+            "key": "OAUTH2_PROXY_HTTP_ADDRESS",
+            "value": "0.0.0.0:8080",
+            "_id": "eOAP11",
+            "_order": "b011"
+          },
+          "eOAP12": {
+            "key": "OAUTH2_PROXY_REVERSE_PROXY",
+            "value": "true",
+            "_id": "eOAP12",
+            "_order": "b012"
+          },
+          "eOAP13": {
+            "key": "OAUTH2_PROXY_SET_XAUTHREQUEST",
+            "value": "true",
+            "_id": "eOAP13",
+            "_order": "b013"
+          },
+          "eOAP14": {
+            "key": "OAUTH2_PROXY_PASS_ACCESS_TOKEN",
+            "value": "true",
+            "_id": "eOAP14",
+            "_order": "b014"
+          },
+          "eOAP15": {
+            "key": "OAUTH2_PROXY_SKIP_PROVIDER_BUTTON",
+            "value": "true",
+            "_id": "eOAP15",
+            "_order": "b015"
+          },
+          "eOAP16": {
+            "key": "OAUTH2_PROXY_COOKIE_SECURE",
+            "value": "true",
+            "_id": "eOAP16",
+            "_order": "b016"
+          },
+          "eOAP17": {
+            "key": "OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL",
+            "value": "true",
+            "_id": "eOAP17",
+            "_order": "b017"
+          },
+          "eOAP18": {
+            "key": "OAUTH2_PROXY_SCOPE",
+            "value": "openid email profile",
+            "_id": "eOAP18",
+            "_order": "b018"
+          },
+          "eOAP19": {
+            "key": "OAUTH2_PROXY_UPSTREAMS",
+            "value": "static://200",
+            "_id": "eOAP19",
+            "_order": "b019"
+          },
+          "eOAP20": {
+            "key": "OAUTH2_PROXY_COOKIE_CSRF_PER_REQUEST",
+            "value": "true",
+            "_id": "eOAP20",
+            "_order": "b020"
+          },
+          "eOAP21": {
+            "key": "OAUTH2_PROXY_COOKIE_CSRF_EXPIRE",
+            "value": "5m",
+            "_id": "eOAP21",
+            "_order": "b021"
           }
         },
         "injection": {},
@@ -892,43 +623,6 @@
       "position": {
         "x": 250,
         "y": 300
-      },
-      "parentId": "wbQIv7Ebgh3aOuYkmevl"
-    },
-    "nJ933G6QcO34r5zPaImt": {
-      "type": "sideapp",
-      "id": "nJ933G6QcO34r5zPaImt",
-      "width": 250,
-      "data": {
-        "id": "portal",
-        "name": "FP-GEN Proposal Portal",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/portal:1.0.0",
-        "environment": {
-          "eCREGhrPJfkNweCxqk6a": {
-            "key": "APP_API_URL",
-            "value": "$[[FPGEN_API_URL]]",
-            "_id": "eCREGhrPJfkNweCxqk6a",
-            "_order": "a0000"
-          }
-        },
-        "injection": {
-          "jsCpAs37ZugjHD3VKFdU": {
-            "path": "/app/injection/config.yaml",
-            "data": "envs:\n  system_settings:\n    APP_NAME: \"FP-GEN\"\n    API_BASE_URL: \"$[[FPGEN_API_URL]]\"\n    REVIEW_URL: \"/review/\"\n    EXPORT_URL: \"/exports/\"\n    LOGOUT_REDIRECT_URL: \"/logout\"\n  ui_settings:\n    HEADER_TITLE: \"FP-GEN Proposal Generator\"\n    WELCOME_MESSAGE: |\n      Upload an RFP, review extracted proposal data, calculate fees, and export a proposal package.\n",
-            "_id": "jsCpAs37ZugjHD3VKFdU",
-            "_order": "a0000",
-            "lang": "yaml"
-          }
-        },
-        "storage": {},
-        "_order": "a0150",
-        "replicas": 2,
-        "size": "xl",
-        "showDescription": false
-      },
-      "position": {
-        "x": 20,
-        "y": 170
       },
       "parentId": "wbQIv7Ebgh3aOuYkmevl"
     },
@@ -1029,53 +723,6 @@
       },
       "parentId": "wtfMzKTcRVoF3BK15HD2"
     },
-    "nluk62ytBcWokdwtpqg7": {
-      "type": "sideapp",
-      "id": "nluk62ytBcWokdwtpqg7",
-      "width": 250,
-      "data": {
-        "id": "auth-webapi",
-        "name": "Auth WebAPI",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_auth_webapi:1.11.0",
-        "environment": {
-          "eNezQDBGxCQkX0R8qx1Y": {
-            "key": "POSTGRES_HOST",
-            "value": "fpgen-app-rdb",
-            "_id": "eNezQDBGxCQkX0R8qx1Y",
-            "_order": "a0000"
-          },
-          "eBGpqDDDHc7ToIMH6xLS": {
-            "key": "POSTGRES_PORT",
-            "value": "8080",
-            "_id": "eBGpqDDDHc7ToIMH6xLS",
-            "_order": "a0001"
-          },
-          "e121JohKsOPVA82hAnCe": {
-            "key": "POSTGRES_DB",
-            "value": "postgres",
-            "_id": "e121JohKsOPVA82hAnCe",
-            "_order": "a0002"
-          },
-          "ecsHSAkTtIvlxFVHBESi": {
-            "key": "POSTGRES_SCHEMA",
-            "value": "keycloak",
-            "_id": "ecsHSAkTtIvlxFVHBESi",
-            "_order": "a0003"
-          }
-        },
-        "injection": {},
-        "storage": {},
-        "_order": "a0530",
-        "replicas": 1,
-        "size": "s",
-        "showDescription": false
-      },
-      "position": {
-        "x": 70,
-        "y": 310
-      },
-      "parentId": "wtfMzKTcRVoF3BK15HD2"
-    },
     "nUMm237Gu7igWFP6RQnx": {
       "type": "sideapp",
       "id": "nUMm237Gu7igWFP6RQnx",
@@ -1142,139 +789,6 @@
         "y": 70
       },
       "parentId": "wCzakD8yeT8dw0WoW6Iq"
-    },
-    "nRvLv3Qz9M1oNL020AIp": {
-      "type": "sideapp",
-      "id": "nRvLv3Qz9M1oNL020AIp",
-      "width": 250,
-      "data": {
-        "id": "rfp-parser",
-        "name": "Legacy RFP Parser Reference",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_chat_web_api:1.11.0",
-        "environment": {
-          "eg0QAXCC3j096LDUp1UW": {
-            "key": "LITELLM_URL",
-            "value": "http://fpgen-ai-litellm:8080",
-            "_id": "eg0QAXCC3j096LDUp1UW",
-            "_order": "a0000"
-          },
-          "eMafNDjvcGbuJ50Vcjcj": {
-            "key": "LITELLM_MASTER_KEY",
-            "value": "${{SECRET.LITE_LLM_ADMIN_PASSWORD}}",
-            "_id": "eMafNDjvcGbuJ50Vcjcj",
-            "_order": "a0001"
-          },
-          "e86fTdfQFAFVSRzo7XK4": {
-            "key": "PARSER_SCHEMA",
-            "value": "fpgen_rfp_analysis_v1",
-            "_id": "e86fTdfQFAFVSRzo7XK4",
-            "_order": "a0002"
-          },
-          "eT6wuf5jWw7WoAlmTubJ": {
-            "key": "MAX_UPLOAD_MB",
-            "value": "100",
-            "_id": "eT6wuf5jWw7WoAlmTubJ",
-            "_order": "a0003"
-          }
-        },
-        "injection": {
-          "jr4kVkhBrY6533gfF1Q1": {
-            "path": "/app/schemas/rfp_analysis.schema.json",
-            "data": "{\n  \"project\": {\"name\":\"\", \"location\":\"\", \"type\":\"\", \"siteArea\":\"\"},\n  \"client\": {\"name\":\"\", \"contact\":\"\"},\n  \"understanding\": {},\n  \"methodology\": {},\n  \"scope\": {\"tasks\": [], \"deliverables\": []},\n  \"schedule\": {\"totalWeeks\": 0, \"milestones\": []},\n  \"team\": {},\n  \"fee\": {\"currency\": \"USD\", \"rates\": {}, \"effortByPhase\": {}, \"travel\": {}, \"subconsultants\": []},\n  \"experience\": [],\n  \"assumptions\": {}\n}\n",
-            "_id": "jr4kVkhBrY6533gfF1Q1",
-            "_order": "a0000",
-            "lang": "json"
-          }
-        },
-        "storage": {},
-        "_order": "a0330",
-        "replicas": 1,
-        "size": "m",
-        "showDescription": false
-      },
-      "position": {
-        "x": 330,
-        "y": 70
-      },
-      "parentId": "wCzakD8yeT8dw0WoW6Iq"
-    },
-    "nyDochzWtbGvsZHYbHav": {
-      "type": "sideapp",
-      "id": "nyDochzWtbGvsZHYbHav",
-      "width": 250,
-      "data": {
-        "id": "section-synthesis",
-        "name": "Legacy Section Synthesis Reference",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_chat_web_api:1.11.0",
-        "environment": {
-          "eJ1FXRAzlR6QJmKRQKgR": {
-            "key": "LITELLM_URL",
-            "value": "http://fpgen-ai-litellm:8080",
-            "_id": "eJ1FXRAzlR6QJmKRQKgR",
-            "_order": "a0000"
-          },
-          "eC76epOy9rD2ls3VuZW3": {
-            "key": "LITELLM_MASTER_KEY",
-            "value": "${{SECRET.LITE_LLM_ADMIN_PASSWORD}}",
-            "_id": "eC76epOy9rD2ls3VuZW3",
-            "_order": "a0001"
-          },
-          "e11X1TiwdmAdaGEQR0Zz": {
-            "key": "DEFAULT_SECTIONS",
-            "value": "cover_letter,project_understanding,methodology,scope_deliverables,schedule,team,financial,relevant_experience,assumptions_exclusions",
-            "_id": "e11X1TiwdmAdaGEQR0Zz",
-            "_order": "a0002"
-          }
-        },
-        "injection": {},
-        "storage": {},
-        "_order": "a0340",
-        "replicas": 1,
-        "size": "m",
-        "showDescription": false
-      },
-      "position": {
-        "x": 330,
-        "y": 260
-      },
-      "parentId": "wCzakD8yeT8dw0WoW6Iq"
-    },
-    "nHgzQayUSc2d7fZig8xH": {
-      "type": "sideapp",
-      "id": "nHgzQayUSc2d7fZig8xH",
-      "width": 250,
-      "data": {
-        "id": "review-ui",
-        "name": "Review & Finalize UI",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_admin_console:1.11.0",
-        "environment": {
-          "e5kV6n7nbqEfumxt94cS": {
-            "key": "API_BASE_URL",
-            "value": "$[[FPGEN_API_URL]]",
-            "_id": "e5kV6n7nbqEfumxt94cS",
-            "_order": "a0000"
-          }
-        },
-        "injection": {
-          "joyYlrEyym4P28EGDoym": {
-            "path": "/app/dist/config.json",
-            "data": "{\n  \"backendUrl\": \"/api\",\n  \"logoutRedirectUrl\": \"/logout\",\n  \"sections\": [\"cover_letter\", \"project_understanding\", \"methodology\", \"scope_deliverables\", \"schedule\", \"team\", \"financial\", \"relevant_experience\", \"assumptions_exclusions\"]\n}\n",
-            "_id": "joyYlrEyym4P28EGDoym",
-            "_order": "a0000",
-            "lang": "json"
-          }
-        },
-        "storage": {},
-        "_order": "a0210",
-        "replicas": 2,
-        "size": "xl",
-        "showDescription": false
-      },
-      "position": {
-        "x": 40,
-        "y": 80
-      },
-      "parentId": "wxxwNK83spBJX0R7YIFz"
     },
     "n1lf1sMfePmniDh2x50c": {
       "type": "sideapp",
@@ -1357,12 +871,6 @@
             "_id": "eByGLEYwum1PnWztus44",
             "_order": "a000B"
           },
-          "e98ul0ZnNqFimSpeScOy": {
-            "key": "FILEMANAGER_WEBAPI_URL",
-            "value": "http://fpgen-data-filemanager:8080",
-            "_id": "e98ul0ZnNqFimSpeScOy",
-            "_order": "a000C"
-          },
           "eKi0WZ4OiwSmEq6oX08N": {
             "key": "CRYPTO_KEY",
             "value": "$[[CONFIG_CRYPTO_KEY]]",
@@ -1426,7 +934,7 @@
           }
         },
         "_order": "a0220",
-        "replicas": 2,
+        "replicas": 1,
         "size": "m",
         "showDescription": false
       },
@@ -1435,691 +943,6 @@
         "y": 80
       },
       "parentId": "wxxwNK83spBJX0R7YIFz"
-    },
-    "nuIzC1iKTqVIhknUqjbI": {
-      "type": "sideapp",
-      "id": "nuIzC1iKTqVIhknUqjbI",
-      "width": 250,
-      "data": {
-        "id": "fee-engine",
-        "name": "Legacy Fee Engine Reference",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_chat_web_api:1.11.0",
-        "environment": {
-          "eeSdMIxPjq2sCAp7chtk": {
-            "key": "DEFAULT_CURRENCY",
-            "value": "$[[DEFAULT_CURRENCY]]",
-            "_id": "eeSdMIxPjq2sCAp7chtk",
-            "_order": "a0000"
-          },
-          "eBa0UnDiJLQ5V4lNbTcq": {
-            "key": "DEFAULT_OVERHEAD_PCT",
-            "value": "$[[DEFAULT_OVERHEAD_PCT]]",
-            "_id": "eBa0UnDiJLQ5V4lNbTcq",
-            "_order": "a0001"
-          },
-          "eIFKeKb77wzrG8BMIQCS": {
-            "key": "RATE_TABLE_SOURCE",
-            "value": "fpgen.rates",
-            "_id": "eIFKeKb77wzrG8BMIQCS",
-            "_order": "a0002"
-          },
-          "e55OuhtXFm3rVhpHrHen": {
-            "key": "TRAVEL_UNIT_COST_USD",
-            "value": "6000",
-            "_id": "e55OuhtXFm3rVhpHrHen",
-            "_order": "a0003"
-          }
-        },
-        "injection": {
-          "jHUW1QqeC3AMnbmN9f0U": {
-            "path": "/app/config/fee_rules.yaml",
-            "data": "fee_rules:\n  labor: \"sum(role_hours * role_rate)\"\n  overhead: \"labor_subtotal * overhead_pct\"\n  travel: \"trips * people_per_trip * unit_cost\"\n  total: \"labor + overhead + subconsultants + reimbursables\"\n  default_phases:\n    - Pre-Concept\n    - Concept Design\n    - Schematic Design\n",
-            "_id": "jHUW1QqeC3AMnbmN9f0U",
-            "_order": "a0000",
-            "lang": "yaml"
-          }
-        },
-        "storage": {},
-        "_order": "a0230",
-        "replicas": 1,
-        "size": "s",
-        "showDescription": false
-      },
-      "position": {
-        "x": 650,
-        "y": 80
-      },
-      "parentId": "wxxwNK83spBJX0R7YIFz"
-    },
-    "nXKqHnTOCjGnCXtYw5PK": {
-      "type": "sideapp",
-      "id": "nXKqHnTOCjGnCXtYw5PK",
-      "width": 250,
-      "data": {
-        "id": "config",
-        "name": "FP-GEN Config Center",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_config_center:1.11.0",
-        "environment": {
-          "eGBnN1uJium6Upw0OHOh": {
-            "key": "BASE_PATH",
-            "value": "/config",
-            "_id": "eGBnN1uJium6Upw0OHOh",
-            "_order": "a0000"
-          },
-          "e60Rn34OpX6AHARpJNw6": {
-            "key": "POSTGRES_HOST",
-            "value": "fpgen-app-rdb",
-            "_id": "e60Rn34OpX6AHARpJNw6",
-            "_order": "a0001"
-          },
-          "ec1fxbLozMfOagD8YJmh": {
-            "key": "POSTGRES_PORT",
-            "value": "8080",
-            "_id": "ec1fxbLozMfOagD8YJmh",
-            "_order": "a0002"
-          },
-          "eA6soL3hFlSMHnDa3nZy": {
-            "key": "POSTGRES_DB",
-            "value": "postgres",
-            "_id": "eA6soL3hFlSMHnDa3nZy",
-            "_order": "a0003"
-          },
-          "eUzBdV0pxqRntZp9BXJB": {
-            "key": "POSTGRES_SCHEMA",
-            "value": "config_manager",
-            "_id": "eUzBdV0pxqRntZp9BXJB",
-            "_order": "a0004"
-          },
-          "e3ALHe4OFAIgs1n73FBJ": {
-            "key": "POSTGRES_USER",
-            "value": "$[[DB_USER]]",
-            "_id": "e3ALHe4OFAIgs1n73FBJ",
-            "_order": "a0005"
-          },
-          "e2Q2qqx16SEQFcMVGJPN": {
-            "key": "POSTGRES_PASSWORD",
-            "value": "$[[DB_PASSWORD]]",
-            "_id": "e2Q2qqx16SEQFcMVGJPN",
-            "_order": "a0006"
-          },
-          "eRbHsFrjsbIqKPMEyEAE": {
-            "key": "CRYPTO_KEY",
-            "value": "$[[CONFIG_CRYPTO_KEY]]",
-            "_id": "eRbHsFrjsbIqKPMEyEAE",
-            "_order": "a0007"
-          }
-        },
-        "injection": {},
-        "storage": {
-          "saBTi1ZPHV2c96AirFie": {
-            "path": "/app/storage",
-            "_id": "saBTi1ZPHV2c96AirFie",
-            "_order": "a0000"
-          }
-        },
-        "_order": "a0240",
-        "replicas": 1,
-        "size": "m",
-        "showDescription": false
-      },
-      "position": {
-        "x": 930,
-        "y": 80
-      },
-      "parentId": "wxxwNK83spBJX0R7YIFz"
-    },
-    "puhsX8PH2Q76c0Vl6ByS": {
-      "type": "pipeline",
-      "id": "puhsX8PH2Q76c0Vl6ByS",
-      "width": 350,
-      "data": {
-        "id": "pl-rfp-analysis",
-        "name": "RFP Upload & AI Extraction",
-        "_order": "a0250"
-      },
-      "position": {
-        "x": 40,
-        "y": 420
-      },
-      "parentId": "wxxwNK83spBJX0R7YIFz"
-    },
-    "p8GP7ztywpBZqAuS8809": {
-      "type": "pipeline",
-      "id": "p8GP7ztywpBZqAuS8809",
-      "width": 350,
-      "data": {
-        "id": "pl-review-model",
-        "name": "Canonical Review Model Mapping",
-        "_order": "a0260"
-      },
-      "position": {
-        "x": 410,
-        "y": 420
-      },
-      "parentId": "wxxwNK83spBJX0R7YIFz"
-    },
-    "pRUKquwiTUWnyJcEopFE": {
-      "type": "pipeline",
-      "id": "pRUKquwiTUWnyJcEopFE",
-      "width": 350,
-      "data": {
-        "id": "pl-fee-calculation",
-        "name": "Fee Calculation",
-        "_order": "a0270"
-      },
-      "position": {
-        "x": 780,
-        "y": 420
-      },
-      "parentId": "wxxwNK83spBJX0R7YIFz"
-    },
-    "f24sbEbKYZwCSmfAPMK1": {
-      "type": "function",
-      "id": "f24sbEbKYZwCSmfAPMK1",
-      "width": 290,
-      "data": {
-        "id": "parse-rfp",
-        "name": "Parse RFP to AI JSON",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_pdf_importer:1.11.0",
-        "computeType": "CPU",
-        "inputs": {},
-        "outputs": {},
-        "environment": {
-          "eFCAUpFAm4QOfEes0Fre": {
-            "key": "RFP_PARSER_URL",
-            "value": "$[[FPGEN_API_URL]]/v1/parse",
-            "_id": "eFCAUpFAm4QOfEes0Fre",
-            "_order": "a0000"
-          },
-          "eN5Uvp5YLQeVQOyIqi9L": {
-            "key": "FILEMANAGER_WEBAPI_URL",
-            "value": "http://fpgen-data-filemanager:8080",
-            "_id": "eN5Uvp5YLQeVQOyIqi9L",
-            "_order": "a0001"
-          }
-        },
-        "injection": {},
-        "storage": {},
-        "_order": "a0251"
-      },
-      "position": {
-        "x": 0,
-        "y": 0
-      },
-      "parentId": "puhsX8PH2Q76c0Vl6ByS"
-    },
-    "fxN0oPDChDbtnPnr2s3c": {
-      "type": "function",
-      "id": "fxN0oPDChDbtnPnr2s3c",
-      "width": 290,
-      "data": {
-        "id": "map-review-model",
-        "name": "Map AI JSON to Review Model",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_recipe_importer:1.11.0",
-        "computeType": "CPU",
-        "inputs": {},
-        "outputs": {},
-        "environment": {
-          "e3WroiQyg3HvWX8tHmNt": {
-            "key": "DEFAULT_TOTAL_WEEKS",
-            "value": "44",
-            "_id": "e3WroiQyg3HvWX8tHmNt",
-            "_order": "a0000"
-          },
-          "eiLL0GBIETYGUh96m5IZ": {
-            "key": "DEFAULT_SECTIONS",
-            "value": "9",
-            "_id": "eiLL0GBIETYGUh96m5IZ",
-            "_order": "a0001"
-          }
-        },
-        "injection": {},
-        "storage": {},
-        "_order": "a0261"
-      },
-      "position": {
-        "x": 0,
-        "y": 0
-      },
-      "parentId": "p8GP7ztywpBZqAuS8809"
-    },
-    "fhqukDeEN5UDswZwCq8k": {
-      "type": "function",
-      "id": "fhqukDeEN5UDswZwCq8k",
-      "width": 290,
-      "data": {
-        "id": "compute-fee",
-        "name": "Compute Labor, OH&P, Subs and Travel",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_csv_importer:1.11.0",
-        "computeType": "CPU",
-        "inputs": {},
-        "outputs": {},
-        "environment": {
-          "eSaoJSGurj5u4k95Zl2J": {
-            "key": "FEE_ENGINE_URL",
-            "value": "$[[FPGEN_API_URL]]/v1/fee/calculate",
-            "_id": "eSaoJSGurj5u4k95Zl2J",
-            "_order": "a0000"
-          }
-        },
-        "injection": {},
-        "storage": {},
-        "_order": "a0271"
-      },
-      "position": {
-        "x": 0,
-        "y": 0
-      },
-      "parentId": "pRUKquwiTUWnyJcEopFE"
-    },
-    "nn2wBdjOaayJSIn3SdoR": {
-      "type": "sideapp",
-      "id": "nn2wBdjOaayJSIn3SdoR",
-      "width": 250,
-      "data": {
-        "id": "export-service",
-        "name": "Legacy Export Service Reference",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_chat_web_api:1.11.0",
-        "environment": {
-          "eEZ3P198ASf8IqYaVZZt": {
-            "key": "POSTGRES_HOST",
-            "value": "fpgen-app-rdb",
-            "_id": "eEZ3P198ASf8IqYaVZZt",
-            "_order": "a0000"
-          },
-          "eAA39TE5SyLxMXENexwz": {
-            "key": "POSTGRES_SCHEMA",
-            "value": "fpgen",
-            "_id": "eAA39TE5SyLxMXENexwz",
-            "_order": "a0001"
-          },
-          "eirRdXLJUg1tYf21Qdtk": {
-            "key": "FILEMANAGER_WEBAPI_URL",
-            "value": "http://fpgen-data-filemanager:8080",
-            "_id": "eirRdXLJUg1tYf21Qdtk",
-            "_order": "a0002"
-          },
-          "eyF23ag8u0rhniekIYTI": {
-            "key": "TEMPLATE_LIBRARY_PATH",
-            "value": "/templates",
-            "_id": "eyF23ag8u0rhniekIYTI",
-            "_order": "a0003"
-          },
-          "eWHbOK01gBjGTxNsBUl3": {
-            "key": "EXPORT_PATH",
-            "value": "/exports",
-            "_id": "eWHbOK01gBjGTxNsBUl3",
-            "_order": "a0004"
-          }
-        },
-        "injection": {
-          "jARMKx8H1vkEgdcAbyNc": {
-            "path": "/app/templates/section_manifest.json",
-            "data": "{\n  \"sections\": [\n    \"cover_letter\",\n    \"project_understanding\",\n    \"methodology\",\n    \"scope_deliverables\",\n    \"schedule\",\n    \"team\",\n    \"financial\",\n    \"relevant_experience\",\n    \"assumptions_exclusions\"\n  ],\n  \"supportedOutputs\": [\"docx\", \"pptx\", \"pdf\"]\n}\n",
-            "_id": "jARMKx8H1vkEgdcAbyNc",
-            "_order": "a0000",
-            "lang": "json"
-          }
-        },
-        "storage": {
-          "s79pthD7ng4Q2NyxzIwq": {
-            "path": "/templates",
-            "_id": "s79pthD7ng4Q2NyxzIwq",
-            "_order": "a0000"
-          },
-          "smmOI27XGjOGgNWg6H82": {
-            "path": "/exports",
-            "_id": "smmOI27XGjOGgNWg6H82",
-            "_order": "a0001"
-          }
-        },
-        "_order": "a0415",
-        "replicas": 1,
-        "size": "m",
-        "showDescription": false
-      },
-      "position": {
-        "x": 60,
-        "y": 90
-      },
-      "parentId": "wjbIiDUagLgMeOvDWZc7"
-    },
-    "pUwuht4tAcMk591oGu5j": {
-      "type": "pipeline",
-      "id": "pUwuht4tAcMk591oGu5j",
-      "width": 350,
-      "data": {
-        "id": "pl-export-proposal",
-        "name": "Generate DOCX/PPTX/PDF Package",
-        "_order": "a0420"
-      },
-      "position": {
-        "x": 330,
-        "y": 90
-      },
-      "parentId": "wjbIiDUagLgMeOvDWZc7"
-    },
-    "facjnj2PrkexSoghBEg5": {
-      "type": "function",
-      "id": "facjnj2PrkexSoghBEg5",
-      "width": 290,
-      "data": {
-        "id": "export-proposal",
-        "name": "Build final proposal documents",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_func_word_importer:1.11.0",
-        "computeType": "CPU",
-        "inputs": {},
-        "outputs": {},
-        "environment": {
-          "e4B5mtMTcEbzfEB8GBLw": {
-            "key": "EXPORT_SERVICE_URL",
-            "value": "$[[FPGEN_API_URL]]/v1/proposals/generate",
-            "_id": "e4B5mtMTcEbzfEB8GBLw",
-            "_order": "a0000"
-          }
-        },
-        "injection": {},
-        "storage": {},
-        "_order": "a0421"
-      },
-      "position": {
-        "x": 0,
-        "y": 0
-      },
-      "parentId": "pUwuht4tAcMk591oGu5j"
-    },
-    "n39XwWxuBPsHjfRYR1UZ": {
-      "type": "sideapp",
-      "id": "n39XwWxuBPsHjfRYR1UZ",
-      "width": 250,
-      "data": {
-        "id": "filemanager",
-        "name": "File Manager",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_file_manager:1.11.0",
-        "environment": {
-          "e7NWneBBCxj8E94tZe9Y": {
-            "key": "POSTGRES_HOST",
-            "value": "fpgen-app-rdb",
-            "_id": "e7NWneBBCxj8E94tZe9Y",
-            "_order": "a0000"
-          },
-          "eiA80zXh0y47XFurdjaf": {
-            "key": "POSTGRES_SCHEMA",
-            "value": "file_manager",
-            "_id": "eiA80zXh0y47XFurdjaf",
-            "_order": "a0001"
-          },
-          "eMtPy47ooxRgBCMqr6Eh": {
-            "key": "STORAGE_API_URL",
-            "value": "http://fpgen-data-storage-manager:8080",
-            "_id": "eMtPy47ooxRgBCMqr6Eh",
-            "_order": "a0002"
-          }
-        },
-        "injection": {},
-        "storage": {
-          "s85nOykS3Hc3HJAGf4iz": {
-            "path": "/app/storage",
-            "_id": "s85nOykS3Hc3HJAGf4iz",
-            "_order": "a0000"
-          }
-        },
-        "_order": "a0610",
-        "replicas": 1,
-        "size": "m",
-        "showDescription": false
-      },
-      "position": {
-        "x": 40,
-        "y": 80
-      },
-      "parentId": "wtvAeJp7E6BieKNkB9Bf"
-    },
-    "n0xWW66SeTN4OL20TNbj": {
-      "type": "sideapp",
-      "id": "n0xWW66SeTN4OL20TNbj",
-      "width": 250,
-      "data": {
-        "id": "storage-manager",
-        "name": "Storage Manager",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/shared_storage_webapi:1.1.0",
-        "environment": {
-          "eKFQNwiyqaXgNJOeU4hR": {
-            "key": "POSTGRES_HOST",
-            "value": "fpgen-app-rdb",
-            "_id": "eKFQNwiyqaXgNJOeU4hR",
-            "_order": "a0000"
-          },
-          "esxIZbGCJJg2fLpq8pQA": {
-            "key": "POSTGRES_SCHEMA",
-            "value": "file_manager",
-            "_id": "esxIZbGCJJg2fLpq8pQA",
-            "_order": "a0001"
-          }
-        },
-        "injection": {},
-        "storage": {
-          "snQUVJBXDU0wiSyeIXHC": {
-            "path": "/app/storage",
-            "_id": "snQUVJBXDU0wiSyeIXHC",
-            "_order": "a0000"
-          }
-        },
-        "_order": "a0620",
-        "replicas": 1,
-        "size": "m",
-        "showDescription": false
-      },
-      "position": {
-        "x": 330,
-        "y": 80
-      },
-      "parentId": "wtvAeJp7E6BieKNkB9Bf"
-    },
-    "nxk4yXX7FQJAyJYFnXdA": {
-      "type": "sideapp",
-      "id": "nxk4yXX7FQJAyJYFnXdA",
-      "width": 250,
-      "data": {
-        "id": "file-viewer",
-        "name": "File Viewer",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_file_viewer:1.11.0",
-        "environment": {
-          "eqaJZ45IUa7HXHBmUsBa": {
-            "key": "FILE_MANAGER_API_URL",
-            "value": "http://fpgen-data-filemanager:8080",
-            "_id": "eqaJZ45IUa7HXHBmUsBa",
-            "_order": "a0000"
-          },
-          "eyEzehEl0jgZRxLuSmpX": {
-            "key": "BASE_PATH",
-            "value": "/files",
-            "_id": "eyEzehEl0jgZRxLuSmpX",
-            "_order": "a0001"
-          },
-          "e0wlnQPeJtQGHEzSO9Nl": {
-            "key": "STORAGE_API_URL",
-            "value": "http://fpgen-data-storage-manager:8080",
-            "_id": "e0wlnQPeJtQGHEzSO9Nl",
-            "_order": "a0002"
-          }
-        },
-        "injection": {},
-        "storage": {},
-        "_order": "a0630",
-        "replicas": 1,
-        "size": "s",
-        "showDescription": false
-      },
-      "position": {
-        "x": 40,
-        "y": 280
-      },
-      "parentId": "wtvAeJp7E6BieKNkB9Bf"
-    },
-    "npCZq6riaLxqc1CjqcL9": {
-      "type": "sideapp",
-      "id": "npCZq6riaLxqc1CjqcL9",
-      "width": 250,
-      "data": {
-        "id": "qdrant",
-        "name": "Vector DB (Qdrant)",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/qdrant:1.1.1",
-        "environment": {},
-        "injection": {},
-        "storage": {
-          "ssMeQW6hgaphF1pk0HMz": {
-            "path": "/qdrant/storage",
-            "_id": "ssMeQW6hgaphF1pk0HMz",
-            "_order": "a0000"
-          }
-        },
-        "_order": "a0640",
-        "replicas": 1,
-        "size": "m",
-        "showDescription": false
-      },
-      "position": {
-        "x": 330,
-        "y": 280
-      },
-      "parentId": "wtvAeJp7E6BieKNkB9Bf"
-    },
-    "nb8fZlxb4HemdEc32Zli": {
-      "type": "sideapp",
-      "id": "nb8fZlxb4HemdEc32Zli",
-      "width": 250,
-      "data": {
-        "id": "search-engine",
-        "name": "Relevant Experience Search",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_search_engine_webapi:1.11.0",
-        "environment": {
-          "ejkECUAWISJxMij0B5mC": {
-            "key": "VECTORDB_WEBAPI_URL",
-            "value": "http://fpgen-data-vectordb-webapi:8080",
-            "_id": "ejkECUAWISJxMij0B5mC",
-            "_order": "a0000"
-          },
-          "ec2O2dg5V6aosUTToR5y": {
-            "key": "PROJECT_PROFILE_INDEX",
-            "value": "fpgen_project_profiles",
-            "_id": "ec2O2dg5V6aosUTToR5y",
-            "_order": "a0001"
-          },
-          "eCq3pRjDPcv7VZlME0fm": {
-            "key": "RFP_INDEX",
-            "value": "fpgen_rfp_history",
-            "_id": "eCq3pRjDPcv7VZlME0fm",
-            "_order": "a0002"
-          }
-        },
-        "injection": {},
-        "storage": {},
-        "_order": "a0650",
-        "replicas": 1,
-        "size": "m",
-        "showDescription": false
-      },
-      "position": {
-        "x": 570,
-        "y": 180
-      },
-      "parentId": "wtvAeJp7E6BieKNkB9Bf"
-    },
-    "nm2GMJBUtFMiVFdu6W8O": {
-      "type": "sideapp",
-      "id": "nm2GMJBUtFMiVFdu6W8O",
-      "width": 250,
-      "data": {
-        "id": "vectordb-webapi",
-        "name": "VectorDB WebAPI",
-        "image": "534148718950.dkr.ecr.ap-northeast-1.amazonaws.com/ebstudio/asset-library-master/public/github/space/asset-library-master/ragops_sideapp_vector_db_webapi:1.11.0",
-        "environment": {
-          "eBeGlB4wQRzVKxLLRGuH": {
-            "key": "QDRANT_URL",
-            "value": "http://fpgen-data-qdrant:8080",
-            "_id": "eBeGlB4wQRzVKxLLRGuH",
-            "_order": "a0000"
-          },
-          "ebGCOGQLqNlvQ5rIBFEA": {
-            "key": "FILEMANAGER_WEBAPI_URL",
-            "value": "http://fpgen-data-filemanager:8080",
-            "_id": "ebGCOGQLqNlvQ5rIBFEA",
-            "_order": "a0001"
-          }
-        },
-        "injection": {},
-        "storage": {},
-        "_order": "a0660",
-        "replicas": 1,
-        "size": "m",
-        "showDescription": false
-      },
-      "position": {
-        "x": 570,
-        "y": 360
-      },
-      "parentId": "wtvAeJp7E6BieKNkB9Bf"
-    },
-    "dHkHtJsDGNeQfoTiPQsG": {
-      "type": "entity",
-      "id": "dHkHtJsDGNeQfoTiPQsG",
-      "width": 200,
-      "position": {
-        "x": 260,
-        "y": 315
-      },
-      "data": {
-        "id": "rfp-analysis-json",
-        "name": "AI RFP analysis JSON",
-        "showDescription": false,
-        "description": "",
-        "expires": 60000,
-        "interval": 1000,
-        "type": "io.ebstudio.core.entity.data",
-        "_order": "a0280"
-      },
-      "parentId": "wxxwNK83spBJX0R7YIFz"
-    },
-    "duEZzrJZTsFxLAZmtbXR": {
-      "type": "entity",
-      "id": "duEZzrJZTsFxLAZmtbXR",
-      "width": 200,
-      "position": {
-        "x": 570,
-        "y": 315
-      },
-      "data": {
-        "id": "review-model",
-        "name": "Canonical review/finalize model",
-        "showDescription": false,
-        "description": "",
-        "expires": 60000,
-        "interval": 1000,
-        "type": "io.ebstudio.core.entity.data",
-        "_order": "a0290"
-      },
-      "parentId": "wxxwNK83spBJX0R7YIFz"
-    },
-    "d0YK7kj8vVWIwc5ra4gM": {
-      "type": "entity",
-      "id": "d0YK7kj8vVWIwc5ra4gM",
-      "width": 200,
-      "position": {
-        "x": 300,
-        "y": 300
-      },
-      "data": {
-        "id": "proposal-package",
-        "name": "Generated proposal package",
-        "showDescription": false,
-        "description": "",
-        "expires": 60000,
-        "interval": 1000,
-        "type": "io.ebstudio.core.entity.data",
-        "_order": "a0430"
-      },
-      "parentId": "wjbIiDUagLgMeOvDWZc7"
     },
     "tJyZadvyezIL8Oor9cis": {
       "type": "sticky",
@@ -2137,40 +960,6 @@
       },
       "parentId": "wxxwNK83spBJX0R7YIFz",
       "width": 360
-    },
-    "tNYyRs8r4pYazNQXJ2Bk": {
-      "type": "sticky",
-      "id": "tNYyRs8r4pYazNQXJ2Bk",
-      "position": {
-        "x": 290,
-        "y": 285
-      },
-      "data": {
-        "id": "",
-        "name": "",
-        "text": "Outputs are intended to match FP-GEN proposal structure:<br>Cover Letter, Understanding, Methodology, Scope, Schedule, Team, Financial, Experience.",
-        "fill": "gray",
-        "_order": "a0440"
-      },
-      "parentId": "wjbIiDUagLgMeOvDWZc7",
-      "width": 360
-    },
-    "thK9TFpsJyUNvYD8x9FN": {
-      "type": "sticky",
-      "id": "thK9TFpsJyUNvYD8x9FN",
-      "position": {
-        "x": 30,
-        "y": 470
-      },
-      "data": {
-        "id": "",
-        "name": "",
-        "text": "RFP/project profile knowledge can store prior proposals, CVs, schedules, deliverables, fee rates, and relevant experience.",
-        "fill": "gray",
-        "_order": "a0670"
-      },
-      "parentId": "wtvAeJp7E6BieKNkB9Bf",
-      "width": 520
     }
   },
   "projectName": "FP-GEN exaBase Import",

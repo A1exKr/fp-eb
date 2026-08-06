@@ -1,686 +1,1495 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FP-GEN | Fee Proposal Generator — Nikken Sekkei</title>
   <style>
     :root {
-      --accent:#1565c0; --accent-dark:#1f2a30; --bg:#f2f3ef; --ink:#11161a;
-      --soft:#ece6e0; --muted:#66707a; --line:#d8dcd8; --line2:#b9c0c6;
-      --panel:rgba(255,255,255,0.97); --card:#fafaf8;
-      --shadow:0 10px 28px rgba(17,22,26,0.09); --r:8px;
-      --font:"Century Gothic","Avenir Next","Helvetica Neue",sans-serif;
+      --accent: #1565c0;
+      --accent-dark: #1f2a30;
+      --bg: #f2f3ef;
+      --ink: #11161a;
+      --soft: #ece6e0;
+      --muted: #66707a;
+      --line: #d8dcd8;
+      --line2: #b9c0c6;
+      --panel: rgba(255, 255, 255, 0.97);
+      --card: #fafaf8;
+      --shadow: 0 10px 28px rgba(17, 22, 26, 0.09);
+      --r: 8px;
+      --font: "Century Gothic", "Avenir Next", "Helvetica Neue", sans-serif;
     }
-    *,*::before,*::after{box-sizing:border-box}
-    html{font-size:14px}
-    html{overflow-x:auto}
-    body{overflow-x:auto;min-width:320px}
-    body{margin:0;color:var(--ink);font-family:var(--font);background:#e8edf5;min-height:100vh}
-    button,input,textarea,select{font:inherit}
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box
+    }
+
+    html {
+      font-size: 14px
+    }
+
+    html {
+      overflow-x: auto
+    }
+
+    body {
+      overflow-x: auto;
+      min-width: 320px
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font);
+      background: #e8edf5;
+      min-height: 100vh
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit
+    }
+
     /* Header */
-    .hdr{position:sticky;top:0;z-index:100;width:100%;border-top:4px solid var(--accent);background:linear-gradient(135deg,var(--accent-dark) 0%,#11161a 100%);color:#fff}
-    .hdr-in{max-width:1600px;margin:0 auto;padding:14px 28px 10px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-    .wm{font-size:34px;font-weight:700;letter-spacing:-.04em;text-transform:uppercase;line-height:1}
-    .wm-sub{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:3px}
-    .pills{display:flex;gap:5px;flex-wrap:wrap;flex:1}
-    .pill{padding:5px 10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:3px;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.6)}
-    .pill.done{background:rgba(21,101,192,.5);border-color:rgba(21,101,192,.8);color:#fff}
+    .hdr {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      width: 100%;
+      border-top: 4px solid var(--accent);
+      background: linear-gradient(135deg, var(--accent-dark) 0%, #11161a 100%);
+      color: #fff
+    }
+
+    .hdr-in {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 14px 28px 10px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap
+    }
+
+    .wm {
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: -.04em;
+      text-transform: uppercase;
+      line-height: 1
+    }
+
+    .wm-sub {
+      font-size: 10px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, .45);
+      margin-top: 3px
+    }
+
+    .pills {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      flex: 1
+    }
+
+    .pill {
+      padding: 5px 10px;
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid rgba(255, 255, 255, .13);
+      border-radius: 3px;
+      font-size: 10px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, .6)
+    }
+
+    .pill.done {
+      background: rgba(21, 101, 192, .5);
+      border-color: rgba(21, 101, 192, .8);
+      color: #fff
+    }
+
+    /* Top-right account menu */
+    .menu {
+      position: relative;
+      flex: 0 0 auto
+    }
+
+    .menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 11px;
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 12px;
+      font-weight: 600
+    }
+
+    .menu-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, .15);
+      transform: none
+    }
+
+    .menu-btn .avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700
+    }
+
+    .menu-btn .caret {
+      font-size: 8px;
+      opacity: .7
+    }
+
+    .menu-pop {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 236px;
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, .28);
+      padding: 6px;
+      z-index: 200;
+      display: none
+    }
+
+    .menu-pop.open {
+      display: block
+    }
+
+    .menu-id {
+      padding: 9px 11px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 6px
+    }
+
+    .menu-id .mu {
+      font-size: 13px;
+      font-weight: 700;
+      word-break: break-all;
+      color: var(--ink)
+    }
+
+    .menu-id .mg {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      text-align: left;
+      padding: 9px 11px;
+      border-radius: 5px;
+      background: none;
+      border: none;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
+      cursor: pointer;
+      text-decoration: none
+    }
+
+    .menu-item:hover {
+      background: var(--soft);
+      transform: none
+    }
+
+    .menu-item.hidden {
+      display: none
+    }
+
+    .menu-sep {
+      height: 1px;
+      background: var(--line);
+      margin: 6px 4px
+    }
+
     /* Status */
-    .status{background:var(--accent-dark);color:rgba(255,255,255,.72);font-size:12px;padding:0;min-height:30px}
-    .status-in{max-width:1600px;margin:0 auto;padding:6px 28px}
+    .status {
+      background: var(--accent-dark);
+      color: rgba(255, 255, 255, .72);
+      font-size: 12px;
+      padding: 0;
+      min-height: 30px
+    }
+
+    .status-in {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 6px 28px
+    }
+
     /* Layout */
-    .wrap{max-width:1600px;margin:0 auto;padding:20px 28px 60px;display:grid;grid-template-columns:44fr 56fr;gap:18px;align-items:start;background:#e8edf5}
+    .wrap {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px 28px 60px;
+      display: grid;
+      grid-template-columns: 44fr 56fr;
+      gap: 18px;
+      align-items: start;
+      background: #e8edf5
+    }
+
     /* Cards */
-    .card{background:var(--panel);border:1px solid rgba(31,42,48,.09);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:14px}
-    .card.locked{opacity:.4;pointer-events:none}
-    .card.locked .sn{background:var(--muted)}
-    .sh{display:flex;gap:11px;align-items:flex-start;margin-bottom:12px}
-    .sn{width:30px;height:30px;border-radius:4px;display:grid;place-items:center;background:var(--accent);color:#fff;font-size:12px;font-weight:700;flex:0 0 auto}
-    .sh h2{margin:0;font-size:18px;letter-spacing:-.02em;line-height:1.2}
-    .sh p{margin:3px 0 0;font-size:11px;color:var(--muted)}
+    .card {
+      background: var(--panel);
+      border: 1px solid rgba(31, 42, 48, .09);
+      border-radius: var(--r);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px
+    }
+
+    .card.locked {
+      opacity: .4;
+      pointer-events: none
+    }
+
+    .card.locked .sn {
+      background: var(--muted)
+    }
+
+    .sh {
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+      margin-bottom: 12px
+    }
+
+    .sn {
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      display: grid;
+      place-items: center;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      flex: 0 0 auto
+    }
+
+    .sh h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -.02em;
+      line-height: 1.2
+    }
+
+    .sh p {
+      margin: 3px 0 0;
+      font-size: 11px;
+      color: var(--muted)
+    }
+
     /* Form */
-    label{display:block;margin:9px 0 3px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.13em}
-    .hint{color:var(--muted);font-size:11px;line-height:1.45;margin:3px 0 0}
-    input[type=text],input[type=number],input:not([type]),textarea,select{width:100%;border:1px solid var(--line);border-radius:4px;padding:8px 10px;background:#fff;color:var(--ink)}
-    textarea{resize:vertical;line-height:1.5}
-    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(21,101,192,.13)}
-    .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-    .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
-    .filebox{border:1px dashed var(--line2);border-radius:6px;background:var(--card);padding:14px;text-align:center}
-    .filebox input{border:none;padding:0;background:none;width:auto}
+    label {
+      display: block;
+      margin: 9px 0 3px;
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .13em
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+      margin: 3px 0 0
+    }
+
+    input[type=text],
+    input[type=number],
+    input:not([type]),
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 8px 10px;
+      background: #fff;
+      color: var(--ink)
+    }
+
+    textarea {
+      resize: vertical;
+      line-height: 1.5
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(21, 101, 192, .13)
+    }
+
+    .g2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px
+    }
+
+    .g3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px
+    }
+
+    .g4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px
+    }
+
+    .filebox {
+      border: 1px dashed var(--line2);
+      border-radius: 6px;
+      background: var(--card);
+      padding: 14px;
+      text-align: center
+    }
+
+    .filebox input {
+      border: none;
+      padding: 0;
+      background: none;
+      width: auto
+    }
+
     /* Buttons */
-    button{border:1px solid transparent;border-radius:4px;padding:9px 14px;cursor:pointer;transition:transform 90ms,background 90ms;text-transform:uppercase;letter-spacing:.08em;font-size:10px;font-weight:700;white-space:nowrap}
-    button:hover:not(:disabled){transform:translateY(-1px)}
-    button:disabled{cursor:not-allowed;opacity:.38}
-    .bp{background:var(--accent);color:#fff}
-    .bs{background:var(--accent-dark);color:#fff}
-    .bg{background:#fff;color:var(--accent-dark);border-color:var(--line2)}
-    .bsm{padding:5px 10px;font-size:10px}
-    .bgen{width:100%;padding:14px;font-size:13px;letter-spacing:.1em}
-    .ar{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;align-items:center}
+    button {
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 9px 14px;
+      cursor: pointer;
+      transition: transform 90ms, background 90ms;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px)
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .38
+    }
+
+    .bp {
+      background: var(--accent);
+      color: #fff
+    }
+
+    .bs {
+      background: var(--accent-dark);
+      color: #fff
+    }
+
+    .bg {
+      background: #fff;
+      color: var(--accent-dark);
+      border-color: var(--line2)
+    }
+
+    .bsm {
+      padding: 5px 10px;
+      font-size: 10px
+    }
+
+    .bgen {
+      width: 100%;
+      padding: 14px;
+      font-size: 13px;
+      letter-spacing: .1em
+    }
+
+    .ar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 12px;
+      align-items: center
+    }
+
     /* Tables */
-    .tw{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--card)}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:7px 9px;border-bottom:1px solid rgba(216,220,216,.8);vertical-align:middle}
-    th{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;background:rgba(242,243,239,.5);white-space:nowrap}
-    td input[type=text],td input[type=number],td input:not([type]){padding:5px 7px;font-size:12px}
-    td select{padding:5px 7px;font-size:12px}
-    tfoot td{font-weight:700;font-size:11px;background:rgba(31,42,48,.03)}
-    .tc{font-weight:700;color:var(--accent-dark);white-space:nowrap}
-    .xb{width:20px;height:20px;border-radius:50%;background:rgba(21,101,192,.12);color:var(--accent);font-size:10px;font-weight:700;cursor:pointer;border:none;padding:0;letter-spacing:0;text-transform:none;line-height:1}
-    .xb:hover{background:var(--accent);color:#fff}
+    .tw {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--card)
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    th,
+    td {
+      padding: 7px 9px;
+      border-bottom: 1px solid rgba(216, 220, 216, .8);
+      vertical-align: middle
+    }
+
+    th {
+      font-size: 10px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: left;
+      background: rgba(242, 243, 239, .5);
+      white-space: nowrap
+    }
+
+    td input[type=text],
+    td input[type=number],
+    td input:not([type]) {
+      padding: 5px 7px;
+      font-size: 12px
+    }
+
+    td select {
+      padding: 5px 7px;
+      font-size: 12px
+    }
+
+    tfoot td {
+      font-weight: 700;
+      font-size: 11px;
+      background: rgba(31, 42, 48, .03)
+    }
+
+    .tc {
+      font-weight: 700;
+      color: var(--accent-dark);
+      white-space: nowrap
+    }
+
+    .xb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(21, 101, 192, .12);
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      letter-spacing: 0;
+      text-transform: none;
+      line-height: 1
+    }
+
+    .xb:hover {
+      background: var(--accent);
+      color: #fff
+    }
+
     /* Grand total */
-    .gtbar{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;margin-top:10px;background:var(--accent-dark);color:#fff;border-radius:var(--r);font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:11px}
-    #gtDisp{font-size:16px}
+    .gtbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 15px;
+      margin-top: 10px;
+      background: var(--accent-dark);
+      color: #fff;
+      border-radius: var(--r);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: 11px
+    }
+
+    #gtDisp {
+      font-size: 16px
+    }
+
     /* Reference projects */
-    .type-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
-    .ttab{padding:5px 10px;border-radius:3px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;cursor:pointer}
-    .ttab.active{background:var(--accent-dark);color:#fff;border-color:var(--accent-dark)}
-    .refgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;max-height:320px;overflow-y:auto;padding-right:2px}
-    .rc{border:1px solid var(--line);border-radius:5px;background:var(--card);padding:9px 10px;cursor:pointer;transition:border-color 100ms}
-    .rc.sel{border-color:var(--accent);background:#f0f5ff}
-    .rc-h{display:flex;gap:7px;align-items:flex-start}
-    .rc-chk{width:14px;height:14px;accent-color:var(--accent);flex:0 0 auto;margin-top:2px}
-    .rc-n{font-size:11px;font-weight:700;line-height:1.3}
-    .rc-m{font-size:10px;color:var(--muted);margin-top:2px}
-    .rbadge{display:inline-block;padding:1px 6px;border-radius:8px;background:var(--soft);color:var(--accent-dark);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+    .type-tabs {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 10px
+    }
+
+    .ttab {
+      padding: 5px 10px;
+      border-radius: 3px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      cursor: pointer
+    }
+
+    .ttab.active {
+      background: var(--accent-dark);
+      color: #fff;
+      border-color: var(--accent-dark)
+    }
+
+    .refgrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding-right: 2px
+    }
+
+    .rc {
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--card);
+      padding: 9px 10px;
+      cursor: pointer;
+      transition: border-color 100ms
+    }
+
+    .rc.sel {
+      border-color: var(--accent);
+      background: #f0f5ff
+    }
+
+    .rc-h {
+      display: flex;
+      gap: 7px;
+      align-items: flex-start
+    }
+
+    .rc-chk {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--accent);
+      flex: 0 0 auto;
+      margin-top: 2px
+    }
+
+    .rc-n {
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.3
+    }
+
+    .rc-m {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px
+    }
+
+    .rbadge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 8px;
+      background: var(--soft);
+      color: var(--accent-dark);
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 2px
+    }
+
     /* Team */
-    .pbar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
-    .pbar label{margin:0;white-space:nowrap}
-    .pbar select{flex:1}
+    .pbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px
+    }
+
+    .pbar label {
+      margin: 0;
+      white-space: nowrap
+    }
+
+    .pbar select {
+      flex: 1
+    }
+
     /* Phase header editable */
-    .phd-th{white-space:nowrap;min-width:50px;padding:5px 6px;text-align:center}
-    .phd{display:inline-block;outline:none;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:default}
-    .phd:focus{border-bottom:1px dashed var(--accent)}
+    .phd-th {
+      white-space: nowrap;
+      min-width: 50px;
+      padding: 5px 6px;
+      text-align: center
+    }
+
+    .phd {
+      display: inline-block;
+      outline: none;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: default
+    }
+
+    .phd:focus {
+      border-bottom: 1px dashed var(--accent)
+    }
+
     /* Proposal link */
-    .plink{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 14px;background:var(--soft);border-radius:6px;border:1px solid rgba(31,42,48,.1)}
-    .plink a{color:var(--accent-dark);font-weight:700;font-size:12px;text-decoration:none}
-    .plink a:hover{text-decoration:underline}
+    .plink {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: var(--soft);
+      border-radius: 6px;
+      border: 1px solid rgba(31, 42, 48, .1)
+    }
+
+    .plink a {
+      color: var(--accent-dark);
+      font-weight: 700;
+      font-size: 12px;
+      text-decoration: none
+    }
+
+    .plink a:hover {
+      text-decoration: underline
+    }
+
     /* Dialog */
-    dialog{border:none;border-radius:var(--r);padding:0;max-width:620px;width:90vw;max-height:82vh;box-shadow:0 20px 56px rgba(0,0,0,.22)}
-    dialog::backdrop{background:rgba(17,22,26,.5)}
-    .dlg-h{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
-    .dlg-h h3{margin:0;font-size:15px}
-    .dlg-b{padding:14px 18px;overflow-y:auto;max-height:calc(82vh - 110px)}
-    .dlg-f{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:7px}
-    .dlg-s{width:100%;padding:7px 10px;border:1px solid var(--line);border-radius:4px;margin-bottom:10px;font:inherit}
-    .librow{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(216,220,216,.5)}
-    .librow input{margin-top:2px;accent-color:var(--accent);flex:0 0 auto}
+    dialog {
+      border: none;
+      border-radius: var(--r);
+      padding: 0;
+      max-width: 620px;
+      width: 90vw;
+      max-height: 82vh;
+      box-shadow: 0 20px 56px rgba(0, 0, 0, .22)
+    }
+
+    dialog::backdrop {
+      background: rgba(17, 22, 26, .5)
+    }
+
+    .dlg-h {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center
+    }
+
+    .dlg-h h3 {
+      margin: 0;
+      font-size: 15px
+    }
+
+    .dlg-b {
+      padding: 14px 18px;
+      overflow-y: auto;
+      max-height: calc(82vh - 110px)
+    }
+
+    .dlg-f {
+      padding: 12px 18px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      gap: 7px
+    }
+
+    .dlg-s {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font: inherit
+    }
+
+    .librow {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(216, 220, 216, .5)
+    }
+
+    .librow input {
+      margin-top: 2px;
+      accent-color: var(--accent);
+      flex: 0 0 auto
+    }
+
     /* Print */
-    @media print{.hdr,.status,.left-col,.ar,.type-tabs,.pbar,.bgen,.plink,.dlg-h{display:none!important}.wrap{display:block}.card{box-shadow:none;border:none;padding:6px 0}}
-    @media(max-width:1100px){.wrap{grid-template-columns:1fr}.g2{grid-template-columns:1fr}.refgrid{grid-template-columns:1fr}}
+    @media print {
+
+      .hdr,
+      .status,
+      .left-col,
+      .ar,
+      .type-tabs,
+      .pbar,
+      .bgen,
+      .plink,
+      .dlg-h {
+        display: none !important
+      }
+
+      .wrap {
+        display: block
+      }
+
+      .card {
+        box-shadow: none;
+        border: none;
+        padding: 6px 0
+      }
+    }
+
+    @media(max-width:1100px) {
+      .wrap {
+        grid-template-columns: 1fr
+      }
+
+      .g2 {
+        grid-template-columns: 1fr
+      }
+
+      .refgrid {
+        grid-template-columns: 1fr
+      }
+    }
   </style>
 </head>
+
 <body>
-<header class="hdr">
-  <div class="hdr-in">
-    <div><div class="wm">FP-GEN</div><div class="wm-sub">by Nikken Sekkei</div></div>
-    <div class="pills">
-      <span class="pill" id="pl1">1 · Analyze RFP</span>
-      <span class="pill" id="pl2">2 · Project Details</span>
-      <span class="pill" id="pl3">3 · References &amp; Team</span>
-      <span class="pill" id="pl4">4 · Fee &amp; Schedule</span>
-      <span class="pill" id="pl5">5 · Generate</span>
-    </div>
-  </div>
-</header>
-<div class="status"><div class="status-in" id="sb">Ready. Upload an RFP to begin.</div></div>
-
-<div class="wrap">
-  <!-- LEFT COLUMN -->
-  <section class="left-col">
-
-    <!-- Step 1: Upload RFP -->
-    <div class="card" id="sc1">
-      <div class="sh"><div class="sn">1</div><div><h2>Upload RFP</h2><p>Upload a file or paste text, then analyze.</p></div></div>
-      <div class="filebox">
-        <input id="rfpFile" type="file" accept=".txt,.md,.json,.pdf,.docx">
-        <p id="fm" class="hint" style="margin-top:7px">Supported: .txt .md .pdf .docx</p>
+  <header class="hdr">
+    <div class="hdr-in">
+      <div>
+        <div class="wm">FP-GEN</div>
+        <div class="wm-sub">by Nikken Sekkei</div>
       </div>
-      <label>Or paste RFP text</label>
-      <textarea id="rfpText" rows="6" placeholder="Paste the full RFP here…"></textarea>
-      <div class="ar">
-        <button id="analyzeBtn" class="bp">Analyze RFP</button>
-        <button id="clearBtn" class="bg bsm" style="margin-left:auto">Clear All</button>
+      <div class="pills">
+        <span class="pill" id="pl1">1 · Analyze RFP</span>
+        <span class="pill" id="pl2">2 · Project Details</span>
+        <span class="pill" id="pl3">3 · References &amp; Team</span>
+        <span class="pill" id="pl4">4 · Fee &amp; Schedule</span>
+        <span class="pill" id="pl5">5 · Generate</span>
       </div>
-    </div>
-
-    <!-- Step 2: Project Details -->
-    <div class="card locked" id="sc2">
-      <div class="sh"><div class="sn">2</div><div><h2>Project Details</h2><p>AI-extracted. Edit as needed.</p></div></div>
-      <div class="g2">
-        <div><label>Project Name</label><input id="projName" type="text" placeholder="—"></div>
-        <div><label>Client</label><input id="clientName" type="text" placeholder="—"></div>
-        <div><label>Project Type</label><input id="projType" type="text" placeholder="—"></div>
-        <div><label>Location</label><input id="location" type="text" placeholder="—"></div>
-      </div>
-      <label>Site Area</label>
-      <input id="siteArea" type="text" placeholder="—">
-      <label>Executive Summary</label>
-      <textarea id="summary" rows="5" placeholder="AI-generated project summary will appear here…"></textarea>
-    </div>
-
-    <!-- Step 3: Schedule -->
-    <div class="card locked" id="sc3">
-      <div class="sh"><div class="sn">3</div><div><h2>Schedule</h2><p>Phases drive fee calculator columns. Edit start week and duration.</p></div></div>
-      <div class="tw">
-        <table>
-          <thead><tr>
-            <th style="min-width:130px">Phase</th>
-            <th style="min-width:75px">Start (wk)</th>
-            <th style="min-width:75px">Duration (wks)</th>
-            <th style="min-width:150px">Key Deliverable</th>
-            <th></th>
-          </tr></thead>
-          <tbody id="schBody"></tbody>
-        </table>
-      </div>
-      <div class="ar"><button id="addPhBtn" class="bg bsm">+ Add Phase</button></div>
-      <p id="phaseLegend" class="hint" style="font-size:10px;margin-top:6px;line-height:1.6"></p>
-    </div>
-
-  </section>
-
-  <!-- RIGHT COLUMN -->
-  <section class="right-col">
-
-    <!-- Step 4: Reference Projects -->
-    <div class="card locked" id="sc4">
-      <div class="sh"><div class="sn">4</div><div><h2>Reference Projects</h2><p>AI pre-selects by relevance. Click to toggle. Add from the full library.</p></div></div>
-      <div class="type-tabs" id="typeTabs">
-        <button class="ttab active" data-t="All">All</button>
-        <button class="ttab" data-t="Master Plan">Master Plan</button>
-        <button class="ttab" data-t="Commercial">Commercial</button>
-        <button class="ttab" data-t="Technical">Technical</button>
-      </div>
-      <div id="refGrid" class="refgrid"><p class="hint">Analyze an RFP first.</p></div>
-      <div class="ar"><button id="libBtn" class="bg bsm">+ Add from Library</button></div>
-    </div>
-
-    <!-- Step 5: Team -->
-    <div class="card locked" id="sc5">
-      <div class="sh"><div class="sn">5</div><div><h2>Team</h2><p>Select a preset or build manually. Names drive CV assignments for export.</p></div></div>
-      <div class="pbar">
-        <label>Preset</label>
-        <select id="presetSel"><option value="">— select —</option></select>
-        <button id="applyPre" class="bg bsm">Apply</button>
-      </div>
-      <div class="tw">
-        <table>
-          <thead><tr>
-            <th style="min-width:130px">Role</th>
-            <th style="min-width:160px">Name</th>
-            <th style="min-width:85px">Rate USD/h</th>
-            <th></th>
-          </tr></thead>
-          <tbody id="teamBody"></tbody>
-        </table>
-      </div>
-      <div class="ar"><button id="addMbr" class="bg bsm">+ Add Row</button></div>
-    </div>
-
-    <!-- Step 6: Fee Calculator -->
-    <div class="card locked" id="sc6">
-      <div class="sh">
-        <div class="sn">6</div>
-        <div style="flex:1">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <h2 style="margin:0">Fee Calculator</h2>
-            <div style="display:flex;align-items:center;gap:7px">
-              <label style="margin:0;white-space:nowrap">Display</label>
-              <select id="curSel" style="width:auto;padding:5px 7px;font-size:11px">
-                <option>USD</option><option>JPY</option><option>SGD</option>
-                <option>AED</option><option>EUR</option><option>GBP</option>
-              </select>
-            </div>
+      <div class="menu" id="acctMenu">
+        <button class="menu-btn" id="acctBtn" type="button" aria-haspopup="true" aria-expanded="false">
+          <span class="avatar" id="acctAvatar">?</span>
+          <span id="acctName">Sign in</span>
+          <span class="caret">&#9660;</span>
+        </button>
+        <div class="menu-pop" id="acctPop" role="menu">
+          <div class="menu-id">
+            <div class="mu" id="acctUser">Not signed in</div>
+            <div class="mg" id="acctGroups"></div>
           </div>
-          <p style="margin:3px 0 0;font-size:11px;color:var(--muted)">Phases from Step 3 · Roles from Step 5 · Rates in USD</p>
+          <a class="menu-item hidden" id="acctAdmin" href="/admin/" role="menuitem">&#9881;&nbsp; Admin / Setup</a>
+          <div class="menu-sep"></div>
+          <a class="menu-item" id="acctSignout" href="/oauth2/sign_out" role="menuitem">&#9099;&nbsp; Sign out</a>
         </div>
       </div>
-      <div class="tw"><table><thead id="feeH"></thead><tbody id="feeB"></tbody><tfoot id="feeF"></tfoot></table></div>
-      <div class="gtbar"><span>Estimated Fee (Labour)</span><span id="gtDisp">USD 0</span></div>
-      <label style="margin-top:14px">Subconsultants</label>
-      <div class="tw"><table><thead><tr><th>Firm</th><th>Fee USD</th><th>In Lump Sum</th><th></th></tr></thead><tbody id="subRows"></tbody></table></div>
-      <div class="ar"><button id="addSub" class="bg bsm">+ Add Subconsultant</button></div>
-      <div class="g4">
-        <div><label>Overhead %</label><input id="ohPct" type="number" step="0.01" value="0.10"></div>
-        <div><label>Trips</label><input id="tvTrips" type="number" step="1" value="2"></div>
-        <div><label>People/Trip</label><input id="tvPpl" type="number" step="1" value="2"></div>
-        <div><label>Unit Cost USD</label><input id="tvCost" type="number" step="100" value="6000"></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:7px;margin-top:9px">
-        <input id="tvIncl" type="checkbox" checked style="width:16px;height:16px;accent-color:var(--accent)">
-        <label style="margin:0;text-transform:none;font-size:12px;color:var(--ink)">Include travel in lump sum</label>
-      </div>
     </div>
-
-    <!-- Step 7: Generate -->
-    <div class="card" style="background:var(--accent-dark)">
-      <button id="genBtn" class="bs bgen" disabled style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff">Generate Proposal</button>
-      <div id="plinkWrap" style="display:none" class="plink">
-        <span style="font-size:11px;color:var(--muted)">Proposal ready:</span>
-        <a id="plink" href="#" target="_blank">Open Review &amp; Export →</a>
-        <code id="pidOut" style="font-size:10px;color:var(--muted);margin-left:auto"></code>
-      </div>
-    </div>
-
-  </section>
-</div>
-
-<!-- Library dialog -->
-<dialog id="libDlg">
-  <div class="dlg-h"><h3>Reference Project Library</h3><button class="bg bsm" onclick="document.getElementById('libDlg').close()">Close</button></div>
-  <div class="dlg-b">
-    <input id="libQ" class="dlg-s" type="text" placeholder="Search by name, type or location…">
-    <div id="libList"></div>
+  </header>
+  <div class="status">
+    <div class="status-in" id="sb">Ready. Upload an RFP to begin.</div>
   </div>
-  <div class="dlg-f"><button id="libAdd" class="bp bsm">Add Selected</button></div>
-</dialog>
 
-<script>
-"use strict";
-var CUR={USD:1,JPY:150,SGD:1.35,AED:3.67,EUR:0.92,GBP:0.79};
-var schRows=[], teamRows=[], selRef={}, allRef=[], personnel=[], presets=[], curType="All";
-var lastEbp={};
-var PHASE_ABBR={"pre-design":"PD","schematic design":"SD","design development":"DD","construction documents":"CD","construction document":"CD","bid phase":"BID","bidding":"BID","bidding & negotiation":"BID","construction administration":"CA","construction admin":"CA","construction":"CA","post-completion":"PC","post completion":"PC","post-design services":"PDS","inception":"INC","feasibility":"FEAS","master plan":"MP","concept design":"CON","concept":"CON","tender":"TEN","planning":"PLN","documentation":"DOC","procurement":"PRO","detailed design":"DD","basic design":"BD","kick-off":"KO","kick off":"KO","site analysis":"SA","design":"DES","technical design":"TD"};
-function abbrevPhase(n){var k=(n||'').toLowerCase().trim();if(PHASE_ABBR[k])return PHASE_ABBR[k];var w=n.trim().split(/[\s\-\/]+/).filter(Boolean);if(w.length===1)return n.slice(0,4).toUpperCase();return w.map(function(x){return x[0].toUpperCase()}).join('')}
-function ge(id){return document.getElementById(id)}
-function num(v){var n=parseFloat(v);return isFinite(n)?n:0}
-function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
-function st(m){ge("sb").textContent=m}
-function cc(){return ge("curSel").value||"USD"}
-function cr(){return CUR[cc()]||1}
-function fm(u){return cc()+" "+Math.round(u*cr()).toLocaleString("en-US")}
-function unlock(n){var e=ge("sc"+n);if(e)e.classList.remove("locked")}
-function pill(n){var e=ge("pl"+n);if(e)e.classList.add("done")}
+  <div class="wrap">
+    <!-- LEFT COLUMN -->
+    <section class="left-col">
 
-/* ---- SCHEDULE ---- */
-function renderSch(){
-  var b=ge("schBody");b.innerHTML="";
-  schRows.forEach(function(r,i){
-    var tr=document.createElement("tr");
-    tr.innerHTML="<td><input type='text' class='sp' data-i='"+i+"' value='"+esc(r.phase)+"' style='min-width:120px'></td>"+
-      "<td><input type='number' class='ss' data-i='"+i+"' value='"+r.sw+"' style='max-width:65px'></td>"+
-      "<td><input type='number' class='sd' data-i='"+i+"' value='"+r.dur+"' style='max-width:65px'></td>"+
-      "<td><input type='text' class='sdl' data-i='"+i+"' value='"+esc(r.del)+"' style='min-width:140px'></td>"+
-      "<td><button type='button' class='xb del-sch' data-i='"+i+"'>&#10005;</button></td>";
-    b.appendChild(tr);
-  });
-}
-function getPhases(){return schRows.map(function(r){return r.phase}).filter(Boolean)}
-function renderSchAndLegend(){renderSch();updatePhaseLegend()}
-function updatePhaseLegend(){
-  var lg=ge("phaseLegend");if(!lg)return;
-  var pairs=schRows.map(function(r){return r.phase?abbrevPhase(r.phase)+" = "+r.phase:null}).filter(Boolean);
-  lg.textContent=pairs.length?"Abbr: "+pairs.join(" \u00b7 "):"";
-}
-ge("schBody").addEventListener("input",function(e){
-  var t=e.target,i=parseInt(t.dataset.i,10);if(!schRows[i])return;
-  if(t.classList.contains("sp")){schRows[i].phase=t.value;syncFeePhases();updatePhaseLegend()}
-  if(t.classList.contains("ss"))schRows[i].sw=num(t.value);
-  if(t.classList.contains("sd"))schRows[i].dur=num(t.value);
-  if(t.classList.contains("sdl"))schRows[i].del=t.value;
-});
-ge("schBody").addEventListener("click",function(e){
-  if(!e.target.classList.contains("del-sch"))return;
-  schRows.splice(parseInt(e.target.dataset.i,10),1);renderSch();updatePhaseLegend();syncFeePhases();
-});
-ge("addPhBtn").addEventListener("click",function(){
-  var lw=schRows.length?schRows[schRows.length-1].sw+schRows[schRows.length-1].dur:1;
-  schRows.push({phase:"New Phase",sw:lw,dur:2,del:""});renderSch();updatePhaseLegend();syncFeePhases();
-});
-function syncFeePhases(){
-  var ph=getPhases();
-  teamRows.forEach(function(r){if(!r.hrs)r.hrs={};ph.forEach(function(p){if(r.hrs[p]==null)r.hrs[p]=0})});
-  renderFee();
-}
+      <!-- Step 1: Upload RFP -->
+      <div class="card" id="sc1">
+        <div class="sh">
+          <div class="sn">1</div>
+          <div>
+            <h2>Upload RFP</h2>
+            <p>Upload a file or paste text, then analyze.</p>
+          </div>
+        </div>
+        <div class="filebox">
+          <input id="rfpFile" type="file" accept=".txt,.md,.json,.pdf,.docx">
+          <p id="fm" class="hint" style="margin-top:7px">Supported: .txt .md .pdf .docx</p>
+        </div>
+        <label>Or paste RFP text</label>
+        <textarea id="rfpText" rows="6" placeholder="Paste the full RFP here…"></textarea>
+        <div class="ar">
+          <button id="analyzeBtn" class="bp">Analyze RFP</button>
+          <button id="clearBtn" class="bg bsm" style="margin-left:auto">Clear All</button>
+        </div>
+      </div>
 
-/* ---- REFERENCE PROJECTS ---- */
-function renderRef(){
-  var g=ge("refGrid");g.innerHTML="";
-  var list=allRef.filter(function(p){return curType==="All"||p.type===curType});
-  if(!list.length){g.innerHTML="<p class='hint'>No projects match this filter.</p>";return}
-  list.forEach(function(rp){
-    var ch=!!selRef[rp.id];
-    var d=document.createElement("div");
-    d.className="rc"+(ch?" sel":"");d.dataset.rid=rp.id;
-    d.innerHTML="<div class='rc-h'><input type='checkbox' class='rc-chk'"+(ch?" checked":"")+">" +
-      "<div><span class='rbadge'>"+esc(rp.type||"Project")+"</span>" +
-      "<div class='rc-n'>"+esc(rp.name)+"</div></div></div>" +
-      "<div class='rc-m'>"+esc(rp.location||"")+(rp.year?" · "+rp.year:"")+"</div>" +
-      "<div class='hint' style='font-size:10px;margin-top:3px'>"+esc((rp.summary||"").slice(0,85))+"…</div>";
-    d.querySelector(".rc-chk").addEventListener("change",function(e){
-      if(e.target.checked)selRef[rp.id]=true;else delete selRef[rp.id];
-      d.classList.toggle("sel",e.target.checked);
-    });
-    d.addEventListener("click",function(e){
-      if(e.target.tagName==="INPUT")return;
-      var c=d.querySelector(".rc-chk");c.checked=!c.checked;c.dispatchEvent(new Event("change"));
-    });
-    g.appendChild(d);
-  });
-}
-ge("typeTabs").addEventListener("click",function(e){
-  if(!e.target.classList.contains("ttab"))return;
-  ge("typeTabs").querySelectorAll(".ttab").forEach(function(b){b.classList.remove("active")});
-  e.target.classList.add("active");curType=e.target.dataset.t;renderRef();
-});
-async function loadRef(){
-  try{var r=await fetch("/v1/reference-projects");if(!r.ok)return;allRef=await r.json();renderRef()}catch(_){}
-}
-ge("libBtn").addEventListener("click",function(){renderLib("");ge("libQ").value="";ge("libDlg").showModal()});
-ge("libQ").addEventListener("input",function(e){renderLib(e.target.value)});
-function renderLib(q){
-  var lq=q.toLowerCase();var l=ge("libList");l.innerHTML="";
-  allRef.filter(function(p){return !q||(p.name+p.location+p.type).toLowerCase().includes(lq)})
-  .forEach(function(rp){
-    var ch=!!selRef[rp.id];
-    var row=document.createElement("div");row.className="librow";
-    row.innerHTML="<input type='checkbox' class='lc' data-id='"+esc(rp.id)+"'"+(ch?" checked":"")+">"+
-      "<div><span class='rbadge'>"+esc(rp.type||"")+"</span> <strong style='font-size:11px'>"+esc(rp.name)+"</strong>"+
-      "<div style='font-size:10px;color:var(--muted)'>"+esc(rp.location||"")+(rp.year?" · "+rp.year:"")+"</div></div>";
-    l.appendChild(row);
-  });
-}
-ge("libAdd").addEventListener("click",function(){
-  ge("libList").querySelectorAll(".lc").forEach(function(c){
-    if(c.checked)selRef[c.dataset.id]=true;else delete selRef[c.dataset.id];
-  });
-  ge("libDlg").close();renderRef();
-});
+      <!-- Step 2: Project Details -->
+      <div class="card locked" id="sc2">
+        <div class="sh">
+          <div class="sn">2</div>
+          <div>
+            <h2>Project Details</h2>
+            <p>AI-extracted. Edit as needed.</p>
+          </div>
+        </div>
+        <div class="g2">
+          <div><label>Project Name</label><input id="projName" type="text" placeholder="—"></div>
+          <div><label>Client</label><input id="clientName" type="text" placeholder="—"></div>
+          <div><label>Project Type</label><input id="projType" type="text" placeholder="—"></div>
+          <div><label>Location</label><input id="location" type="text" placeholder="—"></div>
+        </div>
+        <label>Site Area</label>
+        <input id="siteArea" type="text" placeholder="—">
+        <label>Executive Summary</label>
+        <textarea id="summary" rows="5" placeholder="AI-generated project summary will appear here…"></textarea>
+      </div>
 
-/* ---- PERSONNEL / TEAM PRESETS ---- */
-async function loadPersonnel(){try{var r=await fetch("/v1/personnel");if(!r.ok)return;personnel=await r.json()}catch(_){}}
-async function loadPresets(){
-  try{
-    var r=await fetch("/v1/team-presets");if(!r.ok)return;presets=await r.json();
-    var s=ge("presetSel");
-    presets.forEach(function(p){var o=document.createElement("option");o.value=p.id;o.textContent=p.name;s.appendChild(o)});
-  }catch(_){}
-}
-ge("applyPre").addEventListener("click",function(){
-  var pid=ge("presetSel").value;if(!pid)return;
-  var prs=presets.find(function(p){return p.id===pid});if(!prs)return;
-  var ph=getPhases();
-  teamRows=prs.assignments.map(function(a){
-    var per=personnel.find(function(p){return p.id===a.person_id})||{};
-    var hrs={};
-    ph.forEach(function(p){
-      var phData=lastEbp[p]||{};
-      var v=0;
-      Object.keys(phData).forEach(function(k){
-        if(!v&&(k.toLowerCase().indexOf(a.role.toLowerCase())>-1||a.role.toLowerCase().indexOf(k.toLowerCase())>-1))
-          v=parseFloat(phData[k])||0;
+      <!-- Step 3: Schedule -->
+      <div class="card locked" id="sc3">
+        <div class="sh">
+          <div class="sn">3</div>
+          <div>
+            <h2>Schedule</h2>
+            <p>Phases drive fee calculator columns. Edit start week and duration.</p>
+          </div>
+        </div>
+        <div class="tw">
+          <table>
+            <thead>
+              <tr>
+                <th style="min-width:130px">Phase</th>
+                <th style="min-width:75px">Start (wk)</th>
+                <th style="min-width:75px">Duration (wks)</th>
+                <th style="min-width:150px">Key Deliverable</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="schBody"></tbody>
+          </table>
+        </div>
+        <div class="ar"><button id="addPhBtn" class="bg bsm">+ Add Phase</button></div>
+        <p id="phaseLegend" class="hint" style="font-size:10px;margin-top:6px;line-height:1.6"></p>
+      </div>
+
+    </section>
+
+    <!-- RIGHT COLUMN -->
+    <section class="right-col">
+
+      <!-- Step 4: Reference Projects -->
+      <div class="card locked" id="sc4">
+        <div class="sh">
+          <div class="sn">4</div>
+          <div>
+            <h2>Reference Projects</h2>
+            <p>AI pre-selects by relevance. Click to toggle. Add from the full library.</p>
+          </div>
+        </div>
+        <div class="type-tabs" id="typeTabs">
+          <button class="ttab active" data-t="All">All</button>
+          <button class="ttab" data-t="Master Plan">Master Plan</button>
+          <button class="ttab" data-t="Commercial">Commercial</button>
+          <button class="ttab" data-t="Technical">Technical</button>
+        </div>
+        <div id="refGrid" class="refgrid">
+          <p class="hint">Analyze an RFP first.</p>
+        </div>
+        <div class="ar"><button id="libBtn" class="bg bsm">+ Add from Library</button></div>
+      </div>
+
+      <!-- Step 5: Team -->
+      <div class="card locked" id="sc5">
+        <div class="sh">
+          <div class="sn">5</div>
+          <div>
+            <h2>Team</h2>
+            <p>Select a preset or build manually. Names drive CV assignments for export.</p>
+          </div>
+        </div>
+        <div class="pbar">
+          <label>Preset</label>
+          <select id="presetSel">
+            <option value="">— select —</option>
+          </select>
+          <button id="applyPre" class="bg bsm">Apply</button>
+        </div>
+        <div class="tw">
+          <table>
+            <thead>
+              <tr>
+                <th style="min-width:130px">Role</th>
+                <th style="min-width:160px">Name</th>
+                <th style="min-width:85px">Rate USD/h</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="teamBody"></tbody>
+          </table>
+        </div>
+        <div class="ar"><button id="addMbr" class="bg bsm">+ Add Row</button></div>
+      </div>
+
+      <!-- Step 6: Fee Calculator -->
+      <div class="card locked" id="sc6">
+        <div class="sh">
+          <div class="sn">6</div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <h2 style="margin:0">Fee Calculator</h2>
+              <div style="display:flex;align-items:center;gap:7px">
+                <label style="margin:0;white-space:nowrap">Display</label>
+                <select id="curSel" style="width:auto;padding:5px 7px;font-size:11px">
+                  <option>USD</option>
+                  <option>JPY</option>
+                  <option>SGD</option>
+                  <option>AED</option>
+                  <option>EUR</option>
+                  <option>GBP</option>
+                </select>
+              </div>
+            </div>
+            <p style="margin:3px 0 0;font-size:11px;color:var(--muted)">Phases from Step 3 · Roles from Step 5 · Rates
+              in USD</p>
+          </div>
+        </div>
+        <div class="tw">
+          <table>
+            <thead id="feeH"></thead>
+            <tbody id="feeB"></tbody>
+            <tfoot id="feeF"></tfoot>
+          </table>
+        </div>
+        <div class="gtbar"><span>Estimated Fee (Labour)</span><span id="gtDisp">USD 0</span></div>
+        <label style="margin-top:14px">Subconsultants</label>
+        <div class="tw">
+          <table>
+            <thead>
+              <tr>
+                <th>Firm</th>
+                <th>Fee USD</th>
+                <th>In Lump Sum</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="subRows"></tbody>
+          </table>
+        </div>
+        <div class="ar"><button id="addSub" class="bg bsm">+ Add Subconsultant</button></div>
+        <div class="g4">
+          <div><label>Overhead %</label><input id="ohPct" type="number" step="0.01" value="0.10"></div>
+          <div><label>Trips</label><input id="tvTrips" type="number" step="1" value="2"></div>
+          <div><label>People/Trip</label><input id="tvPpl" type="number" step="1" value="2"></div>
+          <div><label>Unit Cost USD</label><input id="tvCost" type="number" step="100" value="6000"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;margin-top:9px">
+          <input id="tvIncl" type="checkbox" checked style="width:16px;height:16px;accent-color:var(--accent)">
+          <label style="margin:0;text-transform:none;font-size:12px;color:var(--ink)">Include travel in lump sum</label>
+        </div>
+      </div>
+
+      <!-- Step 7: Generate -->
+      <div class="card" style="background:var(--accent-dark)">
+        <button id="genBtn" class="bs bgen" disabled
+          style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff">Generate
+          Proposal</button>
+        <div id="plinkWrap" style="display:none" class="plink">
+          <span style="font-size:11px;color:var(--muted)">Proposal ready:</span>
+          <a id="plink" href="#" target="_blank">Open Review &amp; Export →</a>
+          <code id="pidOut" style="font-size:10px;color:var(--muted);margin-left:auto"></code>
+        </div>
+      </div>
+
+    </section>
+  </div>
+
+  <!-- Library dialog -->
+  <dialog id="libDlg">
+    <div class="dlg-h">
+      <h3>Reference Project Library</h3><button class="bg bsm"
+        onclick="document.getElementById('libDlg').close()">Close</button>
+    </div>
+    <div class="dlg-b">
+      <input id="libQ" class="dlg-s" type="text" placeholder="Search by name, type or location…">
+      <div id="libList"></div>
+    </div>
+    <div class="dlg-f"><button id="libAdd" class="bp bsm">Add Selected</button></div>
+  </dialog>
+
+  <script>
+    "use strict";
+    var CUR = { USD: 1, JPY: 150, SGD: 1.35, AED: 3.67, EUR: 0.92, GBP: 0.79 };
+    var schRows = [], teamRows = [], selRef = {}, allRef = [], personnel = [], presets = [], curType = "All";
+    var lastEbp = {};
+    var PHASE_ABBR = { "pre-design": "PD", "schematic design": "SD", "design development": "DD", "construction documents": "CD", "construction document": "CD", "bid phase": "BID", "bidding": "BID", "bidding & negotiation": "BID", "construction administration": "CA", "construction admin": "CA", "construction": "CA", "post-completion": "PC", "post completion": "PC", "post-design services": "PDS", "inception": "INC", "feasibility": "FEAS", "master plan": "MP", "concept design": "CON", "concept": "CON", "tender": "TEN", "planning": "PLN", "documentation": "DOC", "procurement": "PRO", "detailed design": "DD", "basic design": "BD", "kick-off": "KO", "kick off": "KO", "site analysis": "SA", "design": "DES", "technical design": "TD" };
+    function abbrevPhase(n) { var k = (n || '').toLowerCase().trim(); if (PHASE_ABBR[k]) return PHASE_ABBR[k]; var w = n.trim().split(/[\s\-\/]+/).filter(Boolean); if (w.length === 1) return n.slice(0, 4).toUpperCase(); return w.map(function (x) { return x[0].toUpperCase() }).join('') }
+    function ge(id) { return document.getElementById(id) }
+    function num(v) { var n = parseFloat(v); return isFinite(n) ? n : 0 }
+    function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") }
+    function st(m) { ge("sb").textContent = m }
+    function cc() { return ge("curSel").value || "USD" }
+    function cr() { return CUR[cc()] || 1 }
+    function fm(u) { return cc() + " " + Math.round(u * cr()).toLocaleString("en-US") }
+    function unlock(n) { var e = ge("sc" + n); if (e) e.classList.remove("locked") }
+    function pill(n) { var e = ge("pl" + n); if (e) e.classList.add("done") }
+
+    /* ---- SCHEDULE ---- */
+    function renderSch() {
+      var b = ge("schBody"); b.innerHTML = "";
+      schRows.forEach(function (r, i) {
+        var tr = document.createElement("tr");
+        tr.innerHTML = "<td><input type='text' class='sp' data-i='" + i + "' value='" + esc(r.phase) + "' style='min-width:120px'></td>" +
+          "<td><input type='number' class='ss' data-i='" + i + "' value='" + r.sw + "' style='max-width:65px'></td>" +
+          "<td><input type='number' class='sd' data-i='" + i + "' value='" + r.dur + "' style='max-width:65px'></td>" +
+          "<td><input type='text' class='sdl' data-i='" + i + "' value='" + esc(r.del) + "' style='min-width:140px'></td>" +
+          "<td><button type='button' class='xb del-sch' data-i='" + i + "'>&#10005;</button></td>";
+        b.appendChild(tr);
       });
-      hrs[p]=v;
-    });
-    return{role:a.role,name:per.name||"",pid:a.person_id,rate:a.rate,hrs:hrs};
-  });
-  renderTeam();renderFee();unlock(6);
-});
-function renderTeam(){
-  var b=ge("teamBody");b.innerHTML="";
-  teamRows.forEach(function(r,i){
-    var opts="<option value=''>(none)</option>";
-    personnel.forEach(function(p){opts+="<option value='"+esc(p.id)+"'"+(p.id===r.pid?" selected":"")+" data-n='"+esc(p.name)+"'>"+esc(p.name)+"</option>"});
-    var tr=document.createElement("tr");
-    tr.innerHTML="<td><input type='text' class='trole' data-i='"+i+"' value='"+esc(r.role)+"' style='min-width:120px'></td>"+
-      "<td><select class='tper' data-i='"+i+"'>"+opts+"</select></td>"+
-      "<td><input type='number' class='trate' data-i='"+i+"' step='5' value='"+r.rate+"' style='max-width:80px'></td>"+
-      "<td><button type='button' class='xb del-tm' data-i='"+i+"'>&#10005;</button></td>";
-    b.appendChild(tr);
-  });
-}
-ge("teamBody").addEventListener("input",function(e){
-  var t=e.target,i=parseInt(t.dataset.i,10);if(!teamRows[i])return;
-  if(t.classList.contains("trole")){teamRows[i].role=t.value;renderFee()}
-  if(t.classList.contains("trate")){teamRows[i].rate=num(t.value);renderFee()}
-});
-ge("teamBody").addEventListener("change",function(e){
-  var t=e.target,i=parseInt(t.dataset.i,10);if(!teamRows[i])return;
-  if(t.classList.contains("tper")){
-    teamRows[i].pid=t.value;
-    var o=t.options[t.selectedIndex];teamRows[i].name=o.dataset.n||o.text;
-    renderFee();
-  }
-});
-ge("teamBody").addEventListener("click",function(e){
-  if(!e.target.classList.contains("del-tm"))return;
-  teamRows.splice(parseInt(e.target.dataset.i,10),1);renderTeam();renderFee();
-});
-ge("addMbr").addEventListener("click",function(){
-  var hrs={};getPhases().forEach(function(p){hrs[p]=0});
-  teamRows.push({role:"",name:"",pid:"",rate:150,hrs:hrs});renderTeam();renderFee();
-});
-
-/* ---- FEE CALCULATOR ---- */
-function renderFee(){
-  var ph=getPhases();
-  var h="<tr><th>Role</th><th>Name</th><th style='min-width:65px'>Rate</th>";
-  ph.forEach(function(p,pi){h+="<th class='phd-th' title='"+esc(p)+"'><span class='phd' data-pi='"+pi+"'>"+esc(abbrevPhase(p))+"</span></th>"});
-  h+="<th style='min-width:80px'>Total</th></tr>";ge("feeH").innerHTML=h;
-  var b="";
-  teamRows.forEach(function(r,ri){
-    if(!r.hrs)r.hrs={};
-    var tot=ph.reduce(function(s,p){return s+num(r.hrs[p]||0)*num(r.rate)},0);
-    b+="<tr><td style='font-size:11px;min-width:90px;white-space:nowrap'>"+esc(r.role||"—")+"</td>"+
-       "<td style='font-size:11px;min-width:90px;white-space:nowrap'>"+esc(r.name||"—")+"</td>"+
-       "<td><input type='number' class='frate' data-ri='"+ri+"' step='5' value='"+num(r.rate)+"' style='width:65px'></td>";
-    ph.forEach(function(p){b+="<td style='text-align:center;padding:4px'><input type='number' step='1' class='fh' data-ri='"+ri+"' data-p='"+esc(p)+"' value='"+(r.hrs[p]||0)+"' style='width:50px;text-align:center'></td>"}); 
-    b+="<td class='tc' id='rt"+ri+"'>"+fm(tot)+"</td></tr>";
-  });
-  ge("feeB").innerHTML=b;
-  renderFoot(ph);gtotal();
-}
-function renderFoot(ph){
-  var f="<tr><td colspan='3' style='text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)'>Phase totals</td>";
-  ph.forEach(function(p){var t=teamRows.reduce(function(s,r){return s+num((r.hrs||{})[p]||0)*num(r.rate)},0);f+="<td class='tc'>"+fm(t)+"</td>"});
-  var g=teamRows.reduce(function(s,r){return s+ph.reduce(function(rs,p){return rs+num((r.hrs||{})[p]||0)*num(r.rate)},0)},0);
-  f+="<td class='tc'>"+fm(g)+"</td></tr>";ge("feeF").innerHTML=f;
-}
-function gtotal(){
-  var ph=getPhases();
-  var lab=teamRows.reduce(function(s,r){return s+ph.reduce(function(rs,p){return rs+num((r.hrs||{})[p]||0)*num(r.rate)},0)},0);
-  var oh=lab*num(ge("ohPct").value);
-  var tv=num(ge("tvTrips").value)*num(ge("tvPpl").value)*num(ge("tvCost").value);
-  var su=Array.from(ge("subRows").querySelectorAll("tr")).reduce(function(s,tr){
-    var ch=tr.querySelector(".sic"),fe=tr.querySelector(".sfe");return s+(ch&&ch.checked&&fe?num(fe.value):0)},0);
-  ge("gtDisp").textContent=fm(lab+oh+(ge("tvIncl").checked?tv:0)+su);
-}
-ge("feeB").addEventListener("input",function(e){
-  var ri=parseInt(e.target.dataset.ri,10);
-  if(e.target.classList.contains("fh")){
-    var p=e.target.dataset.p;
-    if(teamRows[ri]){if(!teamRows[ri].hrs)teamRows[ri].hrs={};teamRows[ri].hrs[p]=num(e.target.value)}
-    var ph=getPhases();
-    var tot=ph.reduce(function(s,pp){return s+num((teamRows[ri]||{hrs:{}}).hrs[pp]||0)*num((teamRows[ri]||{rate:0}).rate)},0);
-    var c=ge("rt"+ri);if(c)c.textContent=fm(tot);
-    renderFoot(ph);gtotal();
-  }else if(e.target.classList.contains("frate")){
-    if(teamRows[ri]){teamRows[ri].rate=Math.max(0,num(e.target.value));}
-    var ph=getPhases();
-    var tot=ph.reduce(function(s,p){return s+num((teamRows[ri].hrs||{})[p]||0)*num(teamRows[ri].rate)},0);
-    var c=ge("rt"+ri);if(c)c.textContent=fm(tot);
-    renderFoot(ph);gtotal();
-  }
-});
-ge("feeH").addEventListener("blur",function(e){
-  if(!e.target.classList.contains("phd"))return;
-  var pi=parseInt(e.target.dataset.pi,10);var np=(e.target.textContent||"").trim();
-  if(np&&schRows[pi]&&np!==schRows[pi].phase){schRows[pi].phase=np;renderSch();syncFeePhases()}
-},true);
-document.addEventListener("change",function(e){
-  if(e.target===ge("curSel")||e.target===ge("tvIncl")||e.target.classList.contains("sic"))gtotal();
-  if(e.target===ge("curSel"))renderFee();
-});
-document.addEventListener("input",function(e){
-  if(["ohPct","tvTrips","tvPpl","tvCost"].indexOf(e.target.id)>-1||e.target.classList.contains("sfe"))gtotal();
-});
-
-/* ---- SUBCONSULTANTS ---- */
-function addSub(d){
-  d=d||{};var tr=document.createElement("tr");
-  tr.innerHTML="<td><input type='text' class='snm' value='"+esc(d.name||"")+"' placeholder='Firm' style='min-width:110px'></td>"+
-    "<td><input type='number' class='sfe' step='100' value='"+(d.fee||0)+"' style='max-width:95px'></td>"+
-    "<td style='text-align:center'><input type='checkbox' class='sic'"+(d.included_in_lump_sum!==false?" checked":"")+" style='width:15px;height:15px;accent-color:var(--accent)'></td>"+
-    "<td><button type='button' class='xb dls'>&#10005;</button></td>";
-  tr.querySelector(".dls").addEventListener("click",function(){tr.remove();gtotal()});
-  ge("subRows").appendChild(tr);gtotal();
-}
-ge("addSub").addEventListener("click",function(){addSub({})});
-
-/* ---- ANALYZE ---- */
-ge("analyzeBtn").addEventListener("click",async function(){
-  var txt=ge("rfpText").value.trim(),file=ge("rfpFile").files&&ge("rfpFile").files[0];
-  if(!txt&&!file){st("Please paste RFP text or upload a file.");return}
-  ge("analyzeBtn").disabled=true;st("Analyzing RFP with AI…");
-  try{
-    var data;
-    if(file){
-      var fm2=new FormData();fm2.append("rfp_file",file);fm2.append("project_hint",ge("projName").value||"");
-      var res=await fetch("/v1/parse/file",{method:"POST",body:fm2});
-      var _t1=await res.text();var data1;try{data1=JSON.parse(_t1)}catch(_){data1={detail:_t1.slice(0,200)||res.statusText}};data=data1;
-      if(!res.ok)throw new Error(data.detail||"Parse failed");
-      if(data.extracted_text)ge("rfpText").value=data.extracted_text;
-      applyParsed(data.parsed);
-    }else{
-      var res=await fetch("/v1/parse",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({rfp_text:txt,project_hint:ge("projName").value||""})});
-      var _t2=await res.text();var data2;try{data2=JSON.parse(_t2)}catch(_){data2={detail:_t2.slice(0,200)||res.statusText}};data=data2;
-      if(!res.ok)throw new Error(data.detail||"Parse failed");
-      applyParsed(data.parsed);
     }
-    [2,3,4,5].forEach(unlock);[1,2].forEach(pill);
-    ge("genBtn").disabled=false;
-    st("Analysis complete. Review the pre-filled data, adjust if needed, then generate.");
-  }catch(e){st("Analysis failed: "+e.message)}
-  finally{ge("analyzeBtn").disabled=false}
-});
-
-function formatSummary(txt){
-  if(!txt||txt.length<30)return txt;
-  var sents=[];
-  txt.replace(/[^.!?\n]+[.!?\n]+/g,function(m){var s=m.trim();if(s.length>15)sents.push(s)});
-  if(sents.length<2)return txt;
-  return sents.map(function(s){return '\u2022 '+(s.charAt(0).toUpperCase()+s.slice(1))}).join('\n');
-}
-
-function applyParsed(p){
-  if(!p)return;
-  var proj=p.project||{},cli=p.client||{};
-  if(proj.name)ge("projName").value=proj.name;
-  if(cli.name)ge("clientName").value=cli.name;
-  if(proj.type)ge("projType").value=proj.type;
-  if(proj.location)ge("location").value=proj.location;
-  if(proj.siteArea)ge("siteArea").value=proj.siteArea;
-  var und=(p.understanding||{}).understanding||"";
-  if(und)ge("summary").value=formatSummary(und);
-
-  /* Schedule */
-  var fee=p.fee||{},ebp=fee.effortByPhase||{},phases=Object.keys(ebp);
-  lastEbp=ebp;
-  var totalWks=(p.schedule&&p.schedule.totalWeeks)||16;
-  if(phases.length){
-    var sw=1;
-    schRows=phases.map(function(ph){
-      var dur=estDur(ph,totalWks,phases.length);var row={phase:ph,sw:sw,dur:dur,del:""};sw+=dur;return row;
+    function getPhases() { return schRows.map(function (r) { return r.phase }).filter(Boolean) }
+    function renderSchAndLegend() { renderSch(); updatePhaseLegend() }
+    function updatePhaseLegend() {
+      var lg = ge("phaseLegend"); if (!lg) return;
+      var pairs = schRows.map(function (r) { return r.phase ? abbrevPhase(r.phase) + " = " + r.phase : null }).filter(Boolean);
+      lg.textContent = pairs.length ? "Abbr: " + pairs.join(" \u00b7 ") : "";
+    }
+    ge("schBody").addEventListener("input", function (e) {
+      var t = e.target, i = parseInt(t.dataset.i, 10); if (!schRows[i]) return;
+      if (t.classList.contains("sp")) { schRows[i].phase = t.value; syncFeePhases(); updatePhaseLegend() }
+      if (t.classList.contains("ss")) schRows[i].sw = num(t.value);
+      if (t.classList.contains("sd")) schRows[i].dur = num(t.value);
+      if (t.classList.contains("sdl")) schRows[i].del = t.value;
     });
-  }else if(p.schedule&&p.schedule.milestones&&p.schedule.milestones.length){
-    var ms=p.schedule.milestones,sw=1,dd=Math.max(1,Math.round(totalWks/ms.length));
-    schRows=ms.map(function(m){var row={phase:m,sw:sw,dur:dd,del:""};sw+=dd;return row});
-  }
-  renderSch();updatePhaseLegend();
-
-  /* Team from fee.rates + personnel */
-  var rates=fee.rates||{};
-  if(Object.keys(rates).length){
-    var ph2=getPhases();
-    teamRows=Object.entries(rates).map(function(kv){
-      var role=kv[0],rate=kv[1];
-      var per=personnel.find(function(x){return(x.roles||[]).indexOf(role)>-1})||{};
-      var hrs={};ph2.forEach(function(pp){hrs[pp]=(ebp[pp]&&ebp[pp][role])?parseFloat(ebp[pp][role]):0});
-      return{role:role,name:per.name||"",pid:per.id||"",rate:num(rate),hrs:hrs};
+    ge("schBody").addEventListener("click", function (e) {
+      if (!e.target.classList.contains("del-sch")) return;
+      schRows.splice(parseInt(e.target.dataset.i, 10), 1); renderSch(); updatePhaseLegend(); syncFeePhases();
     });
-    renderTeam();renderFee();unlock(6);
-  }
-
-  /* Auto-select preset */
-  if(p.template_suggestion){
-    var tm={"master-plan":"preset-master-plan",commercial:"preset-commercial",technical:"preset-technical"};
-    if(tm[p.template_suggestion])ge("presetSel").value=tm[p.template_suggestion];
-  }
-
-  /* Reference projects */
-  selRef={};
-  if(p.suggested_reference_ids&&p.suggested_reference_ids.length)
-    p.suggested_reference_ids.forEach(function(id){selRef[id]=true});
-  if(p.template_suggestion){
-    var tmap={"master-plan":"Master Plan",commercial:"Commercial",technical:"Technical"};
-    var tv=tmap[p.template_suggestion]||"All";
-    ge("typeTabs").querySelectorAll(".ttab").forEach(function(b){b.classList.toggle("active",b.dataset.t===tv)});
-    curType=tv;
-  }
-  renderRef();
-}
-
-function estDur(ph,total,count){
-  var l=ph.toLowerCase();
-  if(l.includes("kick")||l.includes("inception")||l.includes("start"))return Math.max(1,Math.round(total*0.1));
-  if(l.includes("final")||l.includes("submission")||l.includes("delivery"))return Math.max(1,Math.round(total*0.15));
-  return Math.max(1,Math.round(total/Math.max(count,1)));
-}
-
-/* ---- GENERATE ---- */
-ge("genBtn").addEventListener("click",async function(){
-  ge("genBtn").disabled=true;st("Generating proposal…");
-  try{
-    var ov={name:ge("projName").value,client_name:ge("clientName").value,location:ge("location").value,type:ge("projType").value,siteArea:ge("siteArea").value};
-    var ph=getPhases();
-    var roles=teamRows.filter(function(r){return r.role}).map(function(r){
-      var hbp={};ph.forEach(function(p){hbp[p]=(r.hrs||{})[p]||0});return{role:r.role,rate:r.rate,hours_by_phase:hbp}
+    ge("addPhBtn").addEventListener("click", function () {
+      var lw = schRows.length ? schRows[schRows.length - 1].sw + schRows[schRows.length - 1].dur : 1;
+      schRows.push({ phase: "New Phase", sw: lw, dur: 2, del: "" }); renderSch(); updatePhaseLegend(); syncFeePhases();
     });
-    var subs=Array.from(ge("subRows").querySelectorAll("tr")).map(function(tr){
-      return{name:(tr.querySelector(".snm")||{}).value||"",fee:num((tr.querySelector(".sfe")||{}).value),included_in_lump_sum:(tr.querySelector(".sic")||{}).checked!==false}
-    }).filter(function(c){return c.name});
-    var payload={
-      rfp_text:(ge("rfpText").value||"RFP text not provided.").trim()||"RFP text not provided. Using project details above.",
-      fee_input:{roles:roles,overhead_pct:num(ge("ohPct").value),subconsultants:subs,
-        travel:{trips:num(ge("tvTrips").value),people_per_trip:num(ge("tvPpl").value),unit_cost:num(ge("tvCost").value),include_in_lump_sum:ge("tvIncl").checked},misc_reimbursables:0},
-      selected_reference_ids:Object.keys(selRef),
-      overrides:ov
-    };
-    var res=await fetch("/v1/proposals/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-    var _t=await res.text();var data;try{data=JSON.parse(_t)}catch(_){data={detail:_t.slice(0,200)||res.statusText}}
-    if(!res.ok)throw new Error(data.detail||"Generation failed (HTTP "+res.status+")");
-    var id=data.proposal_id;
-    ge("pidOut").textContent="#"+id.slice(0,8);
-    ge("plink").href="/proposals/"+id+"/review";
-    ge("plinkWrap").style.display="flex";
-    [4,5].forEach(pill);
-    st("Proposal generated. Click 'Open Review & Export' to edit sections and export to InDesign.");
-  }catch(e){st("Generation failed: "+e.message)}
-  finally{ge("genBtn").disabled=false}
-});
+    function syncFeePhases() {
+      var ph = getPhases();
+      teamRows.forEach(function (r) { if (!r.hrs) r.hrs = {}; ph.forEach(function (p) { if (r.hrs[p] == null) r.hrs[p] = 0 }) });
+      renderFee();
+    }
 
-/* ---- CLEAR ---- */
-ge("clearBtn").addEventListener("click",function(){
-  ge("rfpFile").value="";ge("rfpText").value="";ge("fm").textContent="Supported: .txt .md .pdf .docx";
-  ["projName","clientName","projType","location","siteArea","summary"].forEach(function(id){ge(id).value=""});
-  schRows=[];teamRows=[];selRef={};
-  renderSch();updatePhaseLegend();renderTeam();renderFee();renderRef();
-  ge("subRows").innerHTML="";
-  [2,3,4,5,6].forEach(function(n){var e=ge("sc"+n);if(e)e.classList.add("locked")});
-  ge("genBtn").disabled=true;ge("plinkWrap").style.display="none";
-  st("Cleared. Upload a new RFP to begin.");
-});
-ge("rfpFile").addEventListener("change",function(){
-  var f=ge("rfpFile").files&&ge("rfpFile").files[0];
-  ge("fm").textContent=f?"Selected: "+f.name+" — click Analyze RFP":"Supported: .txt .md .pdf .docx";
-});
+    /* ---- REFERENCE PROJECTS ---- */
+    function renderRef() {
+      var g = ge("refGrid"); g.innerHTML = "";
+      var list = allRef.filter(function (p) { return curType === "All" || p.type === curType });
+      if (!list.length) { g.innerHTML = "<p class='hint'>No projects match this filter.</p>"; return }
+      list.forEach(function (rp) {
+        var ch = !!selRef[rp.id];
+        var d = document.createElement("div");
+        d.className = "rc" + (ch ? " sel" : ""); d.dataset.rid = rp.id;
+        d.innerHTML = "<div class='rc-h'><input type='checkbox' class='rc-chk'" + (ch ? " checked" : "") + ">" +
+          "<div><span class='rbadge'>" + esc(rp.type || "Project") + "</span>" +
+          "<div class='rc-n'>" + esc(rp.name) + "</div></div></div>" +
+          "<div class='rc-m'>" + esc(rp.location || "") + (rp.year ? " · " + rp.year : "") + "</div>" +
+          "<div class='hint' style='font-size:10px;margin-top:3px'>" + esc((rp.summary || "").slice(0, 85)) + "…</div>";
+        d.querySelector(".rc-chk").addEventListener("change", function (e) {
+          if (e.target.checked) selRef[rp.id] = true; else delete selRef[rp.id];
+          d.classList.toggle("sel", e.target.checked);
+        });
+        d.addEventListener("click", function (e) {
+          if (e.target.tagName === "INPUT") return;
+          var c = d.querySelector(".rc-chk"); c.checked = !c.checked; c.dispatchEvent(new Event("change"));
+        });
+        g.appendChild(d);
+      });
+    }
+    ge("typeTabs").addEventListener("click", function (e) {
+      if (!e.target.classList.contains("ttab")) return;
+      ge("typeTabs").querySelectorAll(".ttab").forEach(function (b) { b.classList.remove("active") });
+      e.target.classList.add("active"); curType = e.target.dataset.t; renderRef();
+    });
+    async function loadRef() {
+      try { var r = await fetch("/v1/reference-projects"); if (!r.ok) return; allRef = await r.json(); renderRef() } catch (_) { }
+    }
+    ge("libBtn").addEventListener("click", function () { renderLib(""); ge("libQ").value = ""; ge("libDlg").showModal() });
+    ge("libQ").addEventListener("input", function (e) { renderLib(e.target.value) });
+    function renderLib(q) {
+      var lq = q.toLowerCase(); var l = ge("libList"); l.innerHTML = "";
+      allRef.filter(function (p) { return !q || (p.name + p.location + p.type).toLowerCase().includes(lq) })
+        .forEach(function (rp) {
+          var ch = !!selRef[rp.id];
+          var row = document.createElement("div"); row.className = "librow";
+          row.innerHTML = "<input type='checkbox' class='lc' data-id='" + esc(rp.id) + "'" + (ch ? " checked" : "") + ">" +
+            "<div><span class='rbadge'>" + esc(rp.type || "") + "</span> <strong style='font-size:11px'>" + esc(rp.name) + "</strong>" +
+            "<div style='font-size:10px;color:var(--muted)'>" + esc(rp.location || "") + (rp.year ? " · " + rp.year : "") + "</div></div>";
+          l.appendChild(row);
+        });
+    }
+    ge("libAdd").addEventListener("click", function () {
+      ge("libList").querySelectorAll(".lc").forEach(function (c) {
+        if (c.checked) selRef[c.dataset.id] = true; else delete selRef[c.dataset.id];
+      });
+      ge("libDlg").close(); renderRef();
+    });
 
-/* ---- INIT ---- */
-Promise.all([loadRef(),loadPersonnel(),loadPresets()]);
-</script>
+    /* ---- PERSONNEL / TEAM PRESETS ---- */
+    async function loadPersonnel() { try { var r = await fetch("/v1/personnel"); if (!r.ok) return; personnel = await r.json() } catch (_) { } }
+    async function loadPresets() {
+      try {
+        var r = await fetch("/v1/team-presets"); if (!r.ok) return; presets = await r.json();
+        var s = ge("presetSel");
+        presets.forEach(function (p) { var o = document.createElement("option"); o.value = p.id; o.textContent = p.name; s.appendChild(o) });
+      } catch (_) { }
+    }
+    ge("applyPre").addEventListener("click", function () {
+      var pid = ge("presetSel").value; if (!pid) return;
+      var prs = presets.find(function (p) { return p.id === pid }); if (!prs) return;
+      var ph = getPhases();
+      teamRows = prs.assignments.map(function (a) {
+        var per = personnel.find(function (p) { return p.id === a.person_id }) || {};
+        var hrs = {};
+        ph.forEach(function (p) {
+          var phData = lastEbp[p] || {};
+          var v = 0;
+          Object.keys(phData).forEach(function (k) {
+            if (!v && (k.toLowerCase().indexOf(a.role.toLowerCase()) > -1 || a.role.toLowerCase().indexOf(k.toLowerCase()) > -1))
+              v = parseFloat(phData[k]) || 0;
+          });
+          hrs[p] = v;
+        });
+        return { role: a.role, name: per.name || "", pid: a.person_id, rate: a.rate, hrs: hrs };
+      });
+      renderTeam(); renderFee(); unlock(6);
+    });
+    function renderTeam() {
+      var b = ge("teamBody"); b.innerHTML = "";
+      teamRows.forEach(function (r, i) {
+        var opts = "<option value=''>(none)</option>";
+        personnel.forEach(function (p) { opts += "<option value='" + esc(p.id) + "'" + (p.id === r.pid ? " selected" : "") + " data-n='" + esc(p.name) + "'>" + esc(p.name) + "</option>" });
+        var tr = document.createElement("tr");
+        tr.innerHTML = "<td><input type='text' class='trole' data-i='" + i + "' value='" + esc(r.role) + "' style='min-width:120px'></td>" +
+          "<td><select class='tper' data-i='" + i + "'>" + opts + "</select></td>" +
+          "<td><input type='number' class='trate' data-i='" + i + "' step='5' value='" + r.rate + "' style='max-width:80px'></td>" +
+          "<td><button type='button' class='xb del-tm' data-i='" + i + "'>&#10005;</button></td>";
+        b.appendChild(tr);
+      });
+    }
+    ge("teamBody").addEventListener("input", function (e) {
+      var t = e.target, i = parseInt(t.dataset.i, 10); if (!teamRows[i]) return;
+      if (t.classList.contains("trole")) { teamRows[i].role = t.value; renderFee() }
+      if (t.classList.contains("trate")) { teamRows[i].rate = num(t.value); renderFee() }
+    });
+    ge("teamBody").addEventListener("change", function (e) {
+      var t = e.target, i = parseInt(t.dataset.i, 10); if (!teamRows[i]) return;
+      if (t.classList.contains("tper")) {
+        teamRows[i].pid = t.value;
+        var o = t.options[t.selectedIndex]; teamRows[i].name = o.dataset.n || o.text;
+        renderFee();
+      }
+    });
+    ge("teamBody").addEventListener("click", function (e) {
+      if (!e.target.classList.contains("del-tm")) return;
+      teamRows.splice(parseInt(e.target.dataset.i, 10), 1); renderTeam(); renderFee();
+    });
+    ge("addMbr").addEventListener("click", function () {
+      var hrs = {}; getPhases().forEach(function (p) { hrs[p] = 0 });
+      teamRows.push({ role: "", name: "", pid: "", rate: 150, hrs: hrs }); renderTeam(); renderFee();
+    });
+
+    /* ---- FEE CALCULATOR ---- */
+    function renderFee() {
+      var ph = getPhases();
+      var h = "<tr><th>Role</th><th>Name</th><th style='min-width:65px'>Rate</th>";
+      ph.forEach(function (p, pi) { h += "<th class='phd-th' title='" + esc(p) + "'><span class='phd' data-pi='" + pi + "'>" + esc(abbrevPhase(p)) + "</span></th>" });
+      h += "<th style='min-width:80px'>Total</th></tr>"; ge("feeH").innerHTML = h;
+      var b = "";
+      teamRows.forEach(function (r, ri) {
+        if (!r.hrs) r.hrs = {};
+        var tot = ph.reduce(function (s, p) { return s + num(r.hrs[p] || 0) * num(r.rate) }, 0);
+        b += "<tr><td style='font-size:11px;min-width:90px;white-space:nowrap'>" + esc(r.role || "—") + "</td>" +
+          "<td style='font-size:11px;min-width:90px;white-space:nowrap'>" + esc(r.name || "—") + "</td>" +
+          "<td><input type='number' class='frate' data-ri='" + ri + "' step='5' value='" + num(r.rate) + "' style='width:65px'></td>";
+        ph.forEach(function (p) { b += "<td style='text-align:center;padding:4px'><input type='number' step='1' class='fh' data-ri='" + ri + "' data-p='" + esc(p) + "' value='" + (r.hrs[p] || 0) + "' style='width:50px;text-align:center'></td>" });
+        b += "<td class='tc' id='rt" + ri + "'>" + fm(tot) + "</td></tr>";
+      });
+      ge("feeB").innerHTML = b;
+      renderFoot(ph); gtotal();
+    }
+    function renderFoot(ph) {
+      var f = "<tr><td colspan='3' style='text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)'>Phase totals</td>";
+      ph.forEach(function (p) { var t = teamRows.reduce(function (s, r) { return s + num((r.hrs || {})[p] || 0) * num(r.rate) }, 0); f += "<td class='tc'>" + fm(t) + "</td>" });
+      var g = teamRows.reduce(function (s, r) { return s + ph.reduce(function (rs, p) { return rs + num((r.hrs || {})[p] || 0) * num(r.rate) }, 0) }, 0);
+      f += "<td class='tc'>" + fm(g) + "</td></tr>"; ge("feeF").innerHTML = f;
+    }
+    function gtotal() {
+      var ph = getPhases();
+      var lab = teamRows.reduce(function (s, r) { return s + ph.reduce(function (rs, p) { return rs + num((r.hrs || {})[p] || 0) * num(r.rate) }, 0) }, 0);
+      var oh = lab * num(ge("ohPct").value);
+      var tv = num(ge("tvTrips").value) * num(ge("tvPpl").value) * num(ge("tvCost").value);
+      var su = Array.from(ge("subRows").querySelectorAll("tr")).reduce(function (s, tr) {
+        var ch = tr.querySelector(".sic"), fe = tr.querySelector(".sfe"); return s + (ch && ch.checked && fe ? num(fe.value) : 0)
+      }, 0);
+      ge("gtDisp").textContent = fm(lab + oh + (ge("tvIncl").checked ? tv : 0) + su);
+    }
+    ge("feeB").addEventListener("input", function (e) {
+      var ri = parseInt(e.target.dataset.ri, 10);
+      if (e.target.classList.contains("fh")) {
+        var p = e.target.dataset.p;
+        if (teamRows[ri]) { if (!teamRows[ri].hrs) teamRows[ri].hrs = {}; teamRows[ri].hrs[p] = num(e.target.value) }
+        var ph = getPhases();
+        var tot = ph.reduce(function (s, pp) { return s + num((teamRows[ri] || { hrs: {} }).hrs[pp] || 0) * num((teamRows[ri] || { rate: 0 }).rate) }, 0);
+        var c = ge("rt" + ri); if (c) c.textContent = fm(tot);
+        renderFoot(ph); gtotal();
+      } else if (e.target.classList.contains("frate")) {
+        if (teamRows[ri]) { teamRows[ri].rate = Math.max(0, num(e.target.value)); }
+        var ph = getPhases();
+        var tot = ph.reduce(function (s, p) { return s + num((teamRows[ri].hrs || {})[p] || 0) * num(teamRows[ri].rate) }, 0);
+        var c = ge("rt" + ri); if (c) c.textContent = fm(tot);
+        renderFoot(ph); gtotal();
+      }
+    });
+    ge("feeH").addEventListener("blur", function (e) {
+      if (!e.target.classList.contains("phd")) return;
+      var pi = parseInt(e.target.dataset.pi, 10); var np = (e.target.textContent || "").trim();
+      if (np && schRows[pi] && np !== schRows[pi].phase) { schRows[pi].phase = np; renderSch(); syncFeePhases() }
+    }, true);
+    document.addEventListener("change", function (e) {
+      if (e.target === ge("curSel") || e.target === ge("tvIncl") || e.target.classList.contains("sic")) gtotal();
+      if (e.target === ge("curSel")) renderFee();
+    });
+    document.addEventListener("input", function (e) {
+      if (["ohPct", "tvTrips", "tvPpl", "tvCost"].indexOf(e.target.id) > -1 || e.target.classList.contains("sfe")) gtotal();
+    });
+
+    /* ---- SUBCONSULTANTS ---- */
+    function addSub(d) {
+      d = d || {}; var tr = document.createElement("tr");
+      tr.innerHTML = "<td><input type='text' class='snm' value='" + esc(d.name || "") + "' placeholder='Firm' style='min-width:110px'></td>" +
+        "<td><input type='number' class='sfe' step='100' value='" + (d.fee || 0) + "' style='max-width:95px'></td>" +
+        "<td style='text-align:center'><input type='checkbox' class='sic'" + (d.included_in_lump_sum !== false ? " checked" : "") + " style='width:15px;height:15px;accent-color:var(--accent)'></td>" +
+        "<td><button type='button' class='xb dls'>&#10005;</button></td>";
+      tr.querySelector(".dls").addEventListener("click", function () { tr.remove(); gtotal() });
+      ge("subRows").appendChild(tr); gtotal();
+    }
+    ge("addSub").addEventListener("click", function () { addSub({}) });
+
+    /* ---- ANALYZE ---- */
+    ge("analyzeBtn").addEventListener("click", async function () {
+      var txt = ge("rfpText").value.trim(), file = ge("rfpFile").files && ge("rfpFile").files[0];
+      if (!txt && !file) { st("Please paste RFP text or upload a file."); return }
+      ge("analyzeBtn").disabled = true; st("Analyzing RFP with AI…");
+      try {
+        var data;
+        if (file) {
+          var fm2 = new FormData(); fm2.append("rfp_file", file); fm2.append("project_hint", ge("projName").value || "");
+          var res = await fetch("/v1/parse/file", { method: "POST", body: fm2 });
+          var _t1 = await res.text(); var data1; try { data1 = JSON.parse(_t1) } catch (_) { data1 = { detail: _t1.slice(0, 200) || res.statusText } }; data = data1;
+          if (!res.ok) throw new Error(data.detail || "Parse failed");
+          if (data.extracted_text) ge("rfpText").value = data.extracted_text;
+          applyParsed(data.parsed);
+        } else {
+          var res = await fetch("/v1/parse", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rfp_text: txt, project_hint: ge("projName").value || "" }) });
+          var _t2 = await res.text(); var data2; try { data2 = JSON.parse(_t2) } catch (_) { data2 = { detail: _t2.slice(0, 200) || res.statusText } }; data = data2;
+          if (!res.ok) throw new Error(data.detail || "Parse failed");
+          applyParsed(data.parsed);
+        }
+        [2, 3, 4, 5].forEach(unlock);[1, 2].forEach(pill);
+        ge("genBtn").disabled = false;
+        st("Analysis complete. Review the pre-filled data, adjust if needed, then generate.");
+      } catch (e) { st("Analysis failed: " + e.message) }
+      finally { ge("analyzeBtn").disabled = false }
+    });
+
+    function formatSummary(txt) {
+      if (!txt || txt.length < 30) return txt;
+      var sents = [];
+      txt.replace(/[^.!?\n]+[.!?\n]+/g, function (m) { var s = m.trim(); if (s.length > 15) sents.push(s) });
+      if (sents.length < 2) return txt;
+      return sents.map(function (s) { return '\u2022 ' + (s.charAt(0).toUpperCase() + s.slice(1)) }).join('\n');
+    }
+
+    function applyParsed(p) {
+      if (!p) return;
+      var proj = p.project || {}, cli = p.client || {};
+      if (proj.name) ge("projName").value = proj.name;
+      if (cli.name) ge("clientName").value = cli.name;
+      if (proj.type) ge("projType").value = proj.type;
+      if (proj.location) ge("location").value = proj.location;
+      if (proj.siteArea) ge("siteArea").value = proj.siteArea;
+      var und = (p.understanding || {}).understanding || "";
+      if (und) ge("summary").value = formatSummary(und);
+
+      /* Schedule */
+      var fee = p.fee || {}, ebp = fee.effortByPhase || {}, phases = Object.keys(ebp);
+      lastEbp = ebp;
+      var totalWks = (p.schedule && p.schedule.totalWeeks) || 16;
+      if (phases.length) {
+        var sw = 1;
+        schRows = phases.map(function (ph) {
+          var dur = estDur(ph, totalWks, phases.length); var row = { phase: ph, sw: sw, dur: dur, del: "" }; sw += dur; return row;
+        });
+      } else if (p.schedule && p.schedule.milestones && p.schedule.milestones.length) {
+        var ms = p.schedule.milestones, sw = 1, dd = Math.max(1, Math.round(totalWks / ms.length));
+        schRows = ms.map(function (m) { var row = { phase: m, sw: sw, dur: dd, del: "" }; sw += dd; return row });
+      }
+      renderSch(); updatePhaseLegend();
+
+      /* Team from fee.rates + personnel */
+      var rates = fee.rates || {};
+      if (Object.keys(rates).length) {
+        var ph2 = getPhases();
+        teamRows = Object.entries(rates).map(function (kv) {
+          var role = kv[0], rate = kv[1];
+          var per = personnel.find(function (x) { return (x.roles || []).indexOf(role) > -1 }) || {};
+          var hrs = {}; ph2.forEach(function (pp) { hrs[pp] = (ebp[pp] && ebp[pp][role]) ? parseFloat(ebp[pp][role]) : 0 });
+          return { role: role, name: per.name || "", pid: per.id || "", rate: num(rate), hrs: hrs };
+        });
+        renderTeam(); renderFee(); unlock(6);
+      }
+
+      /* Auto-select preset */
+      if (p.template_suggestion) {
+        var tm = { "master-plan": "preset-master-plan", commercial: "preset-commercial", technical: "preset-technical" };
+        if (tm[p.template_suggestion]) ge("presetSel").value = tm[p.template_suggestion];
+      }
+
+      /* Reference projects */
+      selRef = {};
+      if (p.suggested_reference_ids && p.suggested_reference_ids.length)
+        p.suggested_reference_ids.forEach(function (id) { selRef[id] = true });
+      if (p.template_suggestion) {
+        var tmap = { "master-plan": "Master Plan", commercial: "Commercial", technical: "Technical" };
+        var tv = tmap[p.template_suggestion] || "All";
+        ge("typeTabs").querySelectorAll(".ttab").forEach(function (b) { b.classList.toggle("active", b.dataset.t === tv) });
+        curType = tv;
+      }
+      renderRef();
+    }
+
+    function estDur(ph, total, count) {
+      var l = ph.toLowerCase();
+      if (l.includes("kick") || l.includes("inception") || l.includes("start")) return Math.max(1, Math.round(total * 0.1));
+      if (l.includes("final") || l.includes("submission") || l.includes("delivery")) return Math.max(1, Math.round(total * 0.15));
+      return Math.max(1, Math.round(total / Math.max(count, 1)));
+    }
+
+    /* ---- GENERATE ---- */
+    ge("genBtn").addEventListener("click", async function () {
+      ge("genBtn").disabled = true; st("Generating proposal…");
+      try {
+        var ov = { name: ge("projName").value, client_name: ge("clientName").value, location: ge("location").value, type: ge("projType").value, siteArea: ge("siteArea").value };
+        var ph = getPhases();
+        var roles = teamRows.filter(function (r) { return r.role }).map(function (r) {
+          var hbp = {}; ph.forEach(function (p) { hbp[p] = (r.hrs || {})[p] || 0 }); return { role: r.role, rate: r.rate, hours_by_phase: hbp }
+        });
+        var subs = Array.from(ge("subRows").querySelectorAll("tr")).map(function (tr) {
+          return { name: (tr.querySelector(".snm") || {}).value || "", fee: num((tr.querySelector(".sfe") || {}).value), included_in_lump_sum: (tr.querySelector(".sic") || {}).checked !== false }
+        }).filter(function (c) { return c.name });
+        var payload = {
+          rfp_text: (ge("rfpText").value || "RFP text not provided.").trim() || "RFP text not provided. Using project details above.",
+          fee_input: {
+            roles: roles, overhead_pct: num(ge("ohPct").value), subconsultants: subs,
+            travel: { trips: num(ge("tvTrips").value), people_per_trip: num(ge("tvPpl").value), unit_cost: num(ge("tvCost").value), include_in_lump_sum: ge("tvIncl").checked }, misc_reimbursables: 0
+          },
+          selected_reference_ids: Object.keys(selRef),
+          overrides: ov
+        };
+        var res = await fetch("/v1/proposals/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+        var _t = await res.text(); var data; try { data = JSON.parse(_t) } catch (_) { data = { detail: _t.slice(0, 200) || res.statusText } }
+        if (!res.ok) throw new Error(data.detail || "Generation failed (HTTP " + res.status + ")");
+        var id = data.proposal_id;
+        ge("pidOut").textContent = "#" + id.slice(0, 8);
+        ge("plink").href = "/proposals/" + id + "/review";
+        ge("plinkWrap").style.display = "flex";
+        [4, 5].forEach(pill);
+        st("Proposal generated. Click 'Open Review & Export' to edit sections and export to InDesign.");
+      } catch (e) { st("Generation failed: " + e.message) }
+      finally { ge("genBtn").disabled = false }
+    });
+
+    /* ---- CLEAR ---- */
+    ge("clearBtn").addEventListener("click", function () {
+      ge("rfpFile").value = ""; ge("rfpText").value = ""; ge("fm").textContent = "Supported: .txt .md .pdf .docx";
+      ["projName", "clientName", "projType", "location", "siteArea", "summary"].forEach(function (id) { ge(id).value = "" });
+      schRows = []; teamRows = []; selRef = {};
+      renderSch(); updatePhaseLegend(); renderTeam(); renderFee(); renderRef();
+      ge("subRows").innerHTML = "";
+      [2, 3, 4, 5, 6].forEach(function (n) { var e = ge("sc" + n); if (e) e.classList.add("locked") });
+      ge("genBtn").disabled = true; ge("plinkWrap").style.display = "none";
+      st("Cleared. Upload a new RFP to begin.");
+    });
+    ge("rfpFile").addEventListener("change", function () {
+      var f = ge("rfpFile").files && ge("rfpFile").files[0];
+      ge("fm").textContent = f ? "Selected: " + f.name + " — click Analyze RFP" : "Supported: .txt .md .pdf .docx";
+    });
+
+    /* ---- INIT ---- */
+    /* ---- ACCOUNT MENU ---- */
+    (function () {
+      var menu = ge("acctMenu"), btn = ge("acctBtn"), pop = ge("acctPop");
+      if (!btn || !pop) return;
+      function close() { pop.classList.remove("open"); btn.setAttribute("aria-expanded", "false") }
+      btn.addEventListener("click", function (e) { e.stopPropagation(); var open = pop.classList.toggle("open"); btn.setAttribute("aria-expanded", open ? "true" : "false") });
+      document.addEventListener("click", function (e) { if (!menu.contains(e.target)) close() });
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape") close() });
+    })();
+    async function loadAccount() {
+      try {
+        var r = await fetch("/v1/me");
+        if (!r.ok) throw new Error(String(r.status));
+        var me = await r.json();
+        var name = me.user || me.email || "User";
+        ge("acctName").textContent = name.split("@")[0];
+        ge("acctUser").textContent = name;
+        ge("acctGroups").textContent = (me.groups && me.groups.length) ? me.groups.join(", ") : "no groups";
+        ge("acctAvatar").textContent = (name[0] || "?").toUpperCase();
+        if (me.can_setup) { ge("acctAdmin").classList.remove("hidden"); }
+        else { ge("acctAdmin").classList.add("hidden"); }
+      } catch (_) {
+        ge("acctName").textContent = "Sign in";
+        ge("acctUser").textContent = "Not signed in";
+        ge("acctGroups").textContent = "";
+        ge("acctAdmin").classList.add("hidden");
+        var so = ge("acctSignout"); so.textContent = "Sign in"; so.setAttribute("href", "/oauth2/sign_in");
+      }
+    }
+    loadAccount();
+    Promise.all([loadRef(), loadPersonnel(), loadPresets()]);
+  </script>
 </body>
+
 </html>

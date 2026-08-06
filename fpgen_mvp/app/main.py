@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.db import IS_SQLITE, get_db, init_db
 from app import repositories
-from app.auth import CurrentUser, get_current_user
+from app.auth import CurrentUser, get_current_user, require_setup, user_can_setup
 from app.routers import admin
 from app.schemas import (
     FileParseResponse,
@@ -48,13 +48,31 @@ STATIC_DIR = Path(__file__).resolve().parent / "static"
 ADMIN_DIR = STATIC_DIR / "admin"
 
 app.include_router(admin.router)
+
+
+@app.get("/admin", include_in_schema=False)
+@app.get("/admin/", include_in_schema=False)
+def admin_index(_: CurrentUser = Depends(require_setup)) -> FileResponse:
+    """Serve the setup/admin console shell, gated to admin (or Finance) users.
+
+    Declared before the static mount so it takes precedence for the page entry
+    point; sibling assets (admin.css/js) still fall through to the mount.
+    """
+    return FileResponse(ADMIN_DIR / "index.html")
+
+
 if ADMIN_DIR.is_dir():
     app.mount("/admin", StaticFiles(directory=str(ADMIN_DIR), html=True), name="admin")
 
 
 @app.get("/v1/me")
 def whoami(user: CurrentUser = Depends(get_current_user)) -> dict:
-    return {"user": user.user, "email": user.email, "groups": user.groups}
+    return {
+        "user": user.user,
+        "email": user.email,
+        "groups": user.groups,
+        "can_setup": user_can_setup(user),
+    }
 
 
 @app.exception_handler(Exception)
@@ -67,12 +85,12 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
 
 
 @app.get("/")
-def index() -> FileResponse:
+def index(_: CurrentUser = Depends(get_current_user)) -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
 
 
 @app.get("/ui")
-def ui() -> FileResponse:
+def ui(_: CurrentUser = Depends(get_current_user)) -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
 
 

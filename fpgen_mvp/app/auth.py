@@ -82,3 +82,16 @@ def require_role(*allowed_csv: str):
 # Pre-built dependencies for common gates.
 require_admin = require_role(settings.admin_roles)
 require_finance = require_role(settings.finance_roles)
+# Gate for the setup/admin console shell: anyone who may edit at least one
+# section (platform admins, plus the Finance group for unit rates).
+require_setup = require_role(settings.admin_roles, settings.finance_roles)
+
+
+def user_can_setup(user: CurrentUser) -> bool:
+    """True when the user may reach the setup/admin console (admin or Finance).
+
+    Mirrors ``require_setup`` but returns a boolean so callers (e.g. ``/v1/me``)
+    can advertise the capability to the UI without raising.
+    """
+    allowed = set(_split(settings.admin_roles)) | set(_split(settings.finance_roles))
+    return user.has_any(allowed)
