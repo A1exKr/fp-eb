@@ -159,6 +159,76 @@ Allowlisted instruction-editable inputs, by section (`SECTION_INPUT_FIELDS` in `
 EB-001. Until then every regeneration takes the deterministic path and reports the "No LLM connection is
 configured" notice.
 
+### 4d. Cross-section coherence
+
+**The dependency edges are one-directional.** Nothing in the `team` allowlist
+(`principal.name/title`, `pm.name/title`) or the `schedule` allowlist (`duration`, `totalWeeks`,
+`milestones`) is an input to `calculate_fee`. Editing them therefore *cannot* invalidate the financials —
+a cascade in that direction would be fabricating numbers. The cascade that genuinely exists runs the other
+way and is already implemented: `fee/recalculate` rebuilds `financial` + `schedule` + `team`.
+
+```
+fee_input ──calculate_fee──> financial ──> [financial, schedule] sections
+fee_input ──────────────────────────────-> [team, financial] sections
+parsed.project.type/location + keywords ──select_relevant_projects──> relevant_experience section
+parsed.project.name/type/location + fee.rates ────────────────────-> cover_letter
+parsed.team ─> team      parsed.schedule/duration/effortByPhase ─> schedule
+```
+
+`financial`, `relevant_experience`, `team` and `schedule` are **sinks**. The only real sources are
+`fee_input` and `parsed.project.*`.
+
+#### Step 1.1 — done (2026-08-06)
+
+Prerequisites for any cascade work; auto-selection was silently degraded before these.
+
+1. **`select_relevant_projects` read the wrong key.** It looked up `parsed["project"]["project_type"]`
+   while the parser writes `project.type`, so the +5 exact-type score never fired. Fixed to read `type`
+   with `project_type` as a legacy fallback, and scoring now falls back to +3 on shared type tokens
+   (free-text types such as "Master Plan" vs "master plan" rarely match on exact equality).
+2. **`parsed["keywords"]` was never populated**, so the keyword-intersection score was always 0. Combined
+   with (1), auto-selection effectively ranked on a location substring only — i.e. near-arbitrary order.
+   `parser._derive_keywords` now emits normalized tokens from project type/name/location plus the scope
+   and deliverables lists, and both sides are tokenized during scoring.
+3. **Two phase vocabularies could drift** (`parsed.fee.effortByPhase` from the RFP versus
+   `fee_input.roles[].hours_by_phase` from the fee panel), producing a schedule that lists an uncosted
+   phase beside a costed one that is not in the plan. Rather than pollute the client-facing text,
+   `phase_alignment_notice` reports the mismatch to the reviewer through the existing `notice` field on
+   the schedule/financial regeneration and fee recalculation responses.
+
+Verified: smoke suite now 33/33 (`--regen`), including that auto-select ranks a type+location+keyword
+match above a non-match, and that aligned phases produce no notice.
+
+#### Step 1.2 — provenance and staleness (proposed, not built)
+
+The rule that makes cascade safe is **classify by provenance, not by section name**:
+
+| Origin | On upstream change |
+|---|---|
+| `derived` — pure deterministic render of stored data | Auto-rebuild silently; it is a projection, nothing is lost |
+| `edited` — human edit via the review editor | Never overwrite; mark stale and offer Rebuild |
+| `llm` — produced by `text_completion` | Never overwrite; re-running costs money, is non-deterministic and destroys applied polish |
+
+- Add `payload["section_state"][key] = {"origin": ..., "stale_reason": ...}`.
+- Declare `SECTION_SOURCES` beside the existing `SECTION_INPUT_FIELDS` so the downstream closure is
+  computed rather than hand-maintained per call site.
+- Split the response: derived downstream sections stay in `changed_sections`; authored ones go to a new
+  `stale_sections: [{key, reason}]`.
+- Review page: amber "Out of date — fee inputs changed" badge on the section header with a one-click
+  Rebuild (reusing the existing regenerate endpoint), plus "Rebuild all stale" in the top bar.
+- `relevant_experience` needs `selection_mode: auto | manual`. Auto results are derived data and should
+  restale when `project.type` changes; an explicit checkbox selection is a human decision and must never
+  be auto-replaced. `experience/reselect` already knows which mode it ran in.
+
+Explicitly not: auto re-running the cover letter on any upstream change (stale badge only); cascading on a
+plain `PUT` section save (that is the human authoring — just set `origin = "edited"`).
+
+#### Step 1.3 — widen the instruction allowlist (after 1.2)
+
+Add `project.type`, `project.location`, `keywords` and phase names. These are the fields that create the
+first genuine cascade, which is precisely why they must wait for 1.2 — otherwise the first `project.type`
+edit silently desynchronises `relevant_experience` and `cover_letter`.
+
 ---
 
 ## 5. Phase 2 — tool layer (optional, low-regret)
@@ -211,6 +281,11 @@ remotely. Requires the dashboard to be deployable for our tenant and able to rea
 
 ## 8. Changelog
 
+- 2026-08-06: **Step 1.1 coherence fixes** — `select_relevant_projects` now reads `project.type` (it read
+  a key the parser never writes, so the type score never fired) and scores on shared tokens; the parser
+  now derives `parsed.keywords` (previously absent, so keyword scoring was always 0); phase-vocabulary
+  drift between the RFP plan and the fee inputs is reported through the `notice` field. Steps 1.2
+  (provenance + staleness) and 1.3 (wider allowlist) documented in §4d, not yet built. Smoke 33/33.
 - 2026-08-06: Phase 1 **4b shipped** — `fee_input` persisted in the proposal payload; three regeneration
   endpoints (`sections/{key}/regenerate`, `experience/reselect`, `fee/recalculate`) with preview/commit
   semantics and role gating; review-page regeneration controls, reference-project panel, fee panel and

@@ -187,6 +187,34 @@ def _suggest_reference_ids(experience: list[dict]) -> list[str]:
 # Computed additions (post-AI)
 # ---------------------------------------------------------------------------
 
+_KEYWORD_STOPWORDS = {
+    "and", "the", "for", "with", "our", "its", "this", "that", "from", "into",
+    "project", "projects", "phase", "new", "tbd", "site", "final", "report",
+}
+
+
+def _derive_keywords(parsed: dict) -> list[str]:
+    """Search tokens for reference-project matching; consumed by relevant_selector."""
+    project = parsed.get("project", {})
+    scope = parsed.get("scope", {})
+    sources: list = [
+        project.get("type", ""),
+        project.get("name", ""),
+        project.get("location", ""),
+    ]
+    sources += _safe_list(scope.get("scopeList"))[:6]
+    sources += _safe_list(scope.get("deliverablesList"))[:6]
+
+    keywords: list[str] = []
+    seen: set[str] = set()
+    for source in sources:
+        for token in re.split(r"\W+", str(source or "").lower()):
+            if len(token) > 2 and token not in _KEYWORD_STOPWORDS and token not in seen:
+                seen.add(token)
+                keywords.append(token)
+    return keywords[:24]
+
+
 def _add_computed_fields(parsed: dict) -> dict:
     project_type = parsed.get("project", {}).get("type", "")
     parsed["template_suggestion"] = _suggest_template(project_type)
@@ -194,6 +222,7 @@ def _add_computed_fields(parsed: dict) -> dict:
     rates = parsed.get("fee", {}).get("rates", {})
     parsed["cv_suggestions"] = _suggest_cvs(rates, registry)
     parsed["suggested_reference_ids"] = _suggest_reference_ids(parsed.get("experience", []))
+    parsed["keywords"] = _derive_keywords(parsed)
     return parsed
 
 

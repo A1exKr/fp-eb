@@ -49,6 +49,7 @@ from app.services.proposal_builder import (
     apply_input_patch,
     build_proposal_payload,
     payload_fee_input,
+    phase_alignment_notice,
     propose_input_patch,
     rebuild_markdown,
     rebuild_section,
@@ -418,6 +419,9 @@ def regenerate_section_endpoint(
 
         text = rebuild_section(section_key, payload.get("parsed", {}), fee, relevant, fee_input)
 
+    if section_key in ("schedule", "financial"):
+        notice = " ".join(filter(None, [notice, phase_alignment_notice(payload.get("parsed", {}), fee)])) or None
+
     payload.setdefault("sections", {})[section_key] = text
     return _finalize(db, proposal_id, payload, [section_key], req.commit, applied_patch, notice)
 
@@ -468,7 +472,7 @@ def recalculate_fee_endpoint(
     for key in changed:
         sections[key] = rebuild_section(key, parsed, fee, relevant, req.fee_input)
 
-    return _finalize(db, proposal_id, payload, changed, req.commit)
+    return _finalize(db, proposal_id, payload, changed, req.commit, None, phase_alignment_notice(parsed, fee))
 
 
 @app.post("/v1/proposals/{proposal_id}/export/jsx")

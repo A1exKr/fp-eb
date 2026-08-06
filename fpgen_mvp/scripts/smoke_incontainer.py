@@ -289,6 +289,44 @@ def regen_smoke() -> int:
         check("untouched proposal exports a JSX bundle of the same size", len(jsx_control) == len(jsx_before),
               f"{len(jsx_control)} vs {len(jsx_before)}")
 
+    # 10. relevance scoring: keywords are derived, project type uses the `type` key
+    parsed = stored["parsed"]
+    check("parsed.keywords populated", bool(parsed.get("keywords")), str(parsed.get("keywords"))[:160])
+    check("project.type present for scoring", bool(parsed.get("project", {}).get("type")), str(parsed.get("project")))
+
+    seeded = [
+        {"id": "rp-rank-match", "name": "Riverside Master Plan", "project_type": "Master Plan",
+         "location": "Ho Chi Minh City", "keywords": ["master plan", "mixed-use", "riverside"],
+         "summary": "42ha riverside master plan."},
+        {"id": "rp-rank-other", "name": "Airport Cargo Terminal", "project_type": "Industrial",
+         "location": "Osaka", "keywords": ["logistics", "terminal"], "summary": "Cargo handling facility."},
+    ]
+    for row in seeded:
+        client.post("/v1/admin/reference-projects", json=row)
+
+    ranked = client.post(f"/v1/proposals/{pid}/experience/reselect", json={"auto": True, "limit": 1, "commit": False})
+    check("auto-select -> 200", ranked.status_code == 200, ranked.text[:200])
+    if ranked.status_code == 200:
+        top = ranked.json()["proposal"]["relevant_experience"]
+        check("auto-select ranks the matching project first",
+              bool(top) and top[0]["id"] == "rp-rank-match", str([x["id"] for x in top]))
+
+    # 11. phase-vocabulary drift is reported, not hidden
+    drift = client.post(f"/v1/proposals/{pid}/sections/schedule/regenerate", json={"commit": False})
+    check("schedule regenerate -> 200", drift.status_code == 200, drift.text[:200])
+    if drift.status_code == 200:
+        print(f"    phase notice: {drift.json().get('notice')}")
+
+    aligned_fee = {
+        "roles": [{"role": "Urban Planner", "rate": 180,
+                   "hours_by_phase": {p: 20 for p in (parsed.get("fee", {}).get("effortByPhase") or {})}}],
+        "overhead_pct": 0.1,
+    }
+    aligned = client.post(f"/v1/proposals/{pid}/fee/recalculate", json={"fee_input": aligned_fee, "commit": False})
+    check("aligned phases produce no drift notice",
+          aligned.status_code == 200 and not aligned.json().get("notice"),
+          str(aligned.json().get("notice")) if aligned.status_code == 200 else aligned.text[:160])
+
     print(f"\nPASS={_passed} FAIL={_failed}")
     return 1 if _failed else 0
 

@@ -379,6 +379,30 @@ def rebuild_markdown(payload: dict) -> str:
     return _to_markdown(parsed=payload.get("parsed", {}), sections=payload.get("sections", {}))
 
 
+def phase_alignment_notice(parsed: dict, fee: dict) -> str | None:
+    """Warn the reviewer when the RFP's planned phases and the costed phases disagree.
+
+    The schedule lists planned phases while the fee prices ``fee_input`` phases; if the two
+    vocabularies drift the proposal shows uncosted phases next to uplanned costed ones.
+    """
+    planned = list((parsed.get("fee", {}) or {}).get("effortByPhase") or {}) or list(parsed.get("phases") or [])
+    costed = list((fee or {}).get("phase_totals") or {})
+    if not planned or not costed:
+        return None
+
+    uncosted = [p for p in planned if p not in costed]
+    unplanned = [p for p in costed if p not in planned]
+    if not uncosted and not unplanned:
+        return None
+
+    parts = []
+    if uncosted:
+        parts.append("planned but not costed: " + ", ".join(uncosted))
+    if unplanned:
+        parts.append("costed but not in the plan: " + ", ".join(unplanned))
+    return "Phase names differ between the RFP plan and the fee inputs (" + "; ".join(parts) + ")."
+
+
 def _read_path(data: dict, path: str):
     node = data
     for part in path.split("."):
