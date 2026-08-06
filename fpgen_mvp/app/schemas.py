@@ -79,6 +79,7 @@ class RegenerationResponse(BaseModel):
     proposal_id: str
     committed: bool
     changed_sections: list[str] = Field(default_factory=list)
+    stale_sections: list[dict[str, Any]] = Field(default_factory=list)
     proposal: dict[str, Any]
     input_patch: dict[str, Any] | None = None
     notice: str | None = None

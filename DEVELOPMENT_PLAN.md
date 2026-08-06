@@ -199,7 +199,7 @@ Prerequisites for any cascade work; auto-selection was silently degraded before 
 Verified: smoke suite now 33/33 (`--regen`), including that auto-select ranks a type+location+keyword
 match above a non-match, and that aligned phases produce no notice.
 
-#### Step 1.2 — provenance and staleness (proposed, not built)
+#### Step 1.2 — provenance and staleness — done (2026-08-06)
 
 The rule that makes cascade safe is **classify by provenance, not by section name**:
 
@@ -209,25 +209,40 @@ The rule that makes cascade safe is **classify by provenance, not by section nam
 | `edited` — human edit via the review editor | Never overwrite; mark stale and offer Rebuild |
 | `llm` — produced by `text_completion` | Never overwrite; re-running costs money, is non-deterministic and destroys applied polish |
 
-- Add `payload["section_state"][key] = {"origin": ..., "stale_reason": ...}`.
-- Declare `SECTION_SOURCES` beside the existing `SECTION_INPUT_FIELDS` so the downstream closure is
-  computed rather than hand-maintained per call site.
-- Split the response: derived downstream sections stay in `changed_sections`; authored ones go to a new
-  `stale_sections: [{key, reason}]`.
-- Review page: amber "Out of date — fee inputs changed" badge on the section header with a one-click
-  Rebuild (reusing the existing regenerate endpoint), plus "Rebuild all stale" in the top bar.
-- `relevant_experience` needs `selection_mode: auto | manual`. Auto results are derived data and should
-  restale when `project.type` changes; an explicit checkbox selection is a human decision and must never
-  be auto-replaced. `experience/reselect` already knows which mode it ran in.
+As built:
 
-Explicitly not: auto re-running the cover letter on any upstream change (stale badge only); cascading on a
-plain `PUT` section save (that is the human authoring — just set `origin = "edited"`).
+- `payload["section_state"][key] = {"origin": ..., "stale_reason": ...}`, initialised for all nine
+  sections at generate time (`cover_letter` is marked `llm` only when the synthesis call actually
+  succeeded). Proposals predating this field default to `derived` — their edit history is unknown.
+- `SECTION_SOURCES` declares what each section reads, and `INPUT_FIELD_SOURCES` maps each allowlisted
+  input path to its source. `propagate()` computes the downstream closure once, so the cascade is
+  declared rather than hand-maintained per call site — `fee/recalculate` no longer hardcodes
+  `["financial", "schedule", "team"]`.
+- Source keys are deliberately finer than the top-level `parsed` blocks: `parsed.project.duration` is
+  separate from `parsed.project.identity`, so a schedule edit does not falsely stale the cover letter.
+- `RegenerationResponse` gained `stale_sections: [{key, title, reason}]`; `changed_sections` now carries
+  the cascaded rebuilds.
+- `PUT /v1/proposals/{id}` marks any section whose text actually changed as `edited`. It does not
+  cascade — that is the human authoring.
+- `experience_selection_mode: auto | manual` is recorded at generate time and on every reselect. When
+  the mode is `auto`, a change to `parsed.project.identity` or `parsed.keywords` stales
+  `relevant_experience` with a "re-run Auto-select" reason rather than rebuilding it — the *selection*
+  is stale, so re-rendering the same list would not help. A manual selection is never auto-replaced.
+- Review page: stale sections get an amber card border, an "Out of date — <reason>" note, and their
+  Regenerate button becomes an amber **Rebuild**. The status bar and the preview dialog both report
+  "Rebuilt: …" and "N sections need review: …".
 
-#### Step 1.3 — widen the instruction allowlist (after 1.2)
+Verified: smoke suite 50/50 (`--regen`). The decisive case — hand-edit Team Structure, then change the
+fee — rebuilds `financial` and `schedule`, leaves the hand-written team text byte-identical, reports
+`team` as stale with a reason, and clears the flag once the section is explicitly rebuilt. Confirmed in
+the browser: amber card, "Out of date Fee inputs changed.", Rebuild button, hand-written text intact.
 
-Add `project.type`, `project.location`, `keywords` and phase names. These are the fields that create the
-first genuine cascade, which is precisely why they must wait for 1.2 — otherwise the first `project.type`
-edit silently desynchronises `relevant_experience` and `cover_letter`.
+#### Step 1.3 — widen the instruction allowlist (next)
+
+Add `project.type`, `project.location`, `keywords` and phase names to `SECTION_INPUT_FIELDS`, with
+`INPUT_FIELD_SOURCES` entries pointing at `parsed.project.identity` / `parsed.keywords`. The staleness
+machinery from 1.2 is already wired for these sources, including the auto-selection rule, so this step is
+mostly allowlist entries plus tests.
 
 ---
 
@@ -281,6 +296,11 @@ remotely. Requires the dashboard to be deployable for our tenant and able to rea
 
 ## 8. Changelog
 
+- 2026-08-06: **Step 1.2 shipped** — section provenance (`derived` / `edited` / `llm`), a declared
+  `SECTION_SOURCES` dependency graph with `propagate()`, `stale_sections` on the regeneration response,
+  `experience_selection_mode`, and amber "Out of date" badges with a Rebuild action on the review page.
+  Derived downstream sections rebuild automatically; human- and LLM-authored ones are never overwritten,
+  only flagged. Smoke 50/50. See §4d.
 - 2026-08-06: **Step 1.1 coherence fixes** — `select_relevant_projects` now reads `project.type` (it read
   a key the parser never writes, so the type score never fired) and scores on shared tokens; the parser
   now derives `parsed.keywords` (previously absent, so keyword scoring was always 0); phase-vocabulary

@@ -327,6 +327,64 @@ def regen_smoke() -> int:
           aligned.status_code == 200 and not aligned.json().get("notice"),
           str(aligned.json().get("notice")) if aligned.status_code == 200 else aligned.text[:160])
 
+    # 12. provenance: derived sections cascade, authored sections go stale instead
+    fresh = client.post(
+        "/v1/proposals/generate",
+        json={
+            "rfp_text": "Client requests a mixed-use master plan in Ho Chi Minh City over 16 weeks, with concept options and a final master plan report.",
+            "fee_input": fee_input,
+            "overrides": {"project_name": "Provenance Smoke", "client_name": "Example Client"},
+        },
+    )
+    check("provenance fixture generated", fresh.status_code == 200, fresh.text[:160])
+    if fresh.status_code != 200:
+        print(f"\nPASS={_passed} FAIL={_failed}")
+        return 1
+    ppid = fresh.json()["proposal_id"]
+    state = fresh.json()["proposal"].get("section_state") or {}
+    check("section_state initialised for every section", len(state) == 9, str(sorted(state)))
+    check("sections start as derived", all(v.get("origin") == "derived" for v in state.values()), str(state)[:200])
+    check("selection mode recorded", fresh.json()["proposal"].get("experience_selection_mode") == "auto")
+
+    bumped = json.loads(json.dumps(fee_input))
+    bumped["misc_reimbursables"] = 7777
+    all_derived = client.post(f"/v1/proposals/{ppid}/fee/recalculate", json={"fee_input": bumped, "commit": True})
+    check("fee change cascades to all derived downstream sections",
+          all_derived.status_code == 200 and set(all_derived.json()["changed_sections"]) == {"financial", "schedule", "team"},
+          str(all_derived.json().get("changed_sections")) if all_derived.status_code == 200 else all_derived.text[:160])
+    check("nothing stale when everything is derived", all_derived.json()["stale_sections"] == [],
+          str(all_derived.json()["stale_sections"]))
+
+    # hand-edit the team section, then change the fee again
+    edited_text = "- Hand-written team roster that must not be clobbered."
+    put = client.put(f"/v1/proposals/{ppid}", json={"sections": {"team": edited_text}})
+    check("manual edit -> 200", put.status_code == 200, put.text[:160])
+    check("edited section marked as edited",
+          put.status_code == 200 and put.json()["proposal"]["section_state"]["team"]["origin"] == "edited",
+          str(put.json()["proposal"]["section_state"]["team"]) if put.status_code == 200 else "")
+
+    bumped["misc_reimbursables"] = 8888
+    after_edit = client.post(f"/v1/proposals/{ppid}/fee/recalculate", json={"fee_input": bumped, "commit": True})
+    check("fee change -> 200", after_edit.status_code == 200, after_edit.text[:160])
+    if after_edit.status_code == 200:
+        ae = after_edit.json()
+        check("edited section is NOT rebuilt", "team" not in ae["changed_sections"], str(ae["changed_sections"]))
+        check("derived siblings still rebuilt", set(ae["changed_sections"]) == {"financial", "schedule"}, str(ae["changed_sections"]))
+        check("edited section reported stale", [s["key"] for s in ae["stale_sections"]] == ["team"], str(ae["stale_sections"]))
+        check("hand-written text preserved verbatim", ae["proposal"]["sections"]["team"] == edited_text,
+              ae["proposal"]["sections"]["team"][:120])
+        check("stale reason recorded on the payload",
+              bool(ae["proposal"]["section_state"]["team"].get("stale_reason")),
+              str(ae["proposal"]["section_state"]["team"]))
+
+    # rebuilding the stale section clears the flag and restores derived text
+    cleared = client.post(f"/v1/proposals/{ppid}/sections/team/regenerate", json={"commit": True})
+    check("rebuild stale section -> 200", cleared.status_code == 200, cleared.text[:160])
+    if cleared.status_code == 200:
+        cs = cleared.json()["proposal"]["section_state"]["team"]
+        check("staleness cleared after rebuild", cs.get("stale_reason") is None and cs.get("origin") == "derived", str(cs))
+        check("derived text restored", cleared.json()["proposal"]["sections"]["team"] != edited_text)
+
     print(f"\nPASS={_passed} FAIL={_failed}")
     return 1 if _failed else 0
 

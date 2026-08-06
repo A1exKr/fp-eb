@@ -447,6 +447,42 @@
       margin-left: 6px
     }
 
+    .stale-btn {
+      border-color: #c98a00;
+      color: #8a6d00;
+      background: #fff8e1
+    }
+
+    .stale-btn:hover {
+      border-color: #8a6d00;
+      color: #6b5400
+    }
+
+    .sec.stale {
+      border-color: #f0d78a;
+      box-shadow: 0 6px 18px rgba(180, 140, 0, .14)
+    }
+
+    .stale-note {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: 11px;
+      color: #8a6d00;
+      background: #fff8e1;
+      border: 1px solid #f0e0a0;
+      border-radius: 4px;
+      padding: 7px 10px;
+      margin-bottom: 10px
+    }
+
+    .stale-note b {
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 10px;
+      white-space: nowrap
+    }
+
     .rp-warn {
       font-size: 11px;
       color: #a33;
@@ -797,20 +833,40 @@
 
     function renderSections() {
       var cont = ge("sections"); cont.innerHTML = "";
+      var state = proposal.section_state || {};
       SECTION_ORDER.forEach(function (pair) {
         var title = pair[0], key = pair[1];
         var text = sections[key] || "";
         var sec = document.createElement("div"); sec.className = "sec"; sec.dataset.key = key;
         var isEmpty = !text.trim();
-        var regen = caps.can_regenerate ? "<button class='edit-btn regen-btn' data-regen='" + key + "'>Regenerate</button>" : "";
+        var staleReason = (state[key] || {}).stale_reason || "";
+        if (staleReason) sec.className += " stale";
+        var regen = caps.can_regenerate
+          ? "<button class='edit-btn regen-btn" + (staleReason ? " stale-btn" : "") + "' data-regen='" + key + "'>" + (staleReason ? "Rebuild" : "Regenerate") + "</button>"
+          : "";
         sec.innerHTML = "<div class='sec-head'><div class='sec-title'>" + esc(title) + "</div>" +
           "<div><button class='edit-btn' data-key='" + key + "'>Edit</button>" + regen + "</div></div>" +
+          (staleReason ? "<div class='stale-note'><b>Out of date</b><span>" + esc(staleReason) + "</span></div>" : "") +
           "<div class='sec-body" + (isEmpty ? " empty" : "") + "' id='sb-" + key + "'>" + (isEmpty ? "(not yet generated)" : esc(text)) + "</div>";
         sec.querySelector(".edit-btn").addEventListener("click", function () { startEdit(key, title, sections[key] || "") });
         var rb = sec.querySelector("[data-regen]");
         if (rb) rb.addEventListener("click", function () { openRegen(key, title) });
         cont.appendChild(sec);
       });
+    }
+
+    function titleOf(key) {
+      for (var i = 0; i < SECTION_ORDER.length; i++) if (SECTION_ORDER[i][1] === key) return SECTION_ORDER[i][0];
+      return key;
+    }
+
+    function cascadeSummary(d) {
+      var parts = [];
+      var also = (d.changed_sections || []).map(titleOf);
+      if (also.length) parts.push("Rebuilt: " + also.join(", ") + ".");
+      var stale = d.stale_sections || [];
+      if (stale.length) parts.push(stale.length + " section" + (stale.length > 1 ? "s need" : " needs") + " review: " + stale.map(function (s) { return s.title || titleOf(s.key) }).join(", ") + ".");
+      return parts.join(" ");
     }
 
     var editingKey = null;
@@ -849,8 +905,10 @@
       ge("saveAllBtn").disabled = true; st("Saving…");
       try {
         var r = await fetch("/v1/proposals/" + PID, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sections: sections }) });
-        if (!r.ok) { var e = await r.json(); throw new Error(e.detail || "Save failed") }
-        hasChanges = false; st("All changes saved.");
+        var d = await r.json();
+        if (!r.ok) { throw new Error(d.detail || "Save failed") }
+        adoptProposal(d.proposal, false);
+        st("All changes saved. Edited sections are now protected from automatic rebuilds.");
       } catch (e) { st("Save failed: " + e.message) }
       finally { ge("saveAllBtn").disabled = false }
     });
@@ -885,7 +943,8 @@
         var d = await currentRegen.run(false, null);
         preview = d;
         ge("mdPreview").textContent = currentRegen.previewText(d) || "(empty)";
-        if (d.notice) { ge("mdNotice").textContent = d.notice; ge("mdNotice").style.display = "" }
+        var notes = [d.notice || "", cascadeSummary(d)].filter(Boolean).join(" ");
+        if (notes) { ge("mdNotice").textContent = notes; ge("mdNotice").style.display = "" }
         else { ge("mdNotice").style.display = "none" }
         if (d.input_patch) { ge("mdPatch").textContent = "Input changes to be applied:\n" + JSON.stringify(d.input_patch, null, 2); ge("mdPatch").style.display = "" }
         else { ge("mdPatch").style.display = "none" }
@@ -904,7 +963,7 @@
         var d = await runner(true, snapshot);
         adoptProposal(d.proposal, false);
         closeModal();
-        st(label + " applied and saved." + (d.notice ? " " + d.notice : ""));
+        st([label + " applied and saved.", d.notice || "", cascadeSummary(d)].filter(Boolean).join(" "));
       } catch (e) { ge("mdStat").textContent = "Save failed: " + e.message; ge("mdApply").disabled = false }
     });
 

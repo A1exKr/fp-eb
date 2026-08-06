@@ -45,15 +45,21 @@ from app.services.jsx_exporter import build_jsx_bundle
 from app.services.parser import parse_rfp
 from app.services.proposal_builder import (
     INSTRUCTION_LOCKED_SECTIONS,
+    ORIGIN_DERIVED,
+    ORIGIN_LLM,
     SECTION_KEYS,
+    SECTION_TITLES,
     apply_input_patch,
     build_proposal_payload,
     payload_fee_input,
     phase_alignment_notice,
+    propagate,
     propose_input_patch,
     rebuild_markdown,
     rebuild_section,
     regenerate_cover_letter,
+    set_section_origin,
+    sources_for_patch,
     update_proposal_sections,
     validate_input_patch,
 )
@@ -251,6 +257,7 @@ def generate_endpoint(
         fee=fee,
         relevant=relevant,
         fee_input=req.fee_input,
+        selection_mode="manual" if req.selected_reference_ids else "auto",
     )
     proposal_id, _ = repositories.save_proposal(db, proposal_payload)
 
@@ -300,6 +307,7 @@ def generate_file_endpoint(
         fee=fee,
         relevant=relevant,
         fee_input=fee_input,
+        selection_mode="manual" if selected_reference_ids else "auto",
     )
     proposal_id, _ = repositories.save_proposal(db, proposal_payload)
 
@@ -356,6 +364,7 @@ def _finalize(
     commit: bool,
     input_patch: dict | None = None,
     notice: str | None = None,
+    stale_sections: list[dict] | None = None,
 ) -> RegenerationResponse:
     payload["markdown"] = rebuild_markdown(payload)
     if commit:
@@ -367,6 +376,7 @@ def _finalize(
         proposal_id=proposal_id,
         committed=commit,
         changed_sections=changed_sections,
+        stale_sections=stale_sections or [],
         proposal=payload,
         input_patch=input_patch or None,
         notice=notice,
@@ -395,13 +405,16 @@ def regenerate_section_endpoint(
     fee_input = payload_fee_input(payload)
     notice: str | None = None
     applied_patch: dict = {}
+    llm_authored = False
 
     if section_key == "cover_letter":
         if req.apply_text is not None:
             text = req.apply_text
+            llm_authored = True
         else:
             base = rebuild_section("cover_letter", payload.get("parsed", {}), fee, relevant, fee_input)
             text, notice = regenerate_cover_letter(base, req.instruction)
+            llm_authored = notice is None
     else:
         if req.input_patch is not None:
             try:
@@ -419,11 +432,25 @@ def regenerate_section_endpoint(
 
         text = rebuild_section(section_key, payload.get("parsed", {}), fee, relevant, fee_input)
 
+    payload.setdefault("sections", {})[section_key] = text
+    set_section_origin(payload, section_key, ORIGIN_LLM if llm_authored else ORIGIN_DERIVED)
+
+    changed = [section_key]
+    stale: list[dict] = []
+    if applied_patch:
+        title = SECTION_TITLES.get(section_key, section_key)
+        rebuilt, stale = propagate(
+            payload,
+            sources_for_patch(applied_patch),
+            f"Source data changed by a {title} regeneration.",
+            skip={section_key},
+        )
+        changed += rebuilt
+
     if section_key in ("schedule", "financial"):
         notice = " ".join(filter(None, [notice, phase_alignment_notice(payload.get("parsed", {}), fee)])) or None
 
-    payload.setdefault("sections", {})[section_key] = text
-    return _finalize(db, proposal_id, payload, [section_key], req.commit, applied_patch, notice)
+    return _finalize(db, proposal_id, payload, changed, req.commit, applied_patch, notice, stale)
 
 
 @app.post("/v1/proposals/{proposal_id}/experience/reselect", response_model=RegenerationResponse)
@@ -439,16 +466,13 @@ def reselect_experience_endpoint(
 
     relevant = select_relevant_projects(db, parsed, selected_ids, limit=req.limit)
     payload["relevant_experience"] = relevant
-    payload.setdefault("sections", {})["relevant_experience"] = rebuild_section(
-        "relevant_experience",
-        parsed,
-        payload.get("financial", {}) or {},
-        relevant,
-        payload_fee_input(payload),
-    )
+    payload["experience_selection_mode"] = "auto" if req.auto else "manual"
+    # The selection was just re-run, so any prior selection staleness is resolved.
+    set_section_origin(payload, "relevant_experience", ORIGIN_DERIVED)
+    rebuilt, stale = propagate(payload, {"relevant_experience"}, "Reference-project selection changed.")
 
     notice = None if relevant else "No reference projects matched — the section is now empty."
-    return _finalize(db, proposal_id, payload, ["relevant_experience"], req.commit, None, notice)
+    return _finalize(db, proposal_id, payload, rebuilt, req.commit, None, notice, stale)
 
 
 @app.post("/v1/proposals/{proposal_id}/fee/recalculate", response_model=RegenerationResponse)
@@ -460,19 +484,14 @@ def recalculate_fee_endpoint(
 ) -> RegenerationResponse:
     payload = _working_payload(db, proposal_id)
     parsed = payload.get("parsed", {})
-    relevant = payload.get("relevant_experience", []) or []
 
     fee = calculate_fee(req.fee_input)
     payload["financial"] = fee
     payload["fee_input"] = req.fee_input.model_dump()
 
-    # Team and schedule quote fee figures, so they are rebuilt alongside the money section.
-    changed = ["financial", "schedule", "team"]
-    sections = payload.setdefault("sections", {})
-    for key in changed:
-        sections[key] = rebuild_section(key, parsed, fee, relevant, req.fee_input)
+    rebuilt, stale = propagate(payload, {"fee_input", "financial"}, "Fee inputs changed.")
 
-    return _finalize(db, proposal_id, payload, changed, req.commit, None, phase_alignment_notice(parsed, fee))
+    return _finalize(db, proposal_id, payload, rebuilt, req.commit, None, phase_alignment_notice(parsed, fee), stale)
 
 
 @app.post("/v1/proposals/{proposal_id}/export/jsx")
