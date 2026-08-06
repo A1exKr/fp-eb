@@ -296,6 +296,10 @@ remotely. Requires the dashboard to be deployable for our tenant and able to rea
 
 ## 8. Changelog
 
+- 2026-08-06: `FP-GEN_TechnicalDescription.md` updated to record the review/regeneration model as
+  built — new §8 (payload shape, the three endpoints, instruction allowlist, cascade and provenance,
+  review-page behaviour), plus a corrected endpoint table with an auth column, the real authentication
+  and prompt-injection controls in §14, PostgreSQL persistence, and the current environment variables.
 - 2026-08-06: **Step 1.2 shipped** — section provenance (`derived` / `edited` / `llm`), a declared
   `SECTION_SOURCES` dependency graph with `propagate()`, `stale_sections` on the regeneration response,
   `experience_selection_mode`, and amber "Out of date" badges with a Rebuild action on the review page.
